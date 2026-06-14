@@ -1,71 +1,92 @@
-import Image from "next/image";
+import Image from 'next/image';
 
-const clientImages = [
-  "https://placehold.co/1350x1080/111111/FFFFFF?text=Client+Case+1",
-  "https://placehold.co/1350x1080/0F172A/94A3B8?text=Client+Case+2",
-  "https://placehold.co/1350x1080/022C22/34D399?text=Client+Case+3",
-  "https://placehold.co/1350x1080/311042/E879F9?text=Client+Case+4",
+const clientLogos = [
+  { 
+    id: 1, 
+    name: 'EduCLaaS Pte Ltd', 
+    srcUrl: 'https://res.cloudinary.com/dwsapeq3m/image/upload/v1781431582/educlaas_ofjonj.jpg' 
+  },
+  { 
+    id: 2, 
+    name: 'Mainstreet Global', 
+    srcUrl: 'https://res.cloudinary.com/dwsapeq3m/image/upload/v1781431583/mainstreet-global_pbdxab.jpg' 
+  },
+  { 
+    id: 3, 
+    name: 'Mainstreet Hospitality', 
+    srcUrl: 'https://res.cloudinary.com/dwsapeq3m/image/upload/v1781431583/mainstreet-hospitality_weixub.jpg' 
+  },
+  { 
+    id: 4, 
+    name: 'Brittco Consulting', 
+    srcUrl: 'https://res.cloudinary.com/dwsapeq3m/image/upload/v1781431582/brittco-consulting_nxnixx.jpg' 
+  },
+  { 
+    id: 5, 
+    name: 'Ken Gooz', 
+    srcUrl: 'https://res.cloudinary.com/dwsapeq3m/image/upload/v1781431582/ken-gooz_ie4ln3.jpg' 
+  },
+  { 
+    id: 6, 
+    name: 'Nara Land Property', 
+    srcUrl: 'https://res.cloudinary.com/dwsapeq3m/image/upload/v1781431585/nara-land_ls9euu.jpg' 
+  },
+  { 
+    id: 7, 
+    name: 'Nine Planets Coffee', 
+    srcUrl: 'https://res.cloudinary.com/dwsapeq3m/image/upload/v1781431584/nine-planets_bokcj5.jpg' 
+  },
+  { 
+    id: 8, 
+    name: 'Narie\'s Eatery & Coffee', 
+    srcUrl: 'https://res.cloudinary.com/dwsapeq3m/image/upload/v1781431584/naries_utcn8t.jpg' 
+  },
+  { 
+    id: 9, 
+    name: 'Global Property Innovation', 
+    srcUrl: 'https://res.cloudinary.com/dwsapeq3m/image/upload/v1781431582/global-property_mqurxv.jpg' 
+  },
+  { 
+    id: 10, 
+    name: 'DM Agency', 
+    srcUrl: 'https://res.cloudinary.com/dwsapeq3m/image/upload/v1781431582/dm-agency_c9ubjs.jpg' 
+  },
+  { 
+    id: 11, 
+    name: 'Devisa', 
+    srcUrl: 'https://res.cloudinary.com/dwsapeq3m/image/upload/v1781431582/devisa_ptmq4g.jpg' 
+  },
 ];
 
 export default function ClientsSection() {
   return (
-    <section
-      id="clients"
-      className="bg-slate-50 py-16 overflow-hidden border-y border-slate-100"
-      aria-label="Our Clients"
-    >
-      <div className="mx-auto max-w-7xl px-6 lg:px-8 mb-10 text-center">
-        <h2 className="text-xs font-bold uppercase tracking-[0.2em] text-slate-400">
-          Our Clients & Partners
-        </h2>
-      </div>
-
-      <div className="relative w-full overflow-hidden">
-        {/* Gradients on edges for fade effect */}
-        <div
-          aria-hidden="true"
-          className="pointer-events-none absolute inset-y-0 left-0 z-10 w-24 sm:w-32"
-          style={{ background: "linear-gradient(to right, #f8fafc, transparent)" }}
-        />
-        <div
-          aria-hidden="true"
-          className="pointer-events-none absolute inset-y-0 right-0 z-10 w-24 sm:w-32"
-          style={{ background: "linear-gradient(to left, #f8fafc, transparent)" }}
-        />
-
-        {/* Scrolling track */}
-        <div className="flex gap-6 w-max animate-[marquee_40s_linear_infinite] hover:[animation-play-state:paused]">
-          {/* First set of images */}
-          {clientImages.map((src, idx) => (
-            <div
-              key={`client-1-${idx}`}
-              className="relative w-[337.5px] h-[270px] sm:w-[450px] sm:h-[360px] md:w-[506.25px] md:h-[405px] rounded-2xl overflow-hidden shadow-md border border-slate-200/60 bg-neutral-900 flex-shrink-0"
+    <section className="py-16 bg-white w-full border-t border-b border-gray-100">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        
+        <h4 className="text-center text-xs font-bold text-gray-400 tracking-widest uppercase mb-12">
+          OUR CLIENTS & PARTNERS
+        </h4>
+        
+        {/* Grid System Responsif */}
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-x-8 gap-y-12 items-center justify-items-center">
+          {clientLogos.map((logo) => (
+            <div 
+              key={logo.id} 
+              className="relative w-full h-16 flex items-center justify-center p-2 opacity-70 grayscale hover:opacity-100 hover:grayscale-0 transition-all duration-300 hover:scale-105"
+              title={logo.name}
             >
               <Image
-                src={src}
-                alt={`Client Case Study ${idx + 1}`}
+                src={logo.srcUrl}
+                alt={logo.name}
                 fill
-                className="object-cover"
-                sizes="(max-width: 640px) 337.5px, (max-width: 768px) 450px, 506px"
-              />
-            </div>
-          ))}
-          {/* Duplicate set for seamless looping */}
-          {clientImages.map((src, idx) => (
-            <div
-              key={`client-2-${idx}`}
-              className="relative w-[337.5px] h-[270px] sm:w-[450px] sm:h-[360px] md:w-[506.25px] md:h-[405px] rounded-2xl overflow-hidden shadow-md border border-slate-200/60 bg-neutral-900 flex-shrink-0"
-            >
-              <Image
-                src={src}
-                alt={`Client Case Study ${idx + 1} Loop`}
-                fill
-                className="object-cover"
-                sizes="(max-width: 640px) 337.5px, (max-width: 768px) 450px, 506px"
+                className="object-contain"
+                sizes="(max-w-768px) 50vw, (max-w-1200px) 25vw, 15vw"
+                unoptimized // Memastikan Next.js langsung menembak URL Cloudinary tanpa terhambat proses internal cache localhost
               />
             </div>
           ))}
         </div>
+
       </div>
     </section>
   );
