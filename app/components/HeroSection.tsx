@@ -128,7 +128,7 @@ export default function HeroSection() {
         {/* ── Trust indicators ─────────────────────────────────────────── */}
         <div className="border-t border-slate-100 pt-10">
           <p className="text-xs font-semibold uppercase tracking-widest text-slate-400 mb-6">
-            Trusted by teams at
+            Integrate with
           </p>
           <div className="flex flex-wrap items-center justify-center gap-6 md:gap-10">
             {[
