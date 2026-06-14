@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Image from "next/image";
 
 const navLinks = [
   { label: "Services", href: "#services" },
@@ -21,11 +22,20 @@ export default function Header() {
           {/* Logo */}
           <a
             href="/"
-            className="flex-shrink-0 text-xl font-bold tracking-tight text-[#111111] hover:opacity-80 transition-opacity duration-200"
+            className="flex-shrink-0 flex items-center gap-2.5 hover:opacity-80 transition-opacity duration-200"
             aria-label="Megatha Tech home"
           >
-            Megatha
-            <span className="text-slate-400 font-light">Tech</span>
+            <Image
+              src="/Megatha-Logo-Black.svg"
+              alt="Megatha Tech"
+              width={120}
+              height={32}
+              className="h-7 w-auto object-contain"
+              priority
+            />
+            <span className="text-base font-bold tracking-tight text-[#111111]">
+              Megatha Tech
+            </span>
           </a>
 
           {/* Desktop nav links */}

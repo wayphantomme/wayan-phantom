@@ -2,7 +2,7 @@ export default function HeroSection() {
   return (
     <section
       id="hero"
-      className="relative overflow-hidden bg-white px-6 py-28 md:py-36 lg:py-44"
+      className="relative overflow-hidden bg-white px-6 pt-12 pb-10 md:pt-16 md:pb-14 lg:pt-20 lg:pb-16"
       aria-labelledby="hero-heading"
     >
       {/* ── Decorative floating blobs ────────────────────────────────────── */}
@@ -70,37 +70,17 @@ export default function HeroSection() {
         {/* ── H1 ───────────────────────────────────────────────────────── */}
         <h1
           id="hero-heading"
-          className="text-4xl sm:text-5xl md:text-6xl lg:text-[4.5rem] xl:text-[5rem] font-extrabold tracking-tight text-[#111111]
-                     leading-[1.1] md:leading-[1.05] mb-6"
+          className="text-3xl sm:text-4xl md:text-5xl lg:text-[3.6rem] xl:text-[4.2rem] font-extrabold tracking-tight text-[#111111]
+                     leading-[1.15] md:leading-[1.1] mb-6 max-w-5xl mx-auto"
           style={{ fontFamily: "var(--font-plus-jakarta), var(--font-inter), sans-serif" }}
         >
-          We build{" "}
-          <span className="gradient-text">production-ready software</span>
-          <br className="hidden md:block" />
-          for startups that can&apos;t afford{" "}
-          <span className="relative inline-block">
-            delays
-            <svg
-              aria-hidden="true"
-              className="absolute -bottom-2 left-0 w-full overflow-visible"
-              viewBox="0 0 320 10"
-              fill="none"
-              xmlns="http://www.w3.org/2000/svg"
-            >
-              <path
-                d="M4 7 C 70 2, 160 1, 316 7"
-                stroke="#cbd5e1"
-                strokeWidth="2.5"
-                strokeLinecap="round"
-              />
-            </svg>
-          </span>
-          .
+          We build software that{" "}
+          <span className="gradient-text">increases your productivity</span> and reduces your workload.
         </h1>
 
         {/* ── Sub-headline ─────────────────────────────────────────────── */}
-        <p className="mx-auto max-w-2xl text-lg md:text-xl text-slate-500 leading-relaxed mb-10">
-          Fast execution. Clean architecture. No wasted time.
+        <p className="mx-auto max-w-2xl text-base md:text-lg text-slate-500 leading-relaxed mb-10">
+          You only have 24 hours—stop wasting them replying to chats and comments, let us automate it.
         </p>
 
         {/* ── CTA Buttons ─────────────────────────────────────────────── */}
@@ -135,7 +115,7 @@ export default function HeroSection() {
               { label: "GitHub", slug: "github" },
               { label: "Vercel", slug: "vercel" },
               { label: "Claude", slug: "anthropic" },
-              { label: "OpenAI", slug: "chatgpt" },
+              { label: "Gemini", slug: "googlegemini" },
               { label: "n8n", slug: "n8n" },
             ].map((logo) => (
               <div
@@ -162,10 +142,10 @@ export default function HeroSection() {
         {/* ── Stat pills ──────────────────────────────────────────────── */}
         <div className="mt-10 flex flex-wrap items-center justify-center gap-3">
           {[
-            { stat: "50+", label: "Products Shipped" },
-            { stat: "6wk",  label: "Avg Delivery" },
+            { stat: "20+", label: "Products Shipped" },
+            { stat: "4 weeks", label: "Avg Delivery" },
             { stat: "100%", label: "NDA Protected" },
-            { stat: "12+",  label: "Countries Served" },
+            { stat: "5+", label: "Countries Served" },
           ].map((item) => (
             <div
               key={item.label}

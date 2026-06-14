@@ -3,7 +3,7 @@ import Header from "./components/Header";
 import HeroSection from "./components/HeroSection";
 import TechMarquee from "./components/TechMarquee";
 import PainPointSection from "./components/PainPointSection";
-import AuthoritySection from "./components/AuthoritySection";
+import ClientsSection from "./components/ClientsSection";
 import CapabilitiesSection from "./components/CapabilitiesSection";
 import PortfolioSection from "./components/PortfolioSection";
 import ProcessSection from "./components/ProcessSection";
@@ -19,7 +19,7 @@ export default function Home() {
         <HeroSection />
         <TechMarquee />
         <PainPointSection />
-        <AuthoritySection />
+        <ClientsSection />
         <CapabilitiesSection />
         <PortfolioSection />
         <ProcessSection />

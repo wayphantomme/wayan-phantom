@@ -2,7 +2,7 @@ export default function AnnouncementBar() {
   return (
     <div
       id="announcement-bar"
-      className="w-full bg-[#F3F4F6] py-3 px-4"
+      className="w-full bg-[#F3F4F6] py-2 px-4"
       role="banner"
       aria-label="Site announcement"
     >

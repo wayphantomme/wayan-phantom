@@ -1,30 +1,41 @@
 import Image from "next/image";
 
-const caseStudies = [
+const galleryItems = [
   {
-    id: "case-1",
-    image: "https://placehold.co/800x450/111111/FFFFFF?text=Project+Mockup",
-    category: "Fintech · SaaS",
-    name: "DeFi dashboard that reduced feed latency by 80%",
-    problem:
-      "An institutional asset manager needed real-time tracking of DeFi positions across 12+ blockchains without data feed lag.",
-    solution:
-      "We engineered a Next.js dashboard with a Rust-powered data pipeline and sub-50ms WebSocket updates.",
-    tags: ["Next.js", "Rust", "WebSocket", "Solana", "PostgreSQL"],
-    outcome: "80% reduction in feed latency",
+    id: "project-1",
+    image: "https://placehold.co/600x600/18181b/a1a1aa?text=Enterprise+SaaS",
+    title: "Quantum Platform",
+    category: "Cloud Operations",
   },
   {
-    id: "case-2",
-    image:
-      "https://placehold.co/800x450/0F172A/94A3B8?text=AI+Platform+Mockup",
-    category: "Enterprise AI · Automation",
-    name: "AI operations platform that cut overhead by 65%",
-    problem:
-      "An enterprise company was wasting hundreds of analyst hours on repetitive, manual data mapping and processing workflows.",
-    solution:
-      "We built a custom LLM orchestration workflow engine with RAG retrieval pipelines in 8 weeks.",
-    tags: ["LangChain", "OpenAI", "Pinecone", "Node.js", "React"],
-    outcome: "65% ops overhead reduction & 12x throughput",
+    id: "project-2",
+    image: "https://placehold.co/600x600/0f172a/94a3b8?text=DeFi+Dashboard",
+    title: "Apex Protocol",
+    category: "Decentralized Finance",
+  },
+  {
+    id: "project-3",
+    image: "https://placehold.co/600x600/022c22/34d399?text=AI+Orchestrator",
+    title: "NeuralFlow Engine",
+    category: "Artificial Intelligence",
+  },
+  {
+    id: "project-4",
+    image: "https://placehold.co/600x600/311042/e879f9?text=E-Commerce+API",
+    title: "Nova Cart",
+    category: "Headless Commerce",
+  },
+  {
+    id: "project-5",
+    image: "https://placehold.co/600x600/172554/60a5fa?text=Analytics+Suite",
+    title: "Pulse Analytics",
+    category: "Real-time Metrics",
+  },
+  {
+    id: "project-6",
+    image: "https://placehold.co/600x600/450a0a/f87171?text=Mobile+App",
+    title: "SwiftPay",
+    category: "Fintech Mobile",
   },
 ];
 
@@ -32,120 +43,69 @@ export default function PortfolioSection() {
   return (
     <section
       id="portfolio"
-      className="bg-[#0A0A0A] px-6 py-28 md:py-36"
+      className="bg-[#0A0A0A] px-6 py-28 md:py-36 relative overflow-hidden"
       aria-labelledby="portfolio-heading"
     >
-      <div className="mx-auto max-w-7xl">
+      {/* Decorative gradient light */}
+      <div
+        className="absolute top-1/4 left-1/2 -translate-x-1/2 w-[500px] h-[500px] rounded-full opacity-10 pointer-events-none"
+        style={{
+          background: "radial-gradient(circle, rgba(255,255,255,0.08) 0%, transparent 70%)",
+          filter: "blur(80px)",
+        }}
+      />
+
+      <div className="mx-auto max-w-7xl relative z-10">
         {/* Header */}
-        <div className="mb-16 flex flex-col md:flex-row md:items-end md:justify-between gap-6">
-          <div>
-            <p className="text-xs font-bold uppercase tracking-[0.2em] text-slate-500 mb-4">
-              Featured Work
-            </p>
-            <h2
-              id="portfolio-heading"
-              className="text-4xl md:text-5xl font-bold text-white tracking-tight leading-tight"
-              style={{ fontFamily: "var(--font-plus-jakarta), sans-serif" }}
-            >
-              Engineered to Scale.
-              <br />
-              <span className="text-slate-500">Featured Case Studies.</span>
-            </h2>
-          </div>
-          <a
-            href="#contact"
-            className="self-start md:self-auto rounded-full border border-white/20 px-6 py-3 text-sm font-semibold text-white whitespace-nowrap
-                       transition-all duration-300 hover:border-white/50 hover:bg-white/10"
+        <div className="mb-16 text-center">
+          <p className="text-xs font-bold uppercase tracking-[0.2em] text-white mb-4">
+            Featured Work
+          </p>
+          <h2
+            id="portfolio-heading"
+            className="text-4xl md:text-5xl font-extrabold text-white tracking-tight leading-tight"
+            style={{ fontFamily: "var(--font-plus-jakarta), sans-serif" }}
           >
-            All projects →
-          </a>
+            Our Gallery of Excellence
+          </h2>
+          <p className="mt-4 text-slate-400 max-w-xl mx-auto text-base">
+            Hover over the projects to explore their details and see the interactive animations.
+          </p>
         </div>
 
-        {/* Case study cards */}
-        <div className="flex flex-col gap-6">
-          {caseStudies.map((cs) => (
-            <article
-              key={cs.id}
-              id={cs.id}
-              className="card-hover group rounded-[var(--radius-card)] border border-white/[0.06] bg-white/[0.03]
-                         grid grid-cols-1 lg:grid-cols-2 overflow-hidden"
+        {/* Gallery Grid */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+          {galleryItems.map((item) => (
+            <div
+              key={item.id}
+              className="group relative overflow-hidden rounded-[var(--radius-card)] border border-white/[0.08] bg-neutral-900 aspect-square cursor-pointer"
             >
-              {/* Screenshot */}
-              <div className="relative overflow-hidden min-h-[240px] lg:min-h-0">
+              {/* Image */}
+              <div className="w-full h-full relative">
                 <Image
-                  src={cs.image}
-                  alt={`${cs.name} project screenshot`}
+                  src={item.image}
+                  alt={item.title}
                   fill
-                  className="object-cover transition-transform duration-500 group-hover:scale-[1.04]"
-                  sizes="(max-width: 1024px) 100vw, 50vw"
+                  className="object-cover transition-transform duration-700 ease-out group-hover:scale-110"
+                  sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
                 />
-                {/* Gradient overlay */}
-                <div className="absolute inset-0 bg-gradient-to-r from-transparent to-[#0A0A0A]/40 pointer-events-none" />
               </div>
 
-              {/* Content */}
-              <div className="flex flex-col justify-between p-8 md:p-10 lg:p-12">
-                <div>
-                  {/* Category */}
-                  <span className="text-xs font-semibold text-slate-500 tracking-widest uppercase">
-                    {cs.category}
-                  </span>
-
-                  {/* Title */}
-                  <h3 className="mt-3 text-xl md:text-2xl font-bold text-white leading-snug mb-6">
-                    {cs.name}
-                  </h3>
-
-                  {/* Challenge / Solution */}
-                  <div className="space-y-5 mb-6">
-                    <div className="border-l-2 border-white/10 pl-4">
-                      <p className="text-xs font-semibold text-slate-500 uppercase tracking-widest mb-1.5">
-                        Problem
-                      </p>
-                      <p className="text-sm text-slate-400 leading-relaxed">
-                        {cs.problem}
-                      </p>
-                    </div>
-                    <div className="border-l-2 border-emerald-500/40 pl-4">
-                      <p className="text-xs font-semibold text-emerald-600 uppercase tracking-widest mb-1.5">
-                        Solution
-                      </p>
-                      <p className="text-sm text-slate-400 leading-relaxed">
-                        {cs.solution}
-                      </p>
-                    </div>
-                  </div>
-
-                  {/* Outcome badge */}
-                  <div className="inline-flex items-center gap-2 rounded-full bg-emerald-500/10 border border-emerald-500/20 px-4 py-1.5 mb-6">
-                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" aria-hidden="true" />
-                    <span className="text-emerald-400 font-bold text-sm">
-                      Result: {cs.outcome}
-                    </span>
-                  </div>
-
-                  {/* Tech tags */}
-                  <div className="flex flex-wrap gap-2">
-                    {cs.tags.map((tag) => (
-                      <span
-                        key={tag}
-                        className="rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs font-medium text-slate-400"
-                      >
-                        {tag}
-                      </span>
-                    ))}
-                  </div>
-                </div>
-
-                <a
-                  href="#contact"
-                  className="mt-8 self-start rounded-full border border-white/20 px-6 py-3 text-sm font-semibold text-white
-                             transition-all duration-300 hover:border-white/50 hover:bg-white/10 group-hover:border-white/30"
-                >
-                  View Case Study ↗
-                </a>
+              {/* Dynamic Overlay and Info */}
+              <div className="absolute inset-0 bg-gradient-to-t from-black via-black/40 to-transparent opacity-60 group-hover:opacity-90 transition-opacity duration-300" />
+              
+              <div className="absolute inset-0 flex flex-col justify-end p-8 translate-y-4 group-hover:translate-y-0 transition-transform duration-300 ease-out">
+                <span className="text-xs font-semibold text-slate-400 tracking-wider uppercase mb-2 block opacity-0 group-hover:opacity-100 transition-opacity duration-500 delay-75">
+                  {item.category}
+                </span>
+                <h3 className="text-xl font-bold text-white tracking-tight">
+                  {item.title}
+                </h3>
+                
+                {/* Border accent line that expands on hover */}
+                <div className="w-0 h-[2px] bg-white mt-4 group-hover:w-full transition-all duration-500 ease-out" />
               </div>
-            </article>
+            </div>
           ))}
         </div>
       </div>
