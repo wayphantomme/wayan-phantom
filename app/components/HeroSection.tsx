@@ -70,17 +70,16 @@ export default function HeroSection() {
         {/* ── H1 ───────────────────────────────────────────────────────── */}
         <h1
           id="hero-heading"
-          className="text-5xl md:text-6xl lg:text-[4.5rem] font-bold tracking-tight text-[#111111]
-                     leading-[1.06] mb-6"
+          className="text-4xl sm:text-5xl md:text-6xl lg:text-[4.5rem] xl:text-[5rem] font-extrabold tracking-tight text-[#111111]
+                     leading-[1.1] md:leading-[1.05] mb-6"
           style={{ fontFamily: "var(--font-plus-jakarta), var(--font-inter), sans-serif" }}
         >
-          We Build{" "}
-          <span className="gradient-text">Production-Ready</span>
-          <br />
-          Software for Startups That
-          <br />
+          We build{" "}
+          <span className="gradient-text">production-ready software</span>
+          <br className="hidden md:block" />
+          for startups that can&apos;t afford{" "}
           <span className="relative inline-block">
-            Can&apos;t Afford Delays
+            delays
             <svg
               aria-hidden="true"
               className="absolute -bottom-2 left-0 w-full overflow-visible"
