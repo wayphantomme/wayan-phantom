@@ -72,7 +72,7 @@ export default function Header() {
         transition={{ duration: 0.3, ease: "easeOut" }}
         className="flex justify-between items-center w-[92vw] sm:max-w-[55vw] px-[4vw] py-[2vw] sm:px-[1.5vw] sm:py-[0.8vw] bg-[#e5e5e580] rounded-[99px] backdrop-blur-[12px] relative border border-[#e5e5e5] mt-[6vw] sm:mt-[1.5vw]"
       >
-        <a href="/" className="flex items-center gap-[2vw] sm:gap-[0.2vw]">
+        <a href="/" className="flex items-center gap-[1.5vw] sm:gap-[0.6vw]">
           <img
             src="Megatha-Logo-Black.svg"
             alt="Megatha logo"
@@ -81,7 +81,7 @@ export default function Header() {
             className="w-auto h-[5.5vw] sm:h-[1.5vw] min-h-[20px] "
           />
           <div className="flex flex-col justify-center text-left leading-[0.9]">
-            <span className="text-black font-bold uppercase tracking-[0.06em] text-[2.8vw] sm:text-[1vw] min-text-[10px]">
+            <span className="text-black font-bold tracking-tight text-[3.9vw] sm:text-[1.3vw] min-text-[10px]">
               Megatha Tech
             </span>
 
