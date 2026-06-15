@@ -122,11 +122,11 @@ export default function PortfolioSection() {
   return (
     <section
       id="portfolio"
-      className="bg-white px-6 py-24 md:py-36 relative overflow-hidden"
+      className="bg-white px-6 py-10 md:py-36 relative overflow-hidden"
       aria-labelledby="portfolio-heading"
     >
       <div className="mx-auto max-w-7xl relative z-10">
-        
+
         {/* Header Section */}
         <div className="flex flex-col md:flex-row md:items-end md:justify-between mb-12 md:mb-16 gap-6">
           <div className="text-left">
@@ -150,11 +150,10 @@ export default function PortfolioSection() {
             <button
               onClick={() => scroll("left")}
               disabled={!canScrollLeft}
-              className={`p-4 rounded-full border border-neutral-200 bg-white text-black transition-all duration-300 ${
-                !canScrollLeft 
-                  ? "opacity-30 cursor-not-allowed" 
+              className={`p-4 rounded-full border border-neutral-200 bg-white text-black transition-all duration-300 ${!canScrollLeft
+                  ? "opacity-30 cursor-not-allowed"
                   : "hover:bg-black hover:text-white hover:scale-105 active:scale-95"
-              }`}
+                }`}
               aria-label="Scroll left"
             >
               <ChevronLeft className="w-5 h-5" />
@@ -162,11 +161,10 @@ export default function PortfolioSection() {
             <button
               onClick={() => scroll("right")}
               disabled={!canScrollRight}
-              className={`p-4 rounded-full border border-neutral-200 bg-white text-black transition-all duration-300 ${
-                !canScrollRight 
-                  ? "opacity-30 cursor-not-allowed" 
+              className={`p-4 rounded-full border border-neutral-200 bg-white text-black transition-all duration-300 ${!canScrollRight
+                  ? "opacity-30 cursor-not-allowed"
                   : "hover:bg-black hover:text-white hover:scale-105 active:scale-95"
-              }`}
+                }`}
               aria-label="Scroll right"
             >
               <ChevronRight className="w-5 h-5" />
@@ -174,7 +172,6 @@ export default function PortfolioSection() {
           </div>
         </div>
 
-        {/* Carousel Container */}
         <div
           ref={carouselRef}
           className="flex gap-5 md:gap-6 overflow-x-auto scrollbar-none snap-x snap-mandatory pb-8 touch-pan-x"
@@ -183,27 +180,22 @@ export default function PortfolioSection() {
           {galleryItems.map((item) => (
             <motion.div
               key={item.id}
-              /* w-[78vw] membuat card mobile berukuran 78% lebar layar, 
-                menyisakan ruang di kanan agar card berikutnya kelihatan sedikit (peek effect).
-              */
               className="flex-shrink-0 w-[78vw] sm:w-[45vw] lg:w-[28vw] snap-start group cursor-pointer"
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ duration: 0.5 }}
             >
-              {/* Gambar Tanpa Overscale */}
-              <div className="w-full aspect-square relative overflow-hidden rounded-[var(--radius-card)] border border-neutral-200 bg-neutral-50 mb-4 md:mb-5">
+              <div className="w-full aspect-15/11 relative overflow-hidden rounded-[var(--radius-card)] border border-neutral-200 bg-neutral-50 mb-4 md:mb-5">
                 <Image
                   src={item.image}
                   alt={item.title}
                   fill
-                  className="object-cover" 
+                  className="object-cover"
                   sizes="(max-width: 640px) 78vw, (max-width: 1024px) 45vw, 28vw"
                 />
               </div>
 
-              {/* Teks Penjelasan di Bawah Gambar */}
               <div className="px-1 flex flex-col gap-1">
                 <span className="text-[10px] md:text-xs font-semibold text-neutral-400 tracking-wider uppercase">
                   {item.category}

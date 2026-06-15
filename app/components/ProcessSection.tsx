@@ -35,7 +35,7 @@ export default function ProcessSection() {
   return (
     <section id="process" className="w-full bg-white py-[12vw] md:pt-[6vw] md:pb-[4vw] px-[4vw]" aria-labelledby="process-heading">
       <div className="w-full flex flex-col gap-[8vw] md:gap-[4vw]">
-        
+
         <div className="w-full flex flex-col gap-[3vw] md:gap-[1vw] items-center justify-center text-center select-none">
           <h2 id="process-heading" className="text-black text-[7.1vw] md:text-[2.91vw] font-extrabold tracking-[-0.25vw] md:tracking-[-0.13vw] leading-[1.2]">
             The Megatha Process.
@@ -46,7 +46,7 @@ export default function ProcessSection() {
         </div>
 
         <div className="relative w-full">
-          
+
           <div
             aria-hidden="true"
             className="absolute left-[5.6vw] md:left-1/2 top-0 bottom-0 w-[1px] bg-neutral-200 transform md:-translate-x-1/2"
@@ -59,23 +59,20 @@ export default function ProcessSection() {
                 /* Menggunakan md:flex-row untuk langkah ganjil (01, 03) 
                   dan md:flex-row-reverse untuk langkah genap (02, 04)
                 */
-                className={`relative flex flex-col items-start md:items-center justify-center gap-[5.1vw] md:gap-0 w-full ${
-                  index % 2 === 0 ? "md:flex-row" : "md:flex-row-reverse"
-                }`}
+                className={`relative flex flex-col items-start md:items-center justify-center gap-[5.1vw] md:gap-0 w-full ${index % 2 === 0 ? "md:flex-row" : "md:flex-row-reverse"
+                  }`}
               >
-                
+
                 {/* 1. KONTEN TEKS (Menggunakan padding khusus agar tidak menabrak angka tengah) */}
-                <div 
-                  className={`w-full md:w-1/2 pl-[14vw] md:pl-0 flex flex-col ${
-                    index % 2 === 0 
+                <div
+                  className={`w-full md:w-1/2 pl-[14vw] md:pl-0 flex flex-col ${index % 2 === 0
                       ? "md:pr-[6vw] md:items-end md:text-right"   /* Kolom Kiri: Kasih jarak aman kanan, teks rata kanan */
                       : "md:pl-[6vw] md:items-start md:text-left"  /* Kolom Kanan: Kasih jarak aman kiri, teks rata kiri */
-                  }`}
+                    }`}
                 >
                   {/* Container Judul & Badge Durasi */}
-                  <div className={`flex flex-wrap items-center gap-[3vw] md:gap-[0.83vw] mb-[2vw] md:mb-[0.83vw] ${
-                    index % 2 === 0 ? "md:flex-row-reverse" : "md:flex-row"
-                  }`}>
+                  <div className={`flex flex-wrap items-center gap-[3vw] md:gap-[0.83vw] mb-[2vw] md:mb-[0.83vw] ${index % 2 === 0 ? "md:flex-row-reverse" : "md:flex-row"
+                    }`}>
                     <h3 className="text-[4.6vw] md:text-[1.38vw] font-extrabold tracking-wide text-neutral-900">
                       {step.title}
                     </h3>
@@ -83,7 +80,7 @@ export default function ProcessSection() {
                       {step.duration}
                     </span>
                   </div>
-                  
+
                   {/* Deskripsi */}
                   <p className="text-neutral-500 text-[3.5vw] md:text-[1.04vw] leading-relaxed w-full md:max-w-[34vw] font-medium">
                     {step.description}
@@ -109,25 +106,25 @@ export default function ProcessSection() {
           </div>
         </div>
 
-        {/* --- HANYA BAGIAN CONTAINER CTA INI YANG DIUBAH --- */}
-<div className="mt-20 rounded-[var(--radius-card)] border border-slate-100 bg-[#F8FAFC] max-w-6xl w-full p-10 text-center mx-auto flex flex-col items-center">
-  <h3 className="text-2xl font-bold text-[#111111] mb-3">
-    Ready to Start?
-  </h3>
-  <p className="text-slate-500 text-sm mb-6 max-w-md mx-auto">
-    Book a free 30-minute discovery call. We&apos;ll scope your project
-    and tell you exactly what it will take to ship it.
-  </p>
-  <a
-    id="process-cta"
-    href="#contact"
-    className="inline-flex rounded-full bg-[#111111] px-8 py-4 text-base font-semibold text-white
+
+        <div className="mt-20 rounded-[var(--radius-card)] border border-slate-100 bg-[#F8FAFC] max-w-6xl w-full p-10 text-center mx-auto flex flex-col items-center">
+          <h3 className="text-2xl font-bold text-[#111111] mb-3">
+            Ready to Start?
+          </h3>
+          <p className="text-slate-500 text-sm mb-6 max-w-md mx-auto">
+            Book a free 30-minute discovery call. We&apos;ll scope your project
+            and tell you exactly what it will take to ship it.
+          </p>
+          <a
+            id="process-cta"
+            href="#contact"
+            className="inline-flex rounded-full bg-[#111111] px-8 py-4 text-base font-semibold text-white
                transition-all duration-300 hover:bg-slate-800 hover:scale-[1.03] hover:shadow-xl"
-  >
-    Book a Discovery Call →
-  </a>
-</div>
-{/* -------------------------------------------------- */}
+          >
+            Book a Discovery Call →
+          </a>
+        </div>
+        {/* -------------------------------------------------- */}
 
       </div>
     </section>
