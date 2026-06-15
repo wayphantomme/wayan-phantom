@@ -15,8 +15,6 @@ export default function HeroSection() {
           width: "700px",
           height: "700px",
           borderRadius: "9999px",
-          background:
-            "radial-gradient(circle, rgba(226,232,240,0.55) 0%, rgba(241,245,249,0.15) 60%, transparent 100%)",
           filter: "blur(72px)",
           pointerEvents: "none",
         }}

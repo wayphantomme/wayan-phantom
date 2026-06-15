@@ -1,126 +1,158 @@
 "use client";
 
-import { useState } from "react";
-import Image from "next/image";
-
-const navLinks = [
-  { label: "Our Services", href: "#services" },
-  { label: "Portfolios", href: "#projects" },
-  { label: "Gallery", href: "#portfolio" },
-  { label: "How We Work", href: "#process" },
-];
+import { useState, useEffect, useRef } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 
 export default function Header() {
+  const [scrolled, setScrolled] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
+  const dropdownRef = useRef<HTMLDivElement>(null);
+  const hamburgerRef = useRef<HTMLButtonElement>(null);
+
+  useEffect(() => {
+    let timeout: ReturnType<typeof setTimeout>;
+    function onScroll() {
+      clearTimeout(timeout);
+      timeout = setTimeout(() => {
+        setScrolled(window.scrollY > 5);
+      }, 10);
+    }
+    window.addEventListener("scroll", onScroll, { passive: true });
+    onScroll();
+    return () => {
+      window.removeEventListener("scroll", onScroll);
+      clearTimeout(timeout);
+    };
+  }, []);
+
+  useEffect(() => {
+    function handleOutsideClick(e: MouseEvent) {
+      if (
+        dropdownRef.current &&
+        !dropdownRef.current.contains(e.target as Node) &&
+        hamburgerRef.current &&
+        !hamburgerRef.current.contains(e.target as Node)
+      ) {
+        setMenuOpen(false);
+      }
+    }
+    window.addEventListener("click", handleOutsideClick);
+    return () => window.removeEventListener("click", handleOutsideClick);
+  }, []);
+
+
 
   return (
-    <header id="header" className="glass-header sticky top-0 z-50 w-full">
-      <div className="mx-auto max-w-7xl px-6 lg:px-8">
-        <nav
-          className="flex h-16 items-center justify-between gap-8"
-          aria-label="Main navigation"
+
+    <header className="sticky top-0 w-full flex flex-col items-center z-100">
+
+      <motion.div
+        className="w-full overflow-hidden bg-white"
+        animate={{ maxHeight: scrolled ? 0 : 80, opacity: scrolled ? 0 : 1 }}
+        initial={{ maxHeight: 80, opacity: 1 }}
+        transition={{ duration: 0.3, ease: "easeOut" }}
+      >
+        <a
+          className="block w-full no-underline"
         >
-          {/* Logo */}
-          <a
-            href="/"
-            className="flex-shrink-0 flex items-center gap-2.5 hover:opacity-80 transition-opacity duration-200"
-            aria-label="Megatha Tech home"
-          >
-            <Image
-              src="/Megatha-Logo-Black.svg"
-              alt="Megatha Tech"
-              width={120}
-              height={32}
-              className="h-7 w-auto object-contain"
-              priority
-            />
-            <span className="text-base font-bold tracking-tight text-[#111111]">
+          <div className="flex justify-center items-center w-full py-[3.5vw] sm:py-[1vw] px-[4vw] border-b border-[#e5e5e5] bg-white/80 backdrop-blur-[12px]">
+            <p className="flex flex-col sm:flex-row items-center text-center gap-[1vw] sm:gap-[0.5vw] text-[3.5vw] sm:text-[0.97vw] text-[#a3a3a3] font-medium leading-tight sm:leading-none">
+              <span>Q3 2026 Development Slots Now Open.</span>
+
+              <strong className="font-extrabold text-black tracking-tight text-[3.5vw] sm:text-[0.97vw]">
+                Only 2 slots remaining for this quarter.
+              </strong>
+            </p>
+          </div>
+        </a>
+      </motion.div>
+
+      <motion.nav
+        animate={{ y: scrolled ? -8 : 0 }}
+        transition={{ duration: 0.3, ease: "easeOut" }}
+        className="flex justify-between items-center w-[92vw] sm:max-w-[55vw] px-[4vw] py-[2vw] sm:px-[1.5vw] sm:py-[0.8vw] bg-[#e5e5e580] rounded-[99px] backdrop-blur-[12px] relative border border-[#e5e5e5] mt-[6vw] sm:mt-[1.5vw]"
+      >
+        <a href="/" className="flex items-center gap-[1.5vw] sm:gap-[0.6vw]">
+          <img
+            src="Megatha-Logo-Black.svg"
+            alt="Megatha logo"
+            width={394}
+            height={117}
+            className="w-auto h-[5.5vw] sm:h-[1.5vw] min-h-[20px] "
+          />
+          <div className="flex flex-col justify-center text-left leading-[0.9]">
+            <span className="text-black font-bold tracking-tight text-[3.9vw] sm:text-[1.3vw] min-text-[10px]">
               Megatha Tech
             </span>
-          </a>
 
-          {/* Desktop nav links */}
-          <div className="hidden md:flex items-center gap-8">
-            {navLinks.map((link) => (
-              <a
-                key={link.label}
-                href={link.href}
-                className="text-sm font-medium text-slate-500 hover:text-[#111111] transition-colors duration-200"
-              >
-                {link.label}
-              </a>
-            ))}
           </div>
+        </a>
 
-          {/* Right side */}
-          <div className="flex items-center gap-3">
-            {/* Desktop CTA */}
-            <a
-              id="header-cta"
-              href="#contact"
-              className="hidden md:inline-flex flex-shrink-0 rounded-full bg-[#111111] px-5 py-2.5 text-sm font-semibold text-white
-                         transition-all duration-300 hover:bg-slate-800 hover:scale-[1.03] hover:shadow-lg
-                         focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#111111]"
-            >
-              Book a Discovery Call&nbsp;↗
-            </a>
-
-            {/* Mobile burger */}
-            <button
-              id="mobile-menu-toggle"
-              className="md:hidden flex h-10 w-10 items-center justify-center rounded-full border border-slate-200 text-slate-600
-                         hover:border-slate-400 hover:text-[#111111] transition-all duration-200"
-              aria-expanded={menuOpen}
-              aria-controls="mobile-menu"
-              aria-label="Toggle navigation"
-              onClick={() => setMenuOpen((v) => !v)}
-            >
-              {menuOpen ? (
-                /* X icon */
-                <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
-                  <path d="M2 2l12 12M14 2L2 14" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
-                </svg>
-              ) : (
-                /* Hamburger icon */
-                <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
-                  <path d="M2 4h12M2 8h12M2 12h12" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
-                </svg>
-              )}
-            </button>
-          </div>
-        </nav>
-      </div>
-
-      {/* Mobile menu dropdown */}
-      <div
-        id="mobile-menu"
-        className={`md:hidden overflow-hidden transition-all duration-300 ease-in-out ${
-          menuOpen ? "max-h-64 opacity-100" : "max-h-0 opacity-0"
-        }`}
-        aria-hidden={!menuOpen}
-      >
-        <div className="border-t border-slate-100 px-6 py-4 flex flex-col gap-1">
-          {navLinks.map((link) => (
-            <a
-              key={link.label}
-              href={link.href}
-              onClick={() => setMenuOpen(false)}
-              className="rounded-xl px-4 py-3 text-sm font-medium text-slate-600 hover:bg-slate-50 hover:text-[#111111]
-                         transition-colors duration-150"
-            >
-              {link.label}
-            </a>
-          ))}
+        <div className="flex items-center gap-[2vw] sm:gap-[0.8vw]">
           <a
-            href="#contact"
-            onClick={() => setMenuOpen(false)}
-            className="mt-2 rounded-full bg-[#111111] px-5 py-3 text-center text-sm font-semibold text-white
-                       transition-all duration-200 hover:bg-slate-800"
+            href="https://wa.me/+6289688072039"
+            className="hidden sm:flex items-center gap-[0.5vw] px-[1.2vw] py-[0.6vw] bg-black text-white text-[1vw] font-semibold rounded-[99px] transition-colors duration-300 hover:bg-white hover:text-black no-underline"
           >
-            Book a Discovery Call ↗
+            Book a Call
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24">
+              <path fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M7 7h10m0 0v10m0-10L7 17" />
+            </svg>
           </a>
+
+          <button
+            ref={hamburgerRef}
+            onClick={() => setMenuOpen((v) => !v)}
+            className="flex sm:hidden border border-[#e5e5e5] rounded-[8px] cursor-pointer p-[1.5vw] bg-[#f5f5f5]"
+          >
+            <img
+              src="https://sody.app/_image?href=%2F_astro%2Fhamburger.Cx9jG_OA.svg&w=24&h=24&f=svg"
+              alt="hamburger"
+              width={24}
+              height={24}
+              className="w-[5vw] h-[5vw]"
+            />
+          </button>
+
+          <AnimatePresence>
+            {menuOpen && (
+              <motion.div
+                ref={dropdownRef}
+                initial={{ opacity: 0, y: -8 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -8 }}
+                transition={{ duration: 0.15 }}
+                className="absolute top-[calc(100%+5px)] right-0 bg-[#e5e5e5e6] backdrop-blur-[12px] border border-[#e5e5e5] rounded-[10px] z-[1] w-full p-[3vw] box-border flex flex-col gap-[2vw]"
+              >
+                <div className="flex flex-row items-center justify-center gap-[2vw]">
+                  <a
+                    href="https://www.instagram.com/megatha.tech/"
+                    className="flex flex-1 px-[4vw] py-[3vw] no-underline bg-white justify-center items-center text-center rounded-[10px] text-[3.8vw] font-semibold text-black border border-[#e5e5e5]"
+                  >
+                    Instagram
+                  </a>
+                </div>
+                <div className="flex flex-row items-center justify-center gap-[2vw]">
+                  <a
+                    href="https://x.com/megathatech"
+                    className="flex flex-1 px-[4vw] py-[3vw] no-underline bg-white justify-center items-center text-center rounded-[10px] text-[3.8vw] font-semibold text-black border border-[#e5e5e5]"
+                  >
+                    Twitter / X
+                  </a>
+                </div>
+                <div className="flex flex-row items-center justify-center gap-[2vw]">
+                  <a
+                    href="http://linkedin.com/company/megathatech/"
+                    className="flex flex-1 px-[4vw] py-[3vw] no-underline bg-white justify-center items-center text-center rounded-[10px] text-[3.8vw] font-semibold text-black border border-[#e5e5e5]"
+                  >
+                    LinkedIn
+                  </a>
+                </div>
+
+              </motion.div>
+            )}
+          </AnimatePresence>
         </div>
-      </div>
+      </motion.nav>
     </header>
   );
 }

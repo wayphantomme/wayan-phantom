@@ -1,10 +1,69 @@
 "use client";
 
 import { useEffect, useRef } from "react";
+import { motion, useScroll, useTransform, MotionValue } from "framer-motion";
+
+// ─── Token types & data ───────────────────────────────────────────────────────
+
+type Token = { type: "word"; text: string; dim?: boolean } | { type: "br" };
+
+const h2Tokens: Token[] = [
+  { type: "word", text: "Tired" },
+  { type: "word", text: "of" },
+  { type: "word", text: "chasing" },
+  { type: "word", text: "developers" },
+  { type: "word", text: "and" },
+  { type: "word", text: "still", dim: true },
+  { type: "word", text: "missing", dim: true },
+  { type: "word", text: "deadlines?", dim: true },
+];
+
+const h2WordCount = h2Tokens.filter((t) => t.type === "word").length;
+
+// ─── Animated word component ──────────────────────────────────────────────────
+
+function AnimatedH2Word({
+  text,
+  index,
+  dim,
+  scrollYProgress,
+}: {
+  text: string;
+  index: number;
+  dim?: boolean;
+  scrollYProgress: MotionValue<number>;
+}) {
+  const windowSize = 2 / h2WordCount;
+  const start = (index / h2WordCount) * 0.75;
+  const end = Math.min(1, start + windowSize);
+
+  const opacity = useTransform(scrollYProgress, [start, end], [0, 1]);
+  const blur = useTransform(scrollYProgress, [start, end], [8, 0]);
+  const blurFilter = useTransform(blur, (v) => `blur(${v}px)`);
+
+  return (
+    <motion.span
+      style={{ opacity, filter: blurFilter }}
+      className={`inline-block ${dim ? "text-slate-400" : ""}`}
+    >
+      {text}&nbsp;
+    </motion.span>
+  );
+}
+
+// ─── Main section ─────────────────────────────────────────────────────────────
 
 export default function PainPointSection() {
   const containerRef = useRef<HTMLDivElement>(null);
+  const h2Ref = useRef<HTMLHeadingElement>(null);
 
+  // Scroll progress khusus untuk h2
+  const { scrollYProgress: h2Progress } = useScroll({
+    target: h2Ref,
+    offset: ["start 0.85", "center 0.4"],
+  });
+
+  // IntersectionObserver untuk elemen .fade-in-up lainnya
   useEffect(() => {
     const observer = new IntersectionObserver(
       (entries) => {
@@ -46,14 +105,29 @@ export default function PainPointSection() {
           The Problem We Solve
         </p>
 
-        {/* Bold question */}
+        {/* Bold question — scroll-animated word by word */}
         <h2
           id="pain-point-heading"
+          ref={h2Ref}
           className="fade-in-up delay-1 text-4xl md:text-5xl lg:text-6xl font-bold text-[#111111] leading-[1.1] tracking-tight mb-12"
           style={{ fontFamily: "var(--font-plus-jakarta), sans-serif" }}
         >
-          Tired of chasing developers and{" "}
-          <span className="text-slate-400">still missing deadlines?</span>
+          {(() => {
+            let wordIdx = 0;
+            return h2Tokens.map((token, i) => {
+              if (token.type === "br") return <br key={i} />;
+              const idx = wordIdx++;
+              return (
+                <AnimatedH2Word
+                  key={i}
+                  text={token.text}
+                  index={idx}
+                  dim={token.dim}
+                  scrollYProgress={h2Progress}
+                />
+              );
+            });
+          })()}
         </h2>
 
         {/* Divider */}
@@ -92,11 +166,6 @@ export default function PainPointSection() {
           ))}
         </div>
 
-        {/* Closing statement */}
-        <p className="fade-in-up delay-4 mt-14 text-xl md:text-2xl font-semibold text-slate-500 leading-relaxed max-w-2xl">
-          No fluff.{" "}
-          <span className="text-[#111111]">Just execution.</span>
-        </p>
       </div>
     </section>
   );

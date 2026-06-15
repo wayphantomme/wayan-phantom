@@ -1,4 +1,7 @@
-import Image from 'next/image';
+"use client";
+
+import React from "react";
+import { motion } from "framer-motion";
 
 const clientLogos = [
   { 
@@ -58,43 +61,52 @@ const clientLogos = [
   },
 ];
 
-export default function ClientsSection() {
+interface ClientLogoItem {
+  id: number;
+  name: string;
+  srcUrl: string;
+}
+
+function ClientCard({ logo }: { logo: ClientLogoItem }) {
   return (
-    <section id="projects" className="py-16 bg-white w-full border-t border-b border-gray-100">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        
-        <h4 className="text-center text-xs font-bold text-gray-400 tracking-widest uppercase mb-12">
+    <div
+      className="relative flex-shrink-0 w-[55vw] md:w-[24.3vw] aspect-square rounded-[4vw] md:rounded-[1.38vw] p-[4vw] md:p-[1.38vw] flex flex-col items-start justify-between overflow-hidden box-border group"
+    >
+      <img
+        src={logo.srcUrl}
+        alt={logo.name}
+        className="absolute inset-0 w-full h-full object-cover -z-10"
+      />
+    </div>
+  );
+}
+
+function MarqueeTrack() {
+  return (
+    <motion.div
+      className="flex gap-[4vw] md:gap-[2.77vw] shrink-0"
+      animate={{ x: ["0%", "-100%"] }}
+      transition={{ duration: 35, ease: "linear", repeat: Infinity }}
+    >
+      {clientLogos.map((logo, i) => (
+        <ClientCard key={`${logo.id}-${i}`} logo={logo} />
+      ))}
+    </motion.div>
+  );
+}
+
+export default function ClientsMarquee() {
+  return (
+    <div className="w-full pt-[6vw] md:pt-0 pb-[8vw] md:pb-[4vw] overflow-hidden relative bg-white">
+
+         <h4 className="text-center text-xs font-bold text-gray-400 tracking-widest uppercase mb-12">
           PREVIOUS CLIENTS AND PROJECTS
         </h4>
-        
-        {/* Marquee Slider */}
-        <div className="marquee-outer overflow-hidden relative w-full flex py-4">
-          {/* Edge gradients for smooth fade out */}
-          <div className="absolute top-0 left-0 bottom-0 w-16 md:w-32 bg-gradient-to-r from-white to-transparent z-10 pointer-events-none" />
-          <div className="absolute top-0 right-0 bottom-0 w-16 md:w-32 bg-gradient-to-l from-white to-transparent z-10 pointer-events-none" />
-          
-          <div className="marquee-track flex gap-12 md:gap-20 items-center px-6">
-            {/* Render logos twice for seamless infinite scroll */}
-            {[...clientLogos, ...clientLogos].map((logo, index) => (
-              <div 
-                key={`${logo.id}-${index}`} 
-                className="relative w-48 md:w-64 h-24 md:h-32 shrink-0 flex items-center justify-center p-2 opacity-70 grayscale hover:opacity-100 hover:grayscale-0 transition-all duration-300 hover:scale-105 cursor-pointer"
-                title={logo.name}
-              >
-                <Image
-                  src={logo.srcUrl}
-                  alt={logo.name}
-                  fill
-                  className="object-contain"
-                  sizes="(max-width: 768px) 128px, 160px"
-                  unoptimized // Ensures Next.js bypasses cache optimization issues for external Cloudinary links
-                />
-              </div>
-            ))}
-          </div>
-        </div>
 
+      <div className="flex gap-[4vw] md:gap-[2.77vw] overflow-x-hidden w-full relative">
+        <MarqueeTrack />
+        <MarqueeTrack />
       </div>
-    </section>
+    </div>
   );
 }
