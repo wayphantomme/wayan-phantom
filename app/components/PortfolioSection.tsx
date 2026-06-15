@@ -1,6 +1,18 @@
-import Image from "next/image";
+"use client";
 
-const galleryItems = [
+import { useRef, useState, useEffect } from "react";
+import Image from "next/image";
+import { motion } from "framer-motion";
+import { ChevronLeft, ChevronRight } from "lucide-react";
+
+interface GalleryItem {
+  id: string;
+  image: string;
+  title: string;
+  category: string;
+}
+
+const galleryItems: GalleryItem[] = [
   {
     id: "project-1",
     image: "https://res.cloudinary.com/dwsapeq3m/image/upload/v1781441589/apple-developer-academy_ms2iiz.jpg",
@@ -76,72 +88,132 @@ const galleryItems = [
 ];
 
 export default function PortfolioSection() {
+  const carouselRef = useRef<HTMLDivElement>(null);
+  const [canScrollLeft, setCanScrollLeft] = useState<boolean>(false);
+  const [canScrollRight, setCanScrollRight] = useState<boolean>(true);
+
+  const checkScrollStatus = () => {
+    if (carouselRef.current) {
+      const { scrollLeft, scrollWidth, clientWidth } = carouselRef.current;
+      setCanScrollLeft(scrollLeft > 2);
+      setCanScrollRight(scrollLeft < scrollWidth - clientWidth - 2);
+    }
+  };
+
+  useEffect(() => {
+    const carousel = carouselRef.current;
+    if (carousel) {
+      carousel.addEventListener("scroll", checkScrollStatus);
+      checkScrollStatus();
+    }
+    return () => {
+      if (carousel) carousel.removeEventListener("scroll", checkScrollStatus);
+    };
+  }, []);
+
+  const scroll = (direction: "left" | "right") => {
+    if (carouselRef.current) {
+      const { clientWidth } = carouselRef.current;
+      const offset = direction === "left" ? -clientWidth * 0.75 : clientWidth * 0.75;
+      carouselRef.current.scrollBy({ left: offset, behavior: "smooth" });
+    }
+  };
+
   return (
     <section
       id="portfolio"
-      className="bg-[#0A0A0A] px-6 py-28 md:py-36 relative overflow-hidden"
+      className="bg-white px-6 py-24 md:py-36 relative overflow-hidden"
       aria-labelledby="portfolio-heading"
     >
-      {/* Decorative gradient light */}
-      <div
-        className="absolute top-1/4 left-1/2 -translate-x-1/2 w-[500px] h-[500px] rounded-full opacity-10 pointer-events-none"
-        style={{
-          background: "radial-gradient(circle, rgba(255,255,255,0.08) 0%, transparent 70%)",
-          filter: "blur(80px)",
-        }}
-      />
-
       <div className="mx-auto max-w-7xl relative z-10">
-        {/* Header */}
-        <div className="mb-16 text-center">
-          <p className="text-xs font-bold uppercase tracking-[0.2em] text-white mb-4">
-            Featured Work
-          </p>
-          <h2
-            id="portfolio-heading"
-            className="text-4xl md:text-5xl font-extrabold text-white tracking-tight leading-tight"
-            style={{ fontFamily: "var(--font-plus-jakarta), sans-serif" }}
-          >
-            Our Gallery of Activities
-          </h2>
-          <p className="mt-4 text-slate-400 max-w-xl mx-auto text-base">
-            A visual journey through the dynamic hackathons, immersive summits, and builder communities that define our global impact.
-          </p>
+        
+        {/* Header Section */}
+        <div className="flex flex-col md:flex-row md:items-end md:justify-between mb-12 md:mb-16 gap-6">
+          <div className="text-left">
+            <p className="text-xs font-bold uppercase tracking-[0.2em] text-neutral-400 mb-3 md:mb-4">
+              Featured Work
+            </p>
+            <h2
+              id="portfolio-heading"
+              className="text-4xl md:text-5xl font-extrabold text-black tracking-tight leading-tight"
+              style={{ fontFamily: "var(--font-plus-jakarta), sans-serif" }}
+            >
+              Our Gallery of Activities
+            </h2>
+            <p className="mt-4 text-neutral-500 max-w-xl text-sm md:text-base font-medium">
+              A visual journey through the dynamic hackathons, immersive summits, and builder communities that define our global impact.
+            </p>
+          </div>
+
+          {/* Tombol Navigasi: hidden di mobile, flex mulai dari ukuran layar md */}
+          <div className="hidden md:flex items-center gap-3">
+            <button
+              onClick={() => scroll("left")}
+              disabled={!canScrollLeft}
+              className={`p-4 rounded-full border border-neutral-200 bg-white text-black transition-all duration-300 ${
+                !canScrollLeft 
+                  ? "opacity-30 cursor-not-allowed" 
+                  : "hover:bg-black hover:text-white hover:scale-105 active:scale-95"
+              }`}
+              aria-label="Scroll left"
+            >
+              <ChevronLeft className="w-5 h-5" />
+            </button>
+            <button
+              onClick={() => scroll("right")}
+              disabled={!canScrollRight}
+              className={`p-4 rounded-full border border-neutral-200 bg-white text-black transition-all duration-300 ${
+                !canScrollRight 
+                  ? "opacity-30 cursor-not-allowed" 
+                  : "hover:bg-black hover:text-white hover:scale-105 active:scale-95"
+              }`}
+              aria-label="Scroll right"
+            >
+              <ChevronRight className="w-5 h-5" />
+            </button>
+          </div>
         </div>
 
-        {/* Gallery Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+        {/* Carousel Container */}
+        <div
+          ref={carouselRef}
+          className="flex gap-5 md:gap-6 overflow-x-auto scrollbar-none snap-x snap-mandatory pb-8 touch-pan-x"
+          style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
+        >
           {galleryItems.map((item) => (
-            <div
+            <motion.div
               key={item.id}
-              className="antigravity-card group relative overflow-hidden rounded-[var(--radius-card)] border border-white/[0.08] bg-neutral-900 aspect-square cursor-pointer"
+              /* w-[78vw] membuat card mobile berukuran 78% lebar layar, 
+                menyisakan ruang di kanan agar card berikutnya kelihatan sedikit (peek effect).
+              */
+              className="flex-shrink-0 w-[78vw] sm:w-[45vw] lg:w-[28vw] snap-start group cursor-pointer"
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.5 }}
             >
-              {/* Image */}
-              <div className="w-full h-full relative">
+              {/* Gambar Tanpa Overscale */}
+              <div className="w-full aspect-square relative overflow-hidden rounded-[var(--radius-card)] border border-neutral-200 bg-neutral-50 mb-4 md:mb-5">
                 <Image
                   src={item.image}
                   alt={item.title}
                   fill
-                  className="object-cover transition-transform duration-700 ease-out group-hover:scale-110"
-                  sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                  className="object-cover" 
+                  sizes="(max-width: 640px) 78vw, (max-width: 1024px) 45vw, 28vw"
                 />
               </div>
 
-              {/* Dynamic Overlay and Info */}
-              <div className="absolute inset-0 bg-gradient-to-t from-black via-black/40 to-transparent opacity-60 group-hover:opacity-90 transition-opacity duration-300" />
-              
-              <div className="absolute inset-0 flex flex-col justify-end p-8 translate-y-4 group-hover:translate-y-0 transition-transform duration-300 ease-out">
-                <span className="text-xs font-semibold text-slate-400 tracking-wider uppercase mb-2 block opacity-0 group-hover:opacity-100 transition-opacity duration-500 delay-75">
+              {/* Teks Penjelasan di Bawah Gambar */}
+              <div className="px-1 flex flex-col gap-1">
+                <span className="text-[10px] md:text-xs font-semibold text-neutral-400 tracking-wider uppercase">
                   {item.category}
                 </span>
-                <h3 className="text-xl font-bold text-white tracking-tight">
+                <h3 className="text-base md:text-xl font-bold text-black tracking-tight group-hover:text-neutral-600 transition-colors duration-300">
                   {item.title}
                 </h3>
-                
-                {/* Border accent line that expands on hover */}
-                <div className="w-0 h-[2px] bg-white mt-4 group-hover:w-full transition-all duration-500 ease-out" />
+                <div className="w-0 h-[1.5px] bg-black/60 mt-2 group-hover:w-full transition-all duration-500 ease-out" />
               </div>
-            </div>
+            </motion.div>
           ))}
         </div>
       </div>
