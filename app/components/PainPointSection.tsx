@@ -100,16 +100,11 @@ export default function PainPointSection() {
       />
 
       <div className="relative mx-auto max-w-4xl">
-        {/* Section label */}
-        <p className="fade-in-up text-xs font-bold uppercase tracking-[0.2em] text-slate-400 mb-8">
-          The Problem We Solve
-        </p>
-
-        {/* Bold question — scroll-animated word by word */}
+        {/* Bold question — scroll-animated word by word + inline tagline */}
         <h2
           id="pain-point-heading"
           ref={h2Ref}
-          className="fade-in-up delay-1 text-4xl md:text-5xl lg:text-6xl font-bold text-[#111111] leading-[1.1] tracking-tight mb-12"
+          className="fade-in-up delay-1 text-4xl md:text-5xl lg:text-6xl font-bold text-[#111111] leading-[1.1] tracking-tight"
           style={{ fontFamily: "var(--font-plus-jakarta), sans-serif" }}
         >
           {(() => {
@@ -128,44 +123,7 @@ export default function PainPointSection() {
               );
             });
           })()}
-        </h2>
-
-        {/* Divider */}
-        <div className="fade-in-up delay-2 w-16 h-px bg-slate-200 mb-12" />
-
-        {/* Pain points block */}
-        <div className="fade-in-up delay-3 grid md:grid-cols-3 gap-8">
-          {[
-            {
-              icon: "⏳",
-              title: "Slow Developers",
-              body: "Communication black holes, delayed milestones, and endless excuses that stall your go-to-market plan.",
-            },
-            {
-              icon: "🐛",
-              title: "Messy Code & Tech Debt",
-              body: "Quick-and-dirty builds that crash under traffic, forcing you to pay twice to rewrite the same codebase.",
-            },
-            {
-              icon: "💸",
-              title: "Wasted Product Budget",
-              body: "Paying for features your users don't need because your engineering team builds without scoping business outcomes.",
-            },
-          ].map((point) => (
-            <div key={point.title} className="flex flex-col gap-3">
-              <span className="text-3xl" aria-hidden="true">
-                {point.icon}
-              </span>
-              <h3 className="text-base font-bold text-[#111111]">
-                {point.title}
-              </h3>
-              <p className="text-sm text-slate-500 leading-relaxed">
-                {point.body}
-              </p>
-            </div>
-          ))}
-        </div>
-
+          </h2>
       </div>
     </section>
   );

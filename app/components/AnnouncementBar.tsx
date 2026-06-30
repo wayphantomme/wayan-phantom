@@ -12,7 +12,7 @@ export default function AnnouncementBar() {
           Only 2 slots remaining for this quarter.
         </span>{" "}
         <a
-          href="#contact"
+          href="https://calendly.com/wayanphantomme/30min"
           className="underline underline-offset-2 hover:text-[#111111] transition-colors duration-200 ml-1"
         >
           Secure yours →

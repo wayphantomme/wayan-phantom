@@ -1,5 +1,7 @@
 "use client";
 
+import { Heart } from "lucide-react";
+
 const techBadges = [
   { label: "Next.js",     bg: "#111111", color: "#ffffff", icon: "nextdotjs" },
   { label: "TypeScript",  bg: "#3178C6", color: "#ffffff", icon: "typescript" },
@@ -15,17 +17,70 @@ const techBadges = [
   { label: "Redis",       bg: "#DC2626", color: "#ffffff", icon: "redis" },
 ];
 
-const industryBadges = [
-  { label: "Fintech",      bg: "#F8FAFC", color: "#1E293B", border: "#E2E8F0" },
-  { label: "Web3",         bg: "#FAF5FF", color: "#6D28D9", border: "#DDD6FE" },
-  { label: "SaaS",         bg: "#EFF6FF", color: "#1D4ED8", border: "#BFDBFE" },
-  { label: "E-Commerce",   bg: "#FFF7ED", color: "#C2410C", border: "#FED7AA" },
-  { label: "Enterprise AI",bg: "#F0FDF4", color: "#166534", border: "#BBF7D0" },
-  { label: "DeFi",         bg: "#FAF5FF", color: "#7C3AED", border: "#DDD6FE" },
-  { label: "HealthTech",   bg: "#FFF1F2", color: "#BE123C", border: "#FECDD3" },
-  { label: "EdTech",       bg: "#ECFEFF", color: "#0E7490", border: "#A5F3FC" },
-  { label: "PropTech",     bg: "#FFF7ED", color: "#9A3412", border: "#FED7AA" },
-  { label: "InsurTech",    bg: "#F0FDF4", color: "#14532D", border: "#BBF7D0" },
+const toolBadges = [
+  {
+    label: "Shopify",
+    bgClass: "bg-emerald-50/60",
+    textClass: "text-emerald-800",
+    borderClass: "border-emerald-200/50",
+    icon: "shopify"
+  },
+  {
+    label: "n8n",
+    bgClass: "bg-orange-50/60",
+    textClass: "text-orange-800",
+    borderClass: "border-orange-200/50",
+    icon: "n8n"
+  },
+  {
+    label: "Canva",
+    bgClass: "bg-violet-50/60",
+    textClass: "text-violet-800",
+    borderClass: "border-violet-200/50",
+    icon: "canva"
+  },
+  {
+    label: "Figma",
+    bgClass: "bg-rose-50/60",
+    textClass: "text-rose-800",
+    borderClass: "border-rose-200/50",
+    icon: "figma"
+  },
+  {
+    label: "Spreadsheets",
+    bgClass: "bg-green-50/60",
+    textClass: "text-green-800",
+    borderClass: "border-green-200/50",
+    icon: "googlesheets"
+  },
+  {
+    label: "Airtable",
+    bgClass: "bg-sky-50/60",
+    textClass: "text-sky-800",
+    borderClass: "border-sky-200/50",
+    icon: "airtable"
+  },
+  {
+    label: "WordPress",
+    bgClass: "bg-blue-50/60",
+    textClass: "text-blue-800",
+    borderClass: "border-blue-200/50",
+    icon: "wordpress"
+  },
+  {
+    label: "Lovable",
+    bgClass: "bg-pink-50/60",
+    textClass: "text-pink-800",
+    borderClass: "border-pink-200/50",
+    isLucideIcon: true
+  },
+  {
+    label: "Google Calendar",
+    bgClass: "bg-blue-50/60",
+    textClass: "text-blue-800",
+    borderClass: "border-blue-200/50",
+    icon: "googlecalendar"
+  }
 ];
 
 interface TechBadge {
@@ -34,11 +89,14 @@ interface TechBadge {
   color: string;
   icon: string;
 }
-interface IndustryBadge {
+
+interface ToolBadge {
   label: string;
-  bg: string;
-  color: string;
-  border: string;
+  bgClass: string;
+  textClass: string;
+  borderClass: string;
+  icon?: string;
+  isLucideIcon?: boolean;
 }
 
 function TechBadgeItem({ badge }: { badge: TechBadge }) {
@@ -61,17 +119,30 @@ function TechBadgeItem({ badge }: { badge: TechBadge }) {
   );
 }
 
-function IndustryBadgeItem({ badge }: { badge: IndustryBadge }) {
+function ToolBadgeItem({ badge }: { badge: ToolBadge }) {
   return (
     <span
-      className="inline-flex items-center mx-3 rounded-full px-5 py-2.5 text-sm font-semibold whitespace-nowrap select-none border"
-      style={{
-        backgroundColor: badge.bg,
-        color: badge.color,
-        borderColor: badge.border,
-      }}
+      className={`inline-flex items-center gap-2.5 mx-3 rounded-full border px-5 py-2.5 text-sm font-semibold whitespace-nowrap select-none transition-all duration-300 hover:scale-102 ${badge.bgClass} ${badge.textClass} ${badge.borderClass}`}
     >
-      {badge.label}
+      {badge.isLucideIcon ? (
+        <Heart
+          className="w-4 h-4 fill-pink-500 text-pink-500 flex-shrink-0"
+          aria-hidden="true"
+        />
+      ) : (
+        badge.icon && (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img
+            src={`https://cdn.simpleicons.org/${badge.icon}`}
+            alt=""
+            width={16}
+            height={16}
+            className="w-4 h-4 object-contain flex-shrink-0"
+            aria-hidden="true"
+          />
+        )
+      )}
+      <span>{badge.label}</span>
     </span>
   );
 }
@@ -81,7 +152,7 @@ export default function TechMarquee() {
     <section
       id="tech-stack"
       className="marquee-outer relative w-full overflow-hidden py-10 border-y border-slate-100 bg-white"
-      aria-label="Technology stack and client industries"
+      aria-label="Technology stack and client tools"
     >
       {/* Fade edges */}
       <div
@@ -104,11 +175,11 @@ export default function TechMarquee() {
         </div>
       </div>
 
-      {/* Row 2 — Industries (right → left) */}
+      {/* Row 2 — Tools (right → left) */}
       <div className="overflow-hidden" aria-hidden="true">
         <div className="marquee-track-reverse">
-          {[...industryBadges, ...industryBadges].map((badge, i) => (
-            <IndustryBadgeItem key={`industry-${i}`} badge={badge} />
+          {[...toolBadges, ...toolBadges].map((badge, i) => (
+            <ToolBadgeItem key={`tool-${i}`} badge={badge} />
           ))}
         </div>
       </div>

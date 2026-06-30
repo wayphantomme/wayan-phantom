@@ -90,7 +90,7 @@ export default function Header() {
 
         <div className="flex items-center gap-[2vw] sm:gap-[0.8vw]">
           <a
-            href="https://wa.me/+6289688072039"
+            href="https://calendly.com/wayanphantomme/30min"
             className="hidden sm:flex items-center gap-[0.5vw] px-[1.2vw] py-[0.6vw] bg-black text-white text-[1vw] font-semibold rounded-[99px] transition-colors duration-300 hover:bg-white hover:text-black no-underline"
           >
             Book a Call

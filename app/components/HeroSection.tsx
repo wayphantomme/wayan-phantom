@@ -58,11 +58,11 @@ export default function HeroSection() {
                      shadow-sm"
         >
           <span
-            className="inline-block w-1.5 h-1.5 rounded-full bg-emerald-400"
+            className="inline-block w-1.5 h-1.5 rounded-full bg-red-500"
             style={{ animation: "pulse 2s cubic-bezier(0.4,0,0.6,1) infinite" }}
             aria-hidden="true"
           />
-          Available for Q3 2026 projects
+          AI Automation with n8n
         </div>
 
         {/* ── H1 ───────────────────────────────────────────────────────── */}
@@ -85,7 +85,7 @@ export default function HeroSection() {
         <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-16">
           <a
             id="hero-cta-primary"
-            href="#contact"
+            href="https://calendly.com/wayanphantomme/30min"
             className="w-full sm:w-auto rounded-full bg-[#111111] px-8 py-4 text-base font-semibold text-white
                        transition-all duration-300 hover:bg-slate-800 hover:scale-[1.03] hover:shadow-xl
                        focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#111111]"

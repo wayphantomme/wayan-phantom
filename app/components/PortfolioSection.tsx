@@ -14,6 +14,18 @@ interface GalleryItem {
 
 const galleryItems: GalleryItem[] = [
   {
+    id: "project-6",
+    image: "https://res.cloudinary.com/dwsapeq3m/image/upload/v1781440980/lisk-winner_gtpvlt.jpg",
+    title: "Lisk Builders SEA",
+    category: "Hackathon",
+  },
+  {
+    id: "project-3",
+    image: "https://res.cloudinary.com/dwsapeq3m/image/upload/v1781441579/cursor-hackathon_gblcd7.jpg",
+    title: "Cursor Hackathon",
+    category: "Hackathon",
+  },
+  {
     id: "project-1",
     image: "https://res.cloudinary.com/dwsapeq3m/image/upload/v1781441589/apple-developer-academy_ms2iiz.jpg",
     title: "Apple Developer Academy",
@@ -26,12 +38,6 @@ const galleryItems: GalleryItem[] = [
     category: "Event",
   },
   {
-    id: "project-3",
-    image: "https://res.cloudinary.com/dwsapeq3m/image/upload/v1781441579/cursor-hackathon_gblcd7.jpg",
-    title: "Cursor Hackathon",
-    category: "Hackathon",
-  },
-  {
     id: "project-4",
     image: "https://res.cloudinary.com/dwsapeq3m/image/upload/v1781441353/Superteam-Singapore_d4cadr.jpg",
     title: "Superteam Singapore",
@@ -42,12 +48,6 @@ const galleryItems: GalleryItem[] = [
     image: "https://res.cloudinary.com/dwsapeq3m/image/upload/v1781441351/Superteam-ID_sixibw.jpg",
     title: "Superteam ID",
     category: "Community",
-  },
-  {
-    id: "project-6",
-    image: "https://res.cloudinary.com/dwsapeq3m/image/upload/v1781440980/lisk-winner_gtpvlt.jpg",
-    title: "Lisk Winner",
-    category: "Hackathon",
   },
   {
     id: "project-7",

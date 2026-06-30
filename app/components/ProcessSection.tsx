@@ -117,7 +117,7 @@ export default function ProcessSection() {
           </p>
           <a
             id="process-cta"
-            href="#contact"
+            href="https://calendly.com/wayanphantomme/30min"
             className="inline-flex rounded-full bg-[#111111] px-8 py-4 text-base font-semibold text-white
                transition-all duration-300 hover:bg-slate-800 hover:scale-[1.03] hover:shadow-xl"
           >

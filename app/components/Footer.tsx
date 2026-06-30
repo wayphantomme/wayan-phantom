@@ -72,8 +72,6 @@ export default function Footer() {
               className="text-4xl md:text-5xl lg:text-6xl font-black text-white leading-[1.15] tracking-tight"
               style={{ fontFamily: "var(--font-plus-jakarta), sans-serif" }}
             >
-              Only 2 slots left this quarter.
-              <br />
               <span className="bg-gradient-to-r from-white via-slate-200 to-slate-400 bg-clip-text text-transparent">
                 Book your call now.
               </span>
@@ -165,7 +163,7 @@ export default function Footer() {
               {/* Call Booking CTA */}
               <a
                 id="footer-cta"
-                href="#contact"
+                href="https://calendly.com/wayanphantomme/30min"
                 className="w-full text-center rounded-2xl bg-white hover:bg-slate-100 text-black px-7 py-4 text-base font-bold
                            transition-all duration-300 hover:scale-[1.02] hover:shadow-[0_0_24px_rgba(255,255,255,0.15)] block"
               >

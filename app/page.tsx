@@ -18,8 +18,8 @@ export default function Home() {
         <HeroSection />
         <TechMarquee />
         <PainPointSection />
-        <ClientsSection />
         <CapabilitiesSection />
+        <ClientsSection />
         <PortfolioSection />
         <ProcessSection />
         <RiskReversalSection />
