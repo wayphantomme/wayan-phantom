@@ -131,21 +131,21 @@ export default function PortfolioSection() {
         <div className="flex flex-col md:flex-row md:items-end md:justify-between mb-12 md:mb-16 gap-6">
           <div className="text-left">
             <p className="text-xs font-bold uppercase tracking-[0.2em] text-neutral-400 mb-3 md:mb-4">
-              Featured Work
+              My Journey
             </p>
             <h2
               id="portfolio-heading"
               className="text-4xl md:text-5xl font-extrabold text-black tracking-tight leading-tight"
               style={{ fontFamily: "var(--font-plus-jakarta), sans-serif" }}
             >
-              Our Gallery of Activities
+              Places & Communities
             </h2>
             <p className="mt-4 text-neutral-500 max-w-xl text-sm md:text-base font-medium">
-              A visual journey through the dynamic hackathons, immersive summits, and builder communities that define our global impact.
+              A visual journey through the hackathons, summits, and builder communities that have shaped who I am as a developer and automation specialist.
             </p>
           </div>
 
-          {/* Tombol Navigasi: hidden di mobile, flex mulai dari ukuran layar md */}
+          {/* Navigation buttons — desktop only */}
           <div className="hidden md:flex items-center gap-3">
             <button
               onClick={() => scroll("left")}

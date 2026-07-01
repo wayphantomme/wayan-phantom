@@ -15,12 +15,12 @@ export default function RiskReversalSection() {
             className="text-4xl md:text-5xl font-bold text-[#111111] tracking-tight leading-tight max-w-2xl mx-auto"
             style={{ fontFamily: "var(--font-plus-jakarta), sans-serif" }}
           >
-            Guaranteed Delivery.
+            You own everything.
             <br />
-            <span className="text-slate-400">Zero Risk to Get Started.</span>
+            <span className="text-slate-400">Zero lock-in. Zero risk to start.</span>
           </h2>
           <p className="mt-4 text-slate-500 text-sm md:text-base max-w-lg mx-auto leading-relaxed">
-            We eliminate the anxiety of hiring software houses by taking on the risk ourselves. Here is how we ensure your project is a success:
+            I eliminate the risk of working with a freelancer by being transparent from day one. Here&apos;s my commitment to you:
           </p>
         </div>
 
@@ -29,21 +29,21 @@ export default function RiskReversalSection() {
           {[
             {
               icon: "🤝",
-              title: "Zero-Risk Discovery",
+              title: "Free Discovery Call",
               description:
-                "Book a free 30-minute call. We'll audit your existing architecture or product idea, providing immediate, actionable insights with no obligation.",
+                "Book a free 30-minute call. I'll audit your workflows, identify your biggest automation opportunities, and give you actionable advice — no strings attached.",
             },
             {
               icon: "📋",
-              title: "Fixed-Price Blueprint",
+              title: "Clear Scope Upfront",
               description:
-                "Before signing a development agreement, we build a detailed technical scope document. You know the exact price and timeline up front.",
+                "Before any work begins, I map out the full automation blueprint. You know exactly what gets built, what tools are used, and what it costs.",
             },
             {
-              icon: "👁️",
-              title: "Transparent Sprints",
+              icon: "🔓",
+              title: "You Own Everything",
               description:
-                "Every Friday, we push updates to a live staging URL. You see progress week by week, ensuring there are no late-stage surprises.",
+                "All workflows, credentials, and documentation belong to you. I deliver full handover with training — no black boxes, no vendor lock-in.",
             },
           ].map((item) => (
             <div

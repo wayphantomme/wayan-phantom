@@ -1,29 +1,29 @@
 const footerColumns = [
   {
-    heading: "About Megatha Tech",
+    heading: "About Wayan",
     links: [
-      { label: "Our Story", href: "#" },
-      { label: "Team", href: "#" },
-      { label: "Culture & Values", href: "#" },
-      { label: "Careers", href: "#" },
+      { label: "My Story", href: "#" },
+      { label: "GitHub", href: "https://github.com/wayphantomme" },
+      { label: "LinkedIn", href: "#" },
+      { label: "Hire Me", href: "https://calendly.com/wayanphantomme/30min" },
     ],
   },
   {
     heading: "Services",
     links: [
-      { label: "Full-Stack Development", href: "#services" },
-      { label: "Web3 & Blockchain", href: "#services" },
-      { label: "AI & Automation", href: "#services" },
-      { label: "UI/UX Design", href: "#services" },
+      { label: "AI Automation with n8n", href: "#services" },
+      { label: "AI Chatbots & Agents", href: "#services" },
+      { label: "Full-Stack Web Apps", href: "#services" },
+      { label: "Workflow Consulting", href: "#services" },
     ],
   },
   {
-    heading: "Our Work",
+    heading: "My Work",
     links: [
+      { label: "Gallery", href: "#portfolio" },
       { label: "Case Studies", href: "#portfolio" },
-      { label: "Portfolio", href: "#portfolio" },
-      { label: "Client Reviews", href: "#" },
-      { label: "Open Source", href: "#" },
+      { label: "Open Source", href: "https://github.com/wayphantomme" },
+      { label: "Book a Call", href: "https://calendly.com/wayanphantomme/30min" },
     ],
   },
   {
@@ -55,7 +55,7 @@ export default function Footer() {
       <div
         className="absolute top-10 left-10 w-[300px] h-[300px] rounded-full opacity-[0.03] pointer-events-none"
         style={{
-          background: "radial-gradient(circle, rgba(59,130,246,0.3) 0%, transparent 70%)",
+          background: "radial-gradient(circle, rgba(249,115,22,0.4) 0%, transparent 70%)",
           filter: "blur(80px)",
         }}
       />
@@ -73,11 +73,11 @@ export default function Footer() {
               style={{ fontFamily: "var(--font-plus-jakarta), sans-serif" }}
             >
               <span className="bg-gradient-to-r from-white via-slate-200 to-slate-400 bg-clip-text text-transparent">
-                Book your call now.
+                Let&apos;s automate your business.
               </span>
             </h2>
             <p className="mt-6 text-base text-slate-400 leading-relaxed max-w-xl">
-              We design and engineer high-performance systems that don&apos;t break at scale. Get a comprehensive scope blueprint and fixed-price estimate. Zero obligation.
+              Book a free 30-minute call and I&apos;ll identify exactly what to automate first — and what it will take to build it. Zero obligation.
             </p>
           </div>
 
@@ -105,7 +105,7 @@ export default function Footer() {
 
               {/* Social links */}
               <div className="flex items-center justify-between border-b border-white/[0.06] pb-6">
-                <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Social Channels</span>
+                <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Connect</span>
                 <div className="flex gap-3">
                   {[
                     {
@@ -128,7 +128,7 @@ export default function Footer() {
                     },
                     {
                       label: "LinkedIn",
-                      href: "http://linkedin.com/company/megathatech/",
+                      href: "https://linkedin.com/in/wayphantomme",
                       svg: (
                         <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                           <path fillRule="evenodd" d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764 1.75.79 1.75 1.764-.783 1.764-1.75 1.764zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z" clipRule="evenodd" />
@@ -137,7 +137,7 @@ export default function Footer() {
                     },
                     {
                       label: "Twitter/X",
-                      href: "https://x.com/megathatech",
+                      href: "https://x.com/wayphantomme",
                       svg: (
                         <svg className="w-4.5 h-4.5" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                           <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
@@ -167,7 +167,7 @@ export default function Footer() {
                 className="w-full text-center rounded-2xl bg-white hover:bg-slate-100 text-black px-7 py-4 text-base font-bold
                            transition-all duration-300 hover:scale-[1.02] hover:shadow-[0_0_24px_rgba(255,255,255,0.15)] block"
               >
-                Book a Discovery Call ↗
+                Book a Free Discovery Call ↗
               </a>
             </div>
           </div>
@@ -182,8 +182,8 @@ export default function Footer() {
               </h3>
               <ul className="space-y-4">
                 {col.links.map((link) => (
-                  <li key={link.label} className="text-sm text-slate-400">
-                    {link.label}
+                  <li key={link.label} className="text-sm text-slate-400 hover:text-white transition-colors duration-200 cursor-pointer">
+                    <a href={link.href}>{link.label}</a>
                   </li>
                 ))}
               </ul>
@@ -193,14 +193,14 @@ export default function Footer() {
 
         {/* Bottom bar */}
         <div className="border-t border-white/[0.06] pt-10 flex flex-col sm:flex-row items-center justify-between gap-4">
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
-            src="/Megatha-Logo-Black.svg"
-            alt="Megatha Tech"
-            className="h-7 w-auto object-contain invert brightness-0 invert"
-          />
+          {/* Logo / name */}
+          <div className="flex items-center gap-3">
+            <span className="text-white font-bold tracking-tight text-lg">
+              Wayan Phantom
+            </span>
+          </div>
           <p className="text-xs text-slate-600">
-            © {new Date().getFullYear()} Megatha Tech. All rights reserved.
+            © {new Date().getFullYear()} Wayan Phantom. All rights reserved.
           </p>
         </div>
       </div>

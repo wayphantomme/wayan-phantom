@@ -16,22 +16,23 @@ const plusJakarta = Plus_Jakarta_Sans({
 });
 
 export const metadata: Metadata = {
-  title: "Megatha Tech — Premium Software House for High-Growth Startups",
+  title: "Wayan Phantom — AI Automation & n8n Specialist",
   description:
-    "We build production-ready web applications, Web3 infrastructure, and AI automation workflows for high-growth startups and enterprises. Book a discovery call today.",
+    "I build AI automation systems, n8n workflows, and intelligent bots that eliminate manual work and scale your operations. Available for freelance projects.",
   keywords: [
-    "software house",
-    "web development",
-    "Next.js",
-    "Web3",
-    "AI agents",
-    "blockchain",
-    "startup engineering",
+    "AI automation",
+    "n8n",
+    "workflow automation",
+    "AI chatbots",
+    "LLM integration",
+    "freelance automation",
+    "n8n specialist",
+    "Wayan Phantom",
   ],
   openGraph: {
-    title: "Megatha Tech — Premium Software House",
+    title: "Wayan Phantom — AI Automation & n8n Specialist",
     description:
-      "Engineering premium web applications, decentralized infrastructure, and AI-driven automation workflows with high-velocity deployment.",
+      "I automate the work you hate so you can focus on what matters. AI workflows, n8n integrations, and intelligent bots built for real business impact.",
     type: "website",
   },
 };

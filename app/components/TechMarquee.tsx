@@ -6,15 +6,14 @@ const techBadges = [
   { label: "Next.js",     bg: "#111111", color: "#ffffff", icon: "nextdotjs" },
   { label: "TypeScript",  bg: "#3178C6", color: "#ffffff", icon: "typescript" },
   { label: "Tailwind CSS",bg: "#0EA5E9", color: "#ffffff", icon: "tailwindcss" },
-  { label: "Solana",      bg: "#9333EA", color: "#ffffff", icon: "solana" },
-  { label: "Rust",        bg: "#B91C1C", color: "#ffffff", icon: "rust" },
   { label: "Node.js",     bg: "#15803D", color: "#ffffff", icon: "nodedotjs" },
+  { label: "Python",      bg: "#3776AB", color: "#ffffff", icon: "python" },
+  { label: "Anthropic",   bg: "#D97757", color: "#ffffff", icon: "anthropic" },
+  { label: "Make",        bg: "#150428", color: "#ffffff", icon: "make" },
   { label: "PostgreSQL",  bg: "#1D4ED8", color: "#ffffff", icon: "postgresql" },
-  { label: "Go",          bg: "#0369A1", color: "#ffffff", icon: "go" },
   { label: "Docker",      bg: "#1E40AF", color: "#ffffff", icon: "docker" },
-  { label: "GraphQL",     bg: "#BE185D", color: "#ffffff", icon: "graphql" },
   { label: "Prisma",      bg: "#0F172A", color: "#ffffff", icon: "prisma" },
-  { label: "Redis",       bg: "#DC2626", color: "#ffffff", icon: "redis" },
+  { label: "Supabase",    bg: "#3ECF8E", color: "#000000", icon: "supabase" },
 ];
 
 const toolBadges = [

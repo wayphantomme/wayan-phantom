@@ -8,14 +8,15 @@ import { motion, useScroll, useTransform, MotionValue } from "framer-motion";
 type Token = { type: "word"; text: string; dim?: boolean } | { type: "br" };
 
 const h2Tokens: Token[] = [
-  { type: "word", text: "Tired" },
-  { type: "word", text: "of" },
-  { type: "word", text: "chasing" },
-  { type: "word", text: "developers" },
-  { type: "word", text: "and" },
-  { type: "word", text: "still", dim: true },
-  { type: "word", text: "missing", dim: true },
-  { type: "word", text: "deadlines?", dim: true },
+  { type: "word", text: "Still" },
+  { type: "word", text: "doing" },
+  { type: "word", text: "it" },
+  { type: "word", text: "manually" },
+  { type: "word", text: "while" },
+  { type: "word", text: "your", dim: true },
+  { type: "word", text: "competitors", dim: true },
+  { type: "word", text: "automate", dim: true },
+  { type: "word", text: "everything?", dim: true },
 ];
 
 const h2WordCount = h2Tokens.filter((t) => t.type === "word").length;
@@ -57,13 +58,11 @@ export default function PainPointSection() {
   const containerRef = useRef<HTMLDivElement>(null);
   const h2Ref = useRef<HTMLHeadingElement>(null);
 
-  // Scroll progress khusus untuk h2
   const { scrollYProgress: h2Progress } = useScroll({
     target: h2Ref,
     offset: ["start 0.85", "center 0.4"],
   });
 
-  // IntersectionObserver untuk elemen .fade-in-up lainnya
   useEffect(() => {
     const observer = new IntersectionObserver(
       (entries) => {
@@ -100,7 +99,7 @@ export default function PainPointSection() {
       />
 
       <div className="relative mx-auto max-w-4xl">
-        {/* Bold question — scroll-animated word by word + inline tagline */}
+        {/* Bold question — scroll-animated word by word */}
         <h2
           id="pain-point-heading"
           ref={h2Ref}
@@ -123,7 +122,9 @@ export default function PainPointSection() {
               );
             });
           })()}
-          </h2>
+        </h2>
+
+
       </div>
     </section>
   );

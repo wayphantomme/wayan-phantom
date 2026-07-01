@@ -40,10 +40,7 @@ export default function Header() {
     return () => window.removeEventListener("click", handleOutsideClick);
   }, []);
 
-
-
   return (
-
     <header className="sticky top-0 w-full flex flex-col items-center z-100">
 
       <motion.div
@@ -52,19 +49,14 @@ export default function Header() {
         initial={{ maxHeight: 80, opacity: 1 }}
         transition={{ duration: 0.3, ease: "easeOut" }}
       >
-        <a
-          className="block w-full no-underline"
-        >
-          <div className="flex justify-center items-center w-full py-[3.5vw] sm:py-[1vw] px-[4vw] border-b border-[#e5e5e5] bg-white/80 backdrop-blur-[12px]">
-            <p className="flex flex-col sm:flex-row items-center text-center gap-[1vw] sm:gap-[0.5vw] text-[3.5vw] sm:text-[0.97vw] text-[#a3a3a3] font-medium leading-tight sm:leading-none">
-              <span>Q3 2026 Development Slots Now Open.</span>
-
-              <strong className="font-extrabold text-black tracking-tight text-[3.5vw] sm:text-[0.97vw]">
-                Only 2 slots remaining for this quarter.
-              </strong>
-            </p>
-          </div>
-        </a>
+        <div className="flex justify-center items-center w-full py-[3.5vw] sm:py-[1vw] px-[4vw] border-b border-[#e5e5e5] bg-white/80 backdrop-blur-[12px]">
+          <p className="flex flex-col sm:flex-row items-center text-center gap-[1vw] sm:gap-[0.5vw] text-[3.5vw] sm:text-[0.97vw] text-[#a3a3a3] font-medium leading-tight sm:leading-none">
+            <span>🤖 Actively looking for a full-time role.</span>
+            <strong className="font-extrabold text-black tracking-tight text-[3.5vw] sm:text-[0.97vw]">
+              Open to opportunities in AI & Automation.
+            </strong>
+          </p>
+        </div>
       </motion.div>
 
       <motion.nav
@@ -73,25 +65,17 @@ export default function Header() {
         className="flex justify-between items-center w-[92vw] sm:max-w-[55vw] px-[4vw] py-[2vw] sm:px-[1.5vw] sm:py-[0.8vw] bg-[#e5e5e580] rounded-[99px] backdrop-blur-[12px] relative border border-[#e5e5e5] mt-[6vw] sm:mt-[1.5vw]"
       >
         <a href="/" className="flex items-center gap-[1.5vw] sm:gap-[0.6vw]">
-          <img
-            src="Megatha-Logo-Black.svg"
-            alt="Megatha logo"
-            width={394}
-            height={117}
-            className="w-auto h-[5.5vw] sm:h-[1.5vw] min-h-[20px] "
-          />
           <div className="flex flex-col justify-center text-left leading-[0.9]">
             <span className="text-black font-bold tracking-tight text-[3.9vw] sm:text-[1.3vw] min-text-[10px]">
-              Megatha Tech
+              Wayan Phantom
             </span>
-
           </div>
         </a>
 
         <div className="flex items-center gap-[2vw] sm:gap-[0.8vw]">
           <a
             href="https://calendly.com/wayanphantomme/30min"
-            className="hidden sm:flex items-center gap-[0.5vw] px-[1.2vw] py-[0.6vw] bg-black text-white text-[1vw] font-semibold rounded-[99px] transition-colors duration-300 hover:bg-white hover:text-black no-underline"
+            className="hidden sm:flex items-center gap-[0.5vw] px-[1.2vw] py-[0.6vw] bg-black text-white text-[1vw] font-semibold rounded-[99px] transition-colors duration-300 hover:bg-white hover:text-black no-underline border border-transparent hover:border-black"
           >
             Book a Call
             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24">
@@ -103,14 +87,13 @@ export default function Header() {
             ref={hamburgerRef}
             onClick={() => setMenuOpen((v) => !v)}
             className="flex sm:hidden border border-[#e5e5e5] rounded-[8px] cursor-pointer p-[1.5vw] bg-[#f5f5f5]"
+            aria-label="Open menu"
           >
-            <img
-              src="https://sody.app/_image?href=%2F_astro%2Fhamburger.Cx9jG_OA.svg&w=24&h=24&f=svg"
-              alt="hamburger"
-              width={24}
-              height={24}
-              className="w-[5vw] h-[5vw]"
-            />
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-[5vw] h-[5vw]">
+              <line x1="3" y1="6" x2="21" y2="6" />
+              <line x1="3" y1="12" x2="21" y2="12" />
+              <line x1="3" y1="18" x2="21" y2="18" />
+            </svg>
           </button>
 
           <AnimatePresence>
@@ -125,29 +108,28 @@ export default function Header() {
               >
                 <div className="flex flex-row items-center justify-center gap-[2vw]">
                   <a
-                    href="https://www.instagram.com/megatha.tech/"
+                    href="https://wa.me/+6289688072039"
                     className="flex flex-1 px-[4vw] py-[3vw] no-underline bg-white justify-center items-center text-center rounded-[10px] text-[3.8vw] font-semibold text-black border border-[#e5e5e5]"
                   >
-                    Instagram
+                    WhatsApp
                   </a>
                 </div>
                 <div className="flex flex-row items-center justify-center gap-[2vw]">
                   <a
-                    href="https://x.com/megathatech"
+                    href="https://github.com/wayphantomme"
                     className="flex flex-1 px-[4vw] py-[3vw] no-underline bg-white justify-center items-center text-center rounded-[10px] text-[3.8vw] font-semibold text-black border border-[#e5e5e5]"
                   >
-                    Twitter / X
+                    GitHub
                   </a>
                 </div>
                 <div className="flex flex-row items-center justify-center gap-[2vw]">
                   <a
-                    href="http://linkedin.com/company/megathatech/"
-                    className="flex flex-1 px-[4vw] py-[3vw] no-underline bg-white justify-center items-center text-center rounded-[10px] text-[3.8vw] font-semibold text-black border border-[#e5e5e5]"
+                    href="https://calendly.com/wayanphantomme/30min"
+                    className="flex flex-1 px-[4vw] py-[3vw] no-underline bg-black justify-center items-center text-center rounded-[10px] text-[3.8vw] font-semibold text-white border border-black"
                   >
-                    LinkedIn
+                    Book a Call ↗
                   </a>
                 </div>
-
               </motion.div>
             )}
           </AnimatePresence>

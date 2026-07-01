@@ -7,7 +7,7 @@ import ClientsSection from "./components/ClientsSection";
 import CapabilitiesSection from "./components/CapabilitiesSection";
 import PortfolioSection from "./components/PortfolioSection";
 import ProcessSection from "./components/ProcessSection";
-import RiskReversalSection from "./components/RiskReversalSection";
+
 import Footer from "./components/Footer";
 
 export default function Home() {
@@ -22,7 +22,7 @@ export default function Home() {
         <ClientsSection />
         <PortfolioSection />
         <ProcessSection />
-        <RiskReversalSection />
+
       </main>
       <Footer />
     </>
