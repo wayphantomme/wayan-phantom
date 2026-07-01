@@ -111,10 +111,10 @@ export default function HeroSection() {
             {/* Stats Grid */}
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-6 mb-2 text-center lg:text-left">
               {[
-                { stat: "20+", label: "Projects Delivered" },
-                { stat: "5+", label: "Countries Served" },
+                { stat: "24/7", label: "Automation" },
                 { stat: "100%", label: "Client Owned" },
-                { stat: "n8n", label: "Specialist" },
+                { stat: "No-code", label: "& AI" },
+                { stat: "Fast", label: "Delivery" },
               ].map((item) => (
                 <div key={item.label} className="flex flex-col">
                   <span className="text-2xl font-black text-[#111111] tracking-tight">{item.stat}</span>
