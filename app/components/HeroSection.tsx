@@ -200,7 +200,7 @@ export default function HeroSection() {
               { label: "n8n", slug: "n8n" },
               { label: "Claude", slug: "anthropic" },
               { label: "Gemini", slug: "googlegemini" },
-              { label: "Make", slug: "make" },
+              { label: "Notion", slug: "notion" },
               { label: "GitHub", slug: "github" },
             ].map((logo) => (
               <div

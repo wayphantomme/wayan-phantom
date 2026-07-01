@@ -99,9 +99,9 @@ export default function ClientsMarquee() {
   return (
     <div className="w-full pt-16 md:pt-24 pb-[8vw] md:pb-[4vw] overflow-hidden relative bg-white">
 
-         <h4 className="text-center text-xs font-bold text-gray-400 tracking-widest uppercase mb-12">
-          PREVIOUS CLIENTS AND PROJECTS
-        </h4>
+          <h4 className="text-center text-xs font-bold text-gray-400 tracking-widest uppercase mb-12">
+            wordpress development clients
+          </h4>
 
       <div className="flex gap-[4vw] md:gap-[2.77vw] overflow-x-hidden w-full relative">
         <MarqueeTrack />

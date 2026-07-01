@@ -14,6 +14,9 @@ const techBadges = [
   { label: "Docker",      bg: "#1E40AF", color: "#ffffff", icon: "docker" },
   { label: "Prisma",      bg: "#0F172A", color: "#ffffff", icon: "prisma" },
   { label: "Supabase",    bg: "#3ECF8E", color: "#000000", icon: "supabase" },
+  { label: "Vercel",      bg: "#000000", color: "#ffffff", icon: "vercel" },
+  { label: "Railway",     bg: "#0B0D0E", color: "#ffffff", icon: "railway" },
+  { label: "GCP",         bg: "#4285F4", color: "#ffffff", icon: "googlecloud" },
 ];
 
 const toolBadges = [
@@ -32,11 +35,11 @@ const toolBadges = [
     icon: "n8n"
   },
   {
-    label: "Canva",
-    bgClass: "bg-violet-50/60",
-    textClass: "text-violet-800",
-    borderClass: "border-violet-200/50",
-    icon: "canva"
+    label: "Zapier",
+    bgClass: "bg-red-50/60",
+    textClass: "text-red-800",
+    borderClass: "border-red-200/50",
+    icon: "zapier"
   },
   {
     label: "Figma",
@@ -58,6 +61,13 @@ const toolBadges = [
     textClass: "text-sky-800",
     borderClass: "border-sky-200/50",
     icon: "airtable"
+  },
+  {
+    label: "Notion",
+    bgClass: "bg-slate-50/60",
+    textClass: "text-slate-800",
+    borderClass: "border-slate-200/50",
+    icon: "notion"
   },
   {
     label: "WordPress",

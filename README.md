@@ -1,36 +1,40 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Wayan Phantom — Portfolio & Playground
 
-## Getting Started
+Hi there! 👋 I'm **Wayan**, a Full-Stack Developer and Automation Engineer. 
 
-First, run the development server:
+If you're a **recruiter** looking for a developer who understands product and business logic, or a **business owner** looking to stop doing repetitive manual work, you're in the right place.
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+This repository holds the source code for my personal portfolio. It's built to showcase not just the code I write, but the real-world business problems I solve.
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## 🚀 What I Do
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+I bridge the gap between heavy software engineering and rapid business automation:
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+1. **Full-Stack Web Engineering:** I build fast, responsive, and robust web applications. I care about clean architecture, great user experiences, and code that scales reliably. 
+2. **Business Automation (n8n & Zapier):** I connect the tools you use every day (CRMs, Slack, Email, Databases) into seamless workflows. If a human is copying and pasting data every day, I build a system to do it instantly.
+3. **AI Integrations:** I build custom internal tools, smart chatbots, and AI agents that actually understand your business context using models like Claude, OpenAI, and Gemini.
 
-## Learn More
+## 🛠 My Tech Stack
 
-To learn more about Next.js, take a look at the following resources:
+- **Frontend & Frameworks:** Next.js, React, TypeScript, Tailwind CSS
+- **Backend & Database:** Node.js, PostgreSQL, Supabase, Prisma
+- **Automation & Cloud:** n8n, Make, Zapier, Docker, Vercel, Google Cloud Platform (GCP)
+- **AI Tooling:** OpenAI, Anthropic, RAG (Retrieval-Augmented Generation)
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## 💡 Why Work With Me?
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+I don't just write code blindly based on a spec sheet. I look at the overarching business goal. 
+- **For Engineering Teams & Recruiters:** I write clean, maintainable code. I communicate proactively, document my work, and thrive in collaborative, fast-paced environments. I am actively looking for a full-time role where I can bring value from day one.
+- **For Business Owners:** I treat your business like it's my own. I focus on ROI, saving hours of manual labor, and building systems that scale as you grow.
 
-## Deploy on Vercel
+## 📫 Let's Connect
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+I'm actively looking for full-time opportunities and exciting projects in AI & Automation.
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- **Email:** [wayanphantomme@gmail.com](mailto:wayanphantomme@gmail.com)
+- **LinkedIn:** [wayphantomme](https://linkedin.com/in/wayphantomme)
+- **TikTok:** [@wayphantomme](https://tiktok.com/@wayphantomme)
+- **GitHub:** [wayphantomme](https://github.com/wayphantomme)
+
+---
+*Built with Next.js, Tailwind CSS, and a lot of coffee.* ☕

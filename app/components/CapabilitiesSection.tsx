@@ -7,7 +7,7 @@ const services = [
     description:
       "I design and deploy automation systems that eliminate repetitive work and connect all your tools into one intelligent engine. From lead capture to operations — running 24/7 without you lifting a finger.",
     tags: ["n8n", "OpenAI", "Claude", "Gemini", "WhatsApp", "Airtable", "Make", "Zapier"],
-    image: "https://res.cloudinary.com/dwsapeq3m/image/upload/v1782823521/ai-development_eiy8cz.jpg",
+    image: "https://res.cloudinary.com/dwsapeq3m/image/upload/v1782875749/ChatGPT_Image_Jul_1_2026_11_14_56_AM_rrgs3y.png",
   },
   {
     id: "web-dev",
@@ -15,15 +15,15 @@ const services = [
     description:
       "I build fast, scalable web applications designed for real business growth — not just MVPs. Clean code, great UX, and built to handle real-world usage without breaking.",
     tags: ["Next.js", "React", "Node.js", "PostgreSQL", "Cloud Infrastructure", "API"],
-    image: "https://res.cloudinary.com/dwsapeq3m/image/upload/v1782823521/web_development_bvzvnw.jpg",
+    image: "https://res.cloudinary.com/dwsapeq3m/image/upload/v1782875749/ChatGPT_Image_Jul_1_2026_11_14_58_AM_pkn2lq.png",
   },
   {
     id: "ai-chatbots",
-    category: "AI Chatbots & Agents",
+    category: "AI Chatbots & Agents (Future)",
     description:
       "Custom LLM-powered assistants trained on your business data. WhatsApp bots, customer support agents, internal knowledge bases — AI that actually understands your context and responds like a human.",
     tags: ["LLM", "RAG", "WhatsApp Bot", "OpenAI", "Claude", "Vector DB", "Custom Agents"],
-    image: "https://res.cloudinary.com/dwsapeq3m/image/upload/v1782823522/blockchain-development_nnzxqm.jpg",
+    image: "https://res.cloudinary.com/dwsapeq3m/image/upload/v1782875750/ChatGPT_Image_Jul_1_2026_11_15_36_AM_oirt8m.png",
   },
 ];
 
