@@ -638,6 +638,40 @@ body {
 }
 .cv-hackathon-item:hover .cv-hackathon-arrow { color: #888; }
 
+/* ══ TECH STACK ══════════════════════════════════════════════════════════ */
+.cv-tech-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+}
+.cv-tech-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.35rem 0.65rem;
+  border-radius: 0.4rem;
+  color: #ffffff;
+  font-size: 0.7rem;
+  font-weight: 600;
+  transition: transform 0.15s, box-shadow 0.15s;
+  cursor: default;
+  letter-spacing: -0.01em;
+}
+.cv-tech-badge:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+}
+.cv-tech-icon {
+  width: 16px;
+  height: 16px;
+  object-fit: contain;
+  flex-shrink: 0;
+}
+.cv-tech-name {
+  line-height: 1.2;
+  white-space: nowrap;
+}
+
 /* ══ EXPERIENCE (Works tab) ══════════════════════════════════════════════ */
 .cv-exp-list {
   display: flex;

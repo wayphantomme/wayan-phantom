@@ -4,6 +4,21 @@ import { useState } from "react";
 
 // ─── Data ───────────────────────────────────────────────────────────────────
 
+const techStacks = [
+  { name: "Next.js", bg: "#111111", icon: "https://cdn.simpleicons.org/nextdotjs/ffffff" },
+  { name: "React", bg: "#61DAFB", icon: "https://cdn.simpleicons.org/react/000000" },
+  { name: "TypeScript", bg: "#3178C6", icon: "https://cdn.simpleicons.org/typescript/ffffff" },
+  { name: "Node.js", bg: "#339933", icon: "https://cdn.simpleicons.org/nodedotjs/ffffff" },
+  { name: "Tailwind", bg: "#06B6D4", icon: "https://cdn.simpleicons.org/tailwindcss/ffffff" },
+  { name: "PostgreSQL", bg: "#4169E1", icon: "https://cdn.simpleicons.org/postgresql/ffffff" },
+  { name: "Figma", bg: "#F24E1E", icon: "https://cdn.simpleicons.org/figma/ffffff" },
+  { name: "Git", bg: "#F05032", icon: "https://cdn.simpleicons.org/git/ffffff" },
+  { name: "GitHub", bg: "#181717", icon: "https://cdn.simpleicons.org/github/ffffff" },
+  { name: "n8n", bg: "#EA4B22", icon: "https://cdn.simpleicons.org/n8n/ffffff" },
+  { name: "Claude", bg: "#D97757", icon: "https://cdn.simpleicons.org/anthropic/ffffff" },
+  { name: "Gemini", bg: "#4285F4", icon: "https://cdn.simpleicons.org/googlegemini/ffffff" },
+];
+
 const hackathonWins = [
   {
     id: "solana2026",
@@ -98,7 +113,7 @@ function ProfileCard() {
           <span className="cv-role-icon">🧑‍💻</span>
           <span className="cv-role-label">AI Apps Builder &amp; Content Creator</span>
         </div>
-        <p className="cv-bio">I build AI-powered apps and ship them fast. From idea to launch, I do the dev, the design, and the story.</p>
+        <p className="cv-bio">Building AI-powered apps and ship them fast. From idea to launch, do the dev, the design, and the story.</p>
       </div>
 
       {/* Social links */}
@@ -126,6 +141,11 @@ function ProfileCard() {
         <a href="https://www.instagram.com/wayphantomme" aria-label="Instagram" className="cv-social-btn" target="_blank" rel="noopener noreferrer">
           <svg width="16" height="16" fill="currentColor" viewBox="0 0 24 24">
             <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z" />
+          </svg>
+        </a>
+        <a href="https://x.com/wayphantomme" aria-label="X (Twitter)" className="cv-social-btn" target="_blank" rel="noopener noreferrer">
+          <svg width="16" height="16" fill="currentColor" viewBox="0 0 24 24">
+            <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.744l7.737-8.835L1.254 2.25H8.08l4.253 5.622 5.911-5.622zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
           </svg>
         </a>
       </div>
@@ -175,6 +195,31 @@ function HackathonPanel() {
   );
 }
 
+// ─── TechStackPanel ──────────────────────────────────────────────────────────
+
+function TechStackPanel() {
+  return (
+    <aside className="cv-hackathon-panel">
+      <h2 className="cv-hackathon-title">🛠️ Tech Stack</h2>
+      <div className="cv-tech-grid">
+        {techStacks.map((tech) => (
+          <div key={tech.name} className="cv-tech-badge" style={{ background: tech.bg }}>
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src={tech.icon}
+              alt={tech.name}
+              className="cv-tech-icon"
+              width={16}
+              height={16}
+            />
+            <span className="cv-tech-name">{tech.name}</span>
+          </div>
+        ))}
+      </div>
+    </aside>
+  );
+}
+
 // ─── Tab content panels ──────────────────────────────────────────────────────
 
 function AboutTab() {
@@ -183,16 +228,16 @@ function AboutTab() {
       <h3 className="cv-tab-section-title">💡 My Philosophy</h3>
       <div className="cv-about-body">
         <p className="cv-about-lead">
-          Started as a self-taught dev shipping small projects for clients. Now I build AI-powered apps, design the product, and create content around it. End to end, solo or in a team.
+          Started with zero CS background, just curiosity and a laptop. Built WordPress sites for global clients, learned on the job, and kept pushing further.
+        </p>
+        <p className="cv-about-lead">
+          That grind turned into a full stack skillset. Now I build AI-powered apps, design the product, and create content around it. End to end, solo or in a team.
         </p>
         <p className="cv-about-lead">
           I care about the full picture: the code, the UX, the story, and the people using it. Not just shipping features, but building things that actually make sense.
         </p>
         <p className="cv-about-muted">
-          I&apos;ve joined hackathons, worked with international companies, and built products across Web3, SaaS, and digital tools. I thrive at the intersection of tech and creativity.
-        </p>
-        <p className="cv-about-muted">
-          When the team gets lost in technical jargon, I&apos;m usually the one breaking it down so everyone gets what we&apos;re building. I spend time on the people side, making sure we&apos;re all working toward the same goal instead of just shipping random features. It&apos;s not just about the code. It&apos;s about understanding the people, the market, and the problem behind every line I write.
+          I&apos;ve worked with international companies, joined hackathons, and built across Web3, SaaS, and digital tools. I thrive at the intersection of tech and creativity — and I&apos;m always the one making sure the team is building the right thing, not just building things right.
         </p>
       </div>
     </div>
@@ -376,6 +421,7 @@ export default function CVLayout() {
         {/* ── Right column ─────────────────────────────────────── */}
         <div className="cv-right-col">
           <HackathonPanel />
+          <TechStackPanel />
 
           {/* ── What I Build ── */}
           <div className="cv-hackathon-panel">
