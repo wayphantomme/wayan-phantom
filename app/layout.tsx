@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import { Inter, Plus_Jakarta_Sans } from "next/font/google";
 import "./globals.css";
-import FloatingWhatsApp from "./components/FloatingWhatsApp";
 
 const inter = Inter({
   variable: "--font-inter",
@@ -16,7 +15,7 @@ const plusJakarta = Plus_Jakarta_Sans({
 });
 
 export const metadata: Metadata = {
-  title: "Wayan Phantom — AI Automation & n8n Specialist",
+  title: "Portfolio Wayan Phantom",
   description:
     "I build AI automation systems, n8n workflows, and intelligent bots that eliminate manual work and scale your operations. Available for freelance projects.",
   keywords: [
@@ -30,7 +29,7 @@ export const metadata: Metadata = {
     "Wayan Phantom",
   ],
   openGraph: {
-    title: "Wayan Phantom — AI Automation & n8n Specialist",
+    title: "Portfolio Wayan Phantom",
     description:
       "I automate the work you hate so you can focus on what matters. AI workflows, n8n integrations, and intelligent bots built for real business impact.",
     type: "website",
@@ -47,9 +46,8 @@ export default function RootLayout({
       lang="en"
       className={`${inter.variable} ${plusJakarta.variable} h-full antialiased`}
     >
-      <body className="min-h-full flex flex-col bg-white text-[#111111]">
+      <body className="min-h-full flex flex-col bg-[#f5f5f5] text-[#111111]">
         {children}
-        <FloatingWhatsApp />
       </body>
     </html>
   );
