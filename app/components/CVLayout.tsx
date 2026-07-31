@@ -62,6 +62,7 @@ const hackathonWins = [
 const portfolio = [
   { id: "lisk", title: "Lisk Builders SEA", category: "Hackathon", img: "https://res.cloudinary.com/dwsapeq3m/image/upload/v1781440980/lisk-winner_gtpvlt.jpg" },
   { id: "cursor", title: "Cursor Hackathon", category: "Hackathon", img: "https://res.cloudinary.com/dwsapeq3m/image/upload/v1781441579/cursor-hackathon_gblcd7.jpg" },
+  { id: "icp", title: "ICP Hackathon", category: "Hackathon", img: "https://res.cloudinary.com/dwsapeq3m/image/upload/v1785468532/ICP_Hackathon_bbziiv.jpg" },
   { id: "startup", title: "Startup Village", category: "Event", img: "https://res.cloudinary.com/dwsapeq3m/image/upload/v1781441581/startup-village_qaxvkp.jpg" },
   { id: "bali", title: "Bali Blockchain Summit", category: "Event", img: "https://res.cloudinary.com/dwsapeq3m/image/upload/v1781440979/bali-blockchain-summit_eqgftm.jpg" },
   { id: "retreat", title: "Builders Retreat", category: "Event", img: "https://res.cloudinary.com/dwsapeq3m/image/upload/v1781440976/lisk-villa_ci2j7a.jpg" },
@@ -69,6 +70,16 @@ const portfolio = [
   { id: "superid", title: "Superteam Indonesia", category: "Community", img: "https://res.cloudinary.com/dwsapeq3m/image/upload/v1781441351/Superteam-ID_sixibw.jpg" },
   { id: "jupiter", title: "Jupiter Malaysia", category: "Community", img: "https://res.cloudinary.com/dwsapeq3m/image/upload/v1785466792/Jupiter_Malaysia_z6lyqa.jpg" },
   { id: "apple", title: "Apple Developer Academy", category: "Education", img: "https://res.cloudinary.com/dwsapeq3m/image/upload/v1781441589/apple-developer-academy_ms2iiz.jpg" },
+];
+
+const certifications = [
+  { id: "c1", img: "https://res.cloudinary.com/dwsapeq3m/image/upload/v1785467874/Wayan_Phantom_Megaditha_page-0001_r3er15.jpg" },
+  { id: "c2", img: "https://res.cloudinary.com/dwsapeq3m/image/upload/v1785467873/phantom-megaditha-certificate-completion-damc22_page-0001_hya5j6.jpg" },
+  { id: "c3", img: "https://res.cloudinary.com/dwsapeq3m/image/upload/v1785467859/Hubspot_xsqxel.png" },
+  { id: "c4", img: "https://res.cloudinary.com/dwsapeq3m/image/upload/v1785467733/n8n_gr6o33.jpg" },
+  { id: "c5", img: "https://res.cloudinary.com/dwsapeq3m/image/upload/v1785467732/Udemy_m3zwsg.jpg" },
+  { id: "c6", img: "https://res.cloudinary.com/dwsapeq3m/image/upload/v1785467730/ICP_Hackathon_utve5y.jpg" },
+  { id: "c7", img: "https://res.cloudinary.com/dwsapeq3m/image/upload/v1785467730/Lisk_Spark_Incubator_mnjlwz.jpg" },
 ];
 
 const works = [
@@ -176,6 +187,29 @@ function ProfileCard() {
         </div>
       </div>
     </div>
+  );
+}
+
+// ─── CertificationsPanel ─────────────────────────────────────────────────────
+
+function CertificationsPanel() {
+  return (
+    <aside className="cv-hackathon-panel cv-cert-panel">
+      <h2 className="cv-hackathon-title">🎓 Certifications</h2>
+      <div className="cv-cert-track-outer">
+        <div className="cv-cert-track">
+          {[...certifications, ...certifications].map((c, i) => (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img
+              key={`${c.id}-${i}`}
+              src={c.img}
+              alt="Certificate"
+              className="cv-cert-img"
+            />
+          ))}
+        </div>
+      </div>
+    </aside>
   );
 }
 
@@ -320,7 +354,7 @@ const experience = [
 function WorksTab() {
   return (
     <div className="cv-tab-content">
-      <h3 className="cv-tab-section-title">💼 Experience</h3>
+      <h3 className="cv-tab-section-title">💼 Experiences</h3>
       <div className="cv-exp-list">
         {experience.map((exp, i) => (
           <div key={exp.id} className={`cv-exp-item ${i < experience.length - 1 ? "cv-exp-divider" : ""}`}>
@@ -462,6 +496,9 @@ export default function CVLayout() {
               ))}
             </div>
           </div>
+
+          {/* ── Certifications ── */}
+          <CertificationsPanel />
         </div>
       </div>
     </div>

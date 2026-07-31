@@ -802,3 +802,44 @@ body {
   gap: 0.3rem;
   margin-top: 0.1rem;
 }
+
+/* ══ CERTIFICATIONS ══════════════════════════════════════════════════════ */
+.cv-cert-panel {
+  overflow: hidden;
+  padding-bottom: 1rem;
+}
+.cv-cert-track-outer {
+  overflow: hidden;
+  width: 100%;
+  mask-image: linear-gradient(to right, transparent 0%, black 10%, black 90%, transparent 100%);
+  -webkit-mask-image: linear-gradient(to right, transparent 0%, black 10%, black 90%, transparent 100%);
+}
+.cv-cert-track {
+  display: flex;
+  flex-direction: row;
+  gap: 0.6rem;
+  width: max-content;
+  animation: cert-scroll 25s linear infinite;
+}
+.cv-cert-track:hover {
+  animation-play-state: paused;
+}
+.cv-cert-img {
+  height: 85px;
+  width: auto;
+  border-radius: 0.5rem;
+  object-fit: contain;
+  background: #fff;
+  border: 1px solid #f0f0f0;
+  flex-shrink: 0;
+  cursor: pointer;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+.cv-cert-img:hover {
+  transform: scale(1.05);
+  box-shadow: 0 4px 16px rgba(0,0,0,0.12);
+}
+@keyframes cert-scroll {
+  0%   { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
