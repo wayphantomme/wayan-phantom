@@ -17,6 +17,8 @@ const techStacks = [
   { name: "n8n", bg: "#EA4B22", icon: "https://cdn.simpleicons.org/n8n/ffffff" },
   { name: "Claude", bg: "#D97757", icon: "https://cdn.simpleicons.org/anthropic/ffffff" },
   { name: "Gemini", bg: "#4285F4", icon: "https://cdn.simpleicons.org/googlegemini/ffffff" },
+  { name: "Solana", bg: "#9945FF", icon: "https://cdn.simpleicons.org/solana/ffffff" },
+  { name: "Ethereum", bg: "#627EEA", icon: "https://cdn.simpleicons.org/ethereum/ffffff" },
 ];
 
 const hackathonWins = [
@@ -26,6 +28,13 @@ const hackathonWins = [
     sub: "Bali Community Grants $4,000",
     icon: "🔵",
     color: "#9945ff",
+  },
+  {
+    id: "superteam2026",
+    name: "Superteam Startup Village 2026",
+    sub: "Top 30 Builders Ideathon",
+    icon: "🏙️",
+    color: "#f59e0b",
   },
   {
     id: "lisk2025",
@@ -53,32 +62,33 @@ const hackathonWins = [
 const portfolio = [
   { id: "lisk", title: "Lisk Builders SEA", category: "Hackathon", img: "https://res.cloudinary.com/dwsapeq3m/image/upload/v1781440980/lisk-winner_gtpvlt.jpg" },
   { id: "cursor", title: "Cursor Hackathon", category: "Hackathon", img: "https://res.cloudinary.com/dwsapeq3m/image/upload/v1781441579/cursor-hackathon_gblcd7.jpg" },
-  { id: "apple", title: "Apple Developer Academy", category: "Education", img: "https://res.cloudinary.com/dwsapeq3m/image/upload/v1781441589/apple-developer-academy_ms2iiz.jpg" },
   { id: "startup", title: "Startup Village", category: "Event", img: "https://res.cloudinary.com/dwsapeq3m/image/upload/v1781441581/startup-village_qaxvkp.jpg" },
-  { id: "supersg", title: "Superteam Singapore", category: "Community", img: "https://res.cloudinary.com/dwsapeq3m/image/upload/v1781441353/Superteam-Singapore_d4cadr.jpg" },
-  { id: "superid", title: "Superteam ID", category: "Community", img: "https://res.cloudinary.com/dwsapeq3m/image/upload/v1781441351/Superteam-ID_sixibw.jpg" },
-  { id: "bali", title: "Bali Blockchain Summit", category: "Conference", img: "https://res.cloudinary.com/dwsapeq3m/image/upload/v1781440979/bali-blockchain-summit_eqgftm.jpg" },
+  { id: "bali", title: "Bali Blockchain Summit", category: "Event", img: "https://res.cloudinary.com/dwsapeq3m/image/upload/v1781440979/bali-blockchain-summit_eqgftm.jpg" },
   { id: "retreat", title: "Builders Retreat", category: "Event", img: "https://res.cloudinary.com/dwsapeq3m/image/upload/v1781440976/lisk-villa_ci2j7a.jpg" },
+  { id: "supersg", title: "Superteam Singapore", category: "Community", img: "https://res.cloudinary.com/dwsapeq3m/image/upload/v1781441353/Superteam-Singapore_d4cadr.jpg" },
+  { id: "superid", title: "Superteam Indonesia", category: "Community", img: "https://res.cloudinary.com/dwsapeq3m/image/upload/v1781441351/Superteam-ID_sixibw.jpg" },
+  { id: "jupiter", title: "Jupiter Malaysia", category: "Community", img: "https://res.cloudinary.com/dwsapeq3m/image/upload/v1785466792/Jupiter_Malaysia_z6lyqa.jpg" },
+  { id: "apple", title: "Apple Developer Academy", category: "Education", img: "https://res.cloudinary.com/dwsapeq3m/image/upload/v1781441589/apple-developer-academy_ms2iiz.jpg" },
 ];
 
 const works = [
   {
-    id: "n8n",
-    title: "AI Automation with n8n",
-    tags: ["n8n", "OpenAI", "Claude", "Gemini", "Airtable"],
-    desc: "I design and deploy automation systems that eliminate repetitive work and connect all your tools into one intelligent engine — running 24/7.",
+    id: "ai",
+    title: "AI Apps & Automation",
+    tags: ["n8n", "Automation", "Claude", "Gemini", "ChatGPT"],
+    desc: "I design and deploy intelligent systems that automate workflows, reduce manual work, and connect your entire business into one seamless ecosystem — running 24/7.",
   },
   {
     id: "web",
     title: "Full-Stack Web Apps",
-    tags: ["Next.js", "React", "Node.js", "PostgreSQL", "API"],
-    desc: "Fast, scalable web applications built for real business growth — clean code, great UX, and designed to handle real-world usage.",
+    tags: ["UI/UX Design", "Frontend Development", "Backend Development", "Domain & Hosting", "API Integration"],
+    desc: "Fast, scalable web applications built for real business operations — from UI/UX to backend infrastructure, fully optimized for performance and growth.",
   },
   {
-    id: "bots",
-    title: "AI Chatbots & Agents",
-    tags: ["LLM", "RAG", "WhatsApp Bot", "Claude", "Vector DB"],
-    desc: "Custom LLM-powered assistants trained on your business data. WhatsApp bots, support agents, internal knowledge bases.",
+    id: "nocode",
+    title: "No-Code Applications",
+    tags: ["WordPress", "Lovable", "Replit", "Bolt", "Figma"],
+    desc: "Rapidly build and launch functional applications without heavy coding — perfect for MVPs, internal tools, and business systems.",
   },
 ];
 
@@ -226,6 +236,18 @@ function AboutTab() {
   return (
     <div className="cv-tab-content">
       <h3 className="cv-tab-section-title">💡 My Philosophy</h3>
+      
+      {/* YouTube Video Embed */}
+      <div className="cv-video-container">
+        <iframe
+          className="cv-video-iframe"
+          src="https://www.youtube.com/embed/DLLj7CZmHco"
+          title="YouTube video"
+          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+          allowFullScreen
+        />
+      </div>
+
       <div className="cv-about-body">
         <p className="cv-about-lead">
           Started with zero CS background, just curiosity and a laptop. Built WordPress sites for global clients, learned on the job, and kept pushing further.
@@ -253,8 +275,8 @@ const experience = [
     period: "Jul 2025 – Present",
     bullets: [
       "Delivering AI automation, web development, and digital transformation services",
-      "Delivered websites, landing pages, and business systems for startups and SMEs",
-      "Managed business development, project delivery, and client relationships for 10+ clients",
+      "Built websites, landing pages, and business systems for startups and SMEs",
+      "Managed project delivery and client relationships for 10+ clients",
     ],
   },
   {
@@ -286,9 +308,9 @@ const experience = [
     role: "Business Development Associate",
     company: "EduCLaaS Pte Ltd",
     type: "Remote, Singapore",
-    period: "Apr 2024 – Mar 2025",
+    period: "Aug 2023 – Mar 2024",
     bullets: [
-      "Generated and nurtured business leads through HubSpot CRM campaigns",
+      "Generated and nurtured business leads through HubSpot CRM campaigns with 3 teams",
       "Collaborated with marketing teams to acquire 500+ potential customer contacts",
       "Supported regional business expansion initiatives across Southeast Asia",
     ],
