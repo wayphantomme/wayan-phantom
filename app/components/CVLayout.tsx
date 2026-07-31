@@ -182,7 +182,7 @@ function ProfileCard() {
           <span className="cv-stat-label">Satisfied Clients</span>
         </div>
         <div className="cv-stat">
-          <span className="cv-stat-num">2+</span>
+          <span className="cv-stat-num">3+</span>
           <span className="cv-stat-label">Years of Journey</span>
         </div>
       </div>
