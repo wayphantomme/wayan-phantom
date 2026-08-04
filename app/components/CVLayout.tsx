@@ -269,7 +269,7 @@ function TechStackPanel() {
 function AboutTab() {
   return (
     <div className="cv-tab-content">
-      <h3 className="cv-tab-section-title">💡 My Philosophy</h3>
+      <h3 className="cv-tab-section-title">🗂️ My Daily Operations</h3>
       
       {/* YouTube Video Embed */}
       <div className="cv-video-container">
@@ -284,16 +284,19 @@ function AboutTab() {
 
       <div className="cv-about-body">
         <p className="cv-about-lead">
-          Started with zero CS background, just curiosity and a laptop. Built WordPress sites for global clients, learned on the job, and kept pushing further.
-        </p>
-        <p className="cv-about-lead">
-          That grind turned into a full stack skillset. Now I build AI-powered apps, design the product, and create content around it. End to end, solo or in a team.
-        </p>
-        <p className="cv-about-lead">
-          I care about the full picture: the code, the UX, the story, and the people using it. Not just shipping features, but building things that actually make sense.
+          Every project starts with a conversation. I listen to what the client needs, dig into the real problem behind the request, and map out the right solution before writing a single line of code.
         </p>
         <p className="cv-about-muted">
-          I&apos;ve worked with international companies, joined hackathons, and built across Web3, SaaS, and digital tools. I thrive at the intersection of tech and creativity — and I&apos;m always the one making sure the team is building the right thing, not just building things right.
+          For UI/UX, I use Stitch by Google to prototype and validate the design fast. When it&apos;s time to build, I work inside AI-native IDEs like Google Antigravity, Codex, and Kiro, powered by Claude, Gemini, and GPT to move at full speed without cutting corners.
+        </p>
+        <p className="cv-about-muted">
+          Before touching the keyboard, I prep everything: PRD, system architecture, feature breakdown, frontend and backend plan, and API integration specs. Then I ship from first commit to deployment on Vercel via GitHub.
+        </p>
+        <p className="cv-about-muted">
+          Debugging is part of the craft too. I go through every layer: confirming errors, catching missing env vars, replacing hardcoded data, removing dead code, and I use Testsprite for unit testing making sure every feature actually connects. Nothing ships half-done.
+        </p>
+        <p className="cv-about-muted">
+          Once everything is live, I hand over full documentation and a handoff guide so the client can take ownership with confidence.
         </p>
       </div>
     </div>
