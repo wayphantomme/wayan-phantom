@@ -26,14 +26,14 @@ const hackathonWins = [
     id: "solana2026",
     name: "Solana Foundation Indonesia 2026",
     sub: "Bali Community Grants $4,000",
-    icon: "🔵",
+    icon: "🌐",
     color: "#9945ff",
   },
   {
     id: "superteam2026",
     name: "Superteam Startup Village 2026",
     sub: "Top 30 Builders Ideathon",
-    icon: "🏙️",
+    icon: "💡",
     color: "#f59e0b",
   },
   {
@@ -296,7 +296,7 @@ function TechStackPanel() {
 function AboutTab() {
   return (
     <div className="cv-tab-content">
-      <h3 className="cv-tab-section-title">🚀 I Build Products, Not Just Code</h3>
+      <h3 className="cv-tab-section-title">I Build Products, Not Just Code</h3>
       
       {/* YouTube Video Embed */}
       <div className="cv-video-container">
