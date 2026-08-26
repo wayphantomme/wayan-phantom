@@ -92,7 +92,7 @@ const projects = [
       "https://raw.githubusercontent.com/wayphantomme/bulldex-finance/main/frontend/public/bulldex-landing.png",
       "https://raw.githubusercontent.com/wayphantomme/bulldex-finance/main/frontend/public/bulldex-swap.png",
     ],
-    web: "",
+    web: "https://bulldex-finance.vercel.app/",
     github: "https://github.com/wayphantomme/bulldex-finance",
   },
   {
