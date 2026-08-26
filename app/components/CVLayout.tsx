@@ -91,8 +91,6 @@ const projects = [
     mockups: [
       "https://raw.githubusercontent.com/wayphantomme/bulldex-finance/main/frontend/public/bulldex-landing.png",
       "https://raw.githubusercontent.com/wayphantomme/bulldex-finance/main/frontend/public/bulldex-swap.png",
-      "https://raw.githubusercontent.com/wayphantomme/bulldex-finance/main/frontend/public/bulldex-faucet.png",
-      "https://raw.githubusercontent.com/wayphantomme/bulldex-finance/main/frontend/public/bulldex-docs.png",
     ],
     web: "",
     github: "https://github.com/wayphantomme/bulldex-finance",
