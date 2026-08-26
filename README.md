@@ -1,6 +1,6 @@
 # Wayan Phantom — Portfolio & Playground
 
-Hi there! 👋 I'm **Wayan**, a Full-Stack Developer and Automation Engineer. 
+Hi there! 👋 I'm **Wayan**, a **Fullstack Software Engineer** specializing in web apps and DeFi/blockchain protocols.
 
 If you're a **recruiter** looking for a developer who understands product and business logic, or a **business owner** looking to stop doing repetitive manual work, you're in the right place.
 
@@ -8,11 +8,12 @@ This repository holds the source code for my personal portfolio. It's built to s
 
 ## 🚀 What I Do
 
-I bridge the gap between heavy software engineering and rapid business automation:
+I design, build, and ship production-grade software — from UI to smart contracts:
 
-1. **Full-Stack Web Engineering:** I build fast, responsive, and robust web applications. I care about clean architecture, great user experiences, and code that scales reliably. 
-2. **Business Automation (n8n & Zapier):** I connect the tools you use every day (CRMs, Slack, Email, Databases) into seamless workflows. If a human is copying and pasting data every day, I build a system to do it instantly.
-3. **AI Integrations:** I build custom internal tools, smart chatbots, and AI agents that actually understand your business context using models like Claude, OpenAI, and Gemini.
+1. **Full-Stack Web Engineering:** Fast, responsive, and robust web applications. Clean architecture, great UX, and code that scales reliably.
+2. **DeFi & Blockchain:** Full-stack DeFi protocols on Ethereum and Solana — token swaps, liquidity pools, smart contracts (Solidity), and wallet integrations.
+3. **AI Integrations:** Custom internal tools, smart chatbots, and AI agents powered by Claude, OpenAI, and Gemini.
+4. **Business Automation (n8n & Zapier):** Seamless workflow automation that eliminates repetitive manual work.
 
 ## 🛠 My Tech Stack
 

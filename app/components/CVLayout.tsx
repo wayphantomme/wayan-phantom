@@ -84,6 +84,20 @@ const certifications = [
 
 const projects = [
   {
+    id: "bulldex",
+    name: "Bulldex Finance",
+    logo: "https://raw.githubusercontent.com/wayphantomme/bulldex-finance/main/frontend/public/bulldex-logo.png",
+    desc: "A full-stack DeFi platform on Ethereum — featuring a Jupiter-style token swap, faucet, and real-time liquidity pool interface. Built with Next.js, Solidity smart contracts, and ethers.js.",
+    mockups: [
+      "https://raw.githubusercontent.com/wayphantomme/bulldex-finance/main/frontend/public/bulldex-landing.png",
+      "https://raw.githubusercontent.com/wayphantomme/bulldex-finance/main/frontend/public/bulldex-swap.png",
+      "https://raw.githubusercontent.com/wayphantomme/bulldex-finance/main/frontend/public/bulldex-faucet.png",
+      "https://raw.githubusercontent.com/wayphantomme/bulldex-finance/main/frontend/public/bulldex-docs.png",
+    ],
+    web: "",
+    github: "https://github.com/wayphantomme/bulldex-finance",
+  },
+  {
     id: "nekosinga",
     name: "Neko Singa AI",
     logo: "https://raw.githubusercontent.com/nekosinga/web/main/public/nekosinga-logo.png",
@@ -99,22 +113,22 @@ const projects = [
 
 const works = [
   {
-    id: "ai",
-    title: "AI Apps & Automation",
-    tags: ["n8n", "Automation", "Claude", "Gemini", "ChatGPT"],
-    desc: "I design and deploy intelligent systems that automate workflows, reduce manual work, and connect your entire business into one seamless ecosystem — running 24/7.",
-  },
-  {
     id: "web",
     title: "Full-Stack Web Apps",
-    tags: ["UI/UX Design", "Frontend Development", "Backend Development", "Domain & Hosting", "API Integration"],
-    desc: "Fast, scalable web applications built for real business operations — from UI/UX to backend infrastructure, fully optimized for performance and growth.",
+    tags: ["Next.js", "React", "TypeScript", "Node.js", "PostgreSQL", "API Integration"],
+    desc: "End-to-end web applications built for real business scale — from pixel-perfect UI to robust backend infrastructure. Every project ships with clean architecture, optimized performance, and a full deployment pipeline on Vercel via GitHub.",
   },
   {
-    id: "nocode",
-    title: "No-Code Applications",
-    tags: ["WordPress", "Lovable", "Replit", "Bolt", "Figma"],
-    desc: "Rapidly build and launch functional applications without heavy coding — perfect for MVPs, internal tools, and business systems.",
+    id: "web3",
+    title: "Web3 & Blockchain Engineer",
+    tags: ["Ethereum", "Solana", "Solidity", "DeFi", "DEX", "Smart Contracts", "ethers.js"],
+    desc: "Building production DeFi protocols on Ethereum and Solana — token swaps, liquidity pools, faucets, and on-chain integrations. From Solidity smart contracts to full-stack frontends like Bulldex Finance and Neko Singa AI.",
+  },
+  {
+    id: "ai",
+    title: "AI Apps & Automation",
+    tags: ["Claude", "Gemini", "OpenAI", "n8n", "RAG", "Automation"],
+    desc: "Designing and deploying intelligent systems that automate workflows, eliminate manual work, and connect your entire stack into one seamless ecosystem — running 24/7.",
   },
 ];
 
@@ -147,9 +161,9 @@ function ProfileCard() {
         <h1 className="cv-name">Wayan Phantom Megaditha</h1>
         <div className="cv-role-row">
           <span className="cv-role-icon">🧑‍💻</span>
-          <span className="cv-role-label">AI Apps Builder &amp; Content Creator</span>
+          <span className="cv-role-label">Fullstack Software Engineer</span>
         </div>
-        <p className="cv-bio">Building AI-powered apps and ship them fast. From idea to launch, do the dev, the design, and the story.</p>
+        <p className="cv-bio">Building full-stack web apps and DeFi protocols from first commit to production. Clean architecture, great UX, and code that scales.</p>
       </div>
 
       {/* Social links */}
