@@ -296,7 +296,7 @@ function TechStackPanel() {
 function AboutTab() {
   return (
     <div className="cv-tab-content">
-      <h3 className="cv-tab-section-title">🗂️ My Daily Operations</h3>
+      <h3 className="cv-tab-section-title">🚀 I Build Products, Not Just Code</h3>
       
       {/* YouTube Video Embed */}
       <div className="cv-video-container">
@@ -311,25 +311,37 @@ function AboutTab() {
 
       <div className="cv-about-body">
         <p className="cv-about-lead">
-          I don&apos;t just write code — I solve problems end-to-end. From the first conversation to the moment a user hits &quot;connect wallet&quot; or &quot;submit,&quot; I own the entire journey.
+          I help turn <strong>real user problems and business ideas into working products</strong>, from understanding the problem to architecture, development, debugging, deployment, and handoff.
         </p>
         <p className="cv-about-muted">
-          Every build starts with a <strong>BRD → PRD → TRD</strong>. Business requirements first: what problem are we actually solving and for whom? Then product: what does the user experience look like, what are the edge cases, what ships in v1 vs v2? Then technical: system architecture, database schema, API contracts, smart contract design, and repo structure — all mapped out before a single line of code is written.
+          My process starts with <strong>BRD → PRD → TRD</strong>, connecting the business goal, user experience, and technical solution before development begins.
         </p>
         <p className="cv-about-muted">
-          Take <strong>Bulldex Finance</strong>. The problem: traders on testnet needed a real DEX experience to test against. The solution: a full DeFi platform — Jupiter-style token swap, faucet, and liquidity pool — deployed across a <strong>poly repo</strong> (smart contracts on one repo, frontend on another), with Solidity contracts on Ethereum and a Next.js + ethers.js frontend. I handled every layer: contract design, ABI integration, wallet connection, real-time balance fetching, and token picker UI from scratch.
+          But product thinking doesn&apos;t only happen behind a screen. I regularly talk directly with users and communities at major events such as <strong>Coinfest Asia</strong> and <strong>CatLumpur in Kuala Lumpur, Malaysia</strong>, including conversations with the <strong>Jupiter community</strong>. These experiences help me understand what users actually struggle with, what they expect from a product, and where existing solutions fall short.
         </p>
         <p className="cv-about-muted">
-          Or <strong>Neko Singa AI</strong> — an AI-native crypto market tool where the challenge was stitching together real-time on-chain data, wallet integrations, and agent workflows into a single coherent interface. Same process: define the data flow, architect the agent pipeline, build the frontend to surface it cleanly.
+          I&apos;ve built across <strong>Web3, AI, and full-stack products</strong>, including:
+        </p>
+        
+        <div style={{ marginTop: "0.6rem", marginBottom: "0.6rem", paddingLeft: "0.75rem", borderLeft: "2px solid #e5e5e5" }}>
+          <p className="cv-about-muted" style={{ marginBottom: "0.6rem" }}>
+            <strong style={{ color: "#111" }}>Bulldex Finance</strong><br />
+            A DeFi platform built as a <strong>monorepo</strong>, combining Solidity smart contracts with a Next.js + ethers.js frontend. I worked across the DEX flow, wallet integration, token balances, faucet, liquidity pool, and contract integration.
+          </p>
+          <p className="cv-about-muted" style={{ margin: 0 }}>
+            <strong style={{ color: "#111" }}>Neko Singa AI</strong><br />
+            An AI-native crypto platform built as a <strong>polyrepo</strong>, combining real-time on-chain data, wallet integrations, and AI agent workflows into one product experience.
+          </p>
+        </div>
+
+        <p className="cv-about-muted">
+          I work across the stack and stay involved when things get complicated, from <strong>ABI mismatches, RPC issues, and environment problems to deployment and testing</strong>.
         </p>
         <p className="cv-about-muted">
-          For UI/UX I prototype fast with <strong>Stitch by Google</strong>, then build inside AI-native IDEs — Google Antigravity, Codex, Kiro — powered by Claude, Gemini, and GPT. Speed without cutting corners.
+          I use modern AI-assisted development tools such as <strong>Google Antigravity, Codex, Kiro, Claude, Gemini, and GPT</strong> to move faster while keeping the product architecture and user experience intentional.
         </p>
-        <p className="cv-about-muted">
-          Debugging is a first-class part of the craft. I trace issues through every layer: env vars, ABI mismatches, hardcoded addresses, missing RPC calls, dead code. I use <strong>Testsprite</strong> for unit testing to make sure every feature actually connects. Nothing ships half-done.
-        </p>
-        <p className="cv-about-muted">
-          Once everything is live on Vercel via GitHub, I hand over full documentation and a handoff guide — so the client can take ownership with full confidence.
+        <p className="cv-about-lead" style={{ marginTop: "0.8rem" }}>
+          I don&apos;t just build what is requested. I try to understand why it is needed, who needs it, and how to make it actually work.
         </p>
       </div>
     </div>
