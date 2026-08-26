@@ -308,6 +308,9 @@ function AboutTab() {
           allowFullScreen
         />
       </div>
+      <p className="cv-video-caption">
+        Archive (2024) — Application video submission for the Apple Developer Academy.
+      </p>
 
       <div className="cv-about-body">
         <p className="cv-about-lead">
