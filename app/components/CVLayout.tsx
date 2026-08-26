@@ -311,19 +311,25 @@ function AboutTab() {
 
       <div className="cv-about-body">
         <p className="cv-about-lead">
-          Every project starts with a conversation. I listen to what the client needs, dig into the real problem behind the request, and map out the right solution before writing a single line of code.
+          I don&apos;t just write code — I solve problems end-to-end. From the first conversation to the moment a user hits &quot;connect wallet&quot; or &quot;submit,&quot; I own the entire journey.
         </p>
         <p className="cv-about-muted">
-          For UI/UX, I use Stitch by Google to prototype and validate the design fast. When it&apos;s time to build, I work inside AI-native IDEs like Google Antigravity, Codex, and Kiro, powered by Claude, Gemini, and GPT to move at full speed without cutting corners.
+          Every build starts with a <strong>BRD → PRD → TRD</strong>. Business requirements first: what problem are we actually solving and for whom? Then product: what does the user experience look like, what are the edge cases, what ships in v1 vs v2? Then technical: system architecture, database schema, API contracts, smart contract design, and repo structure — all mapped out before a single line of code is written.
         </p>
         <p className="cv-about-muted">
-          Before touching the keyboard, I prep everything: PRD, system architecture, feature breakdown, frontend and backend plan, and API integration specs. Then I ship from first commit to deployment on Vercel via GitHub.
+          Take <strong>Bulldex Finance</strong>. The problem: traders on testnet needed a real DEX experience to test against. The solution: a full DeFi platform — Jupiter-style token swap, faucet, and liquidity pool — deployed across a <strong>poly repo</strong> (smart contracts on one repo, frontend on another), with Solidity contracts on Ethereum and a Next.js + ethers.js frontend. I handled every layer: contract design, ABI integration, wallet connection, real-time balance fetching, and token picker UI from scratch.
         </p>
         <p className="cv-about-muted">
-          Debugging is part of the craft too. I go through every layer: confirming errors, catching missing env vars, replacing hardcoded data, removing dead code, and I use Testsprite for unit testing making sure every feature actually connects. Nothing ships half-done.
+          Or <strong>Neko Singa AI</strong> — an AI-native crypto market tool where the challenge was stitching together real-time on-chain data, wallet integrations, and agent workflows into a single coherent interface. Same process: define the data flow, architect the agent pipeline, build the frontend to surface it cleanly.
         </p>
         <p className="cv-about-muted">
-          Once everything is live, I hand over full documentation and a handoff guide so the client can take ownership with confidence.
+          For UI/UX I prototype fast with <strong>Stitch by Google</strong>, then build inside AI-native IDEs — Google Antigravity, Codex, Kiro — powered by Claude, Gemini, and GPT. Speed without cutting corners.
+        </p>
+        <p className="cv-about-muted">
+          Debugging is a first-class part of the craft. I trace issues through every layer: env vars, ABI mismatches, hardcoded addresses, missing RPC calls, dead code. I use <strong>Testsprite</strong> for unit testing to make sure every feature actually connects. Nothing ships half-done.
+        </p>
+        <p className="cv-about-muted">
+          Once everything is live on Vercel via GitHub, I hand over full documentation and a handoff guide — so the client can take ownership with full confidence.
         </p>
       </div>
     </div>
