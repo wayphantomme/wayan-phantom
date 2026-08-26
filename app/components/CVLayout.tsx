@@ -147,11 +147,6 @@ function ProfileCard() {
           alt="Wayan Phantom"
           className="cv-avatar-img"
         />
-        {/* Community badge overlay */}
-        <div className="cv-avatar-badge">
-          <span className="cv-badge-dot" />
-          <span className="cv-badge-text">n8n Builder</span>
-        </div>
       </div>
 
       {/* Name + role */}
@@ -556,13 +551,6 @@ export default function CVLayout() {
 
   return (
     <div className="cv-page">
-      {/* Top announcement bar */}
-      <div className="cv-announcement">
-        <span className="cv-announcement-dot" />
-        🤖 Actively looking for a full-time role.{" "}
-        <strong>Open to opportunities in AI &amp; Automation.</strong>
-      </div>
-
       {/* Main content area */}
       <div className="cv-main">
         {/* ── Left column ──────────────────────────────────────── */}
