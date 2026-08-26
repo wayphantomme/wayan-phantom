@@ -551,6 +551,13 @@ export default function CVLayout() {
 
   return (
     <div className="cv-page">
+      {/* Top announcement bar */}
+      <div className="cv-announcement">
+        <span className="cv-announcement-dot" />
+        Actively exploring opportunities with{" "}
+        <strong>Web3 Startups, Ecosystem Foundations, &amp; VC Talent Hubs.</strong>
+      </div>
+
       {/* Main content area */}
       <div className="cv-main">
         {/* ── Left column ──────────────────────────────────────── */}
