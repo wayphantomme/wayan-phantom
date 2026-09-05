@@ -107,7 +107,7 @@ const works = [
 
 // ─── Tab types ──────────────────────────────────────────────────────────────
 
-type Tab = "About" | "Works" | "Experiences" | "Contact";
+type Tab = "About" | "Works" | "Journey" | "Contact";
 
 // ─── ProfileCard ─────────────────────────────────────────────────────────────
 
@@ -484,7 +484,7 @@ function ContactTab() {
 export default function CVLayout() {
   const [activeTab, setActiveTab] = useState<Tab>("About");
 
-  const tabs: Tab[] = ["About", "Works", "Experiences", "Contact"];
+  const tabs: Tab[] = ["About", "Works", "Journey", "Contact"];
 
   return (
     <div className="cv-page">
@@ -518,7 +518,7 @@ export default function CVLayout() {
           <div className="cv-panel">
             {activeTab === "About" && <AboutTab />}
             {activeTab === "Works" && <WorksTab />}
-            {activeTab === "Experiences" && <ExperiencesTab />}
+            {activeTab === "Journey" && <ExperiencesTab />}
             {activeTab === "Contact" && <ContactTab />}
           </div>
         </div>
