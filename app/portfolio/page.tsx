@@ -9,37 +9,26 @@ export const metadata: Metadata = {
 
 export default function PortfolioPage() {
   return (
-    <div className="cv-page">
-      {/* Top bar */}
-      <div style={{ width: "100%", maxWidth: "920px", marginBottom: "1.25rem", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-        <Link href="/" className="cv-back-btn">← Back</Link>
-        <span style={{ fontSize: "0.72rem", color: "#aaa", fontWeight: 600 }}>wayphantomme.dev</span>
-      </div>
+    <div className="pf-page">
+      <div className="pf-wrap">
 
-      {/* Content */}
-      <div style={{ width: "100%", maxWidth: "920px" }}>
-        {/* Header card */}
-        <div className="cv-hackathon-panel" style={{ marginBottom: "1.25rem" }}>
-          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: "0.5rem" }}>
-            <div>
-              <h1 className="cv-portfolio-page-title">🗃️ Projects</h1>
-              <p className="cv-portfolio-page-sub">Things I&apos;ve built — apps, tools, and experiments.</p>
-            </div>
-            <div style={{ display: "flex", gap: "0.5rem", flexWrap: "wrap" }}>
-              <span style={{ fontSize: "0.7rem", fontWeight: 700, padding: "0.25rem 0.65rem", borderRadius: "999px", background: "#f0f0f0", color: "#555" }}>{projects.length} projects</span>
-            </div>
-          </div>
+        {/* Header */}
+        <div className="pf-hero">
+          <Link href="/" className="pf-back">← Back</Link>
+          <h1 className="pf-title">My Works Highlights</h1>
+          <p className="pf-subtitle">I&apos;ve worked on a lot of projects, here are some of my favorites.</p>
         </div>
 
         {/* Project cards */}
-        <div className="cv-projects-list">
+        <div className="pf-list">
           {projects.map((p) => (
-            <div key={p.id} className="cv-project-card">
-              <div className="cv-project-header">
-                <div className="cv-project-header-left">
+            <div key={p.id} className="pf-card">
+              {/* Card header */}
+              <div className="pf-card-header">
+                <div className="pf-card-left">
                   {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img src={p.logo} alt={p.name} className="cv-project-logo" />
-                  <span className="cv-project-name">{p.name}</span>
+                  <img src={p.logo} alt={p.name} className="pf-logo" />
+                  <span className="pf-name">{p.name}</span>
                 </div>
                 <div className="cv-project-links">
                   {p.web && (
@@ -59,18 +48,35 @@ export default function PortfolioPage() {
                   )}
                 </div>
               </div>
-              <p className="cv-project-desc">{p.desc}</p>
+
+              {/* Description */}
+              <p className="pf-desc">{p.desc}</p>
+
+              {/* Mockups */}
               {p.mockups.length > 0 && (
-                <div className="cv-project-mockups">
+                <div className="pf-mockups">
                   {p.mockups.map((m, i) => (
                     // eslint-disable-next-line @next/next/no-img-element
-                    <img key={i} src={m} alt={`${p.name} mockup ${i + 1}`} className="cv-project-mockup-img" />
+                    <img
+                      key={i}
+                      src={m}
+                      alt={`${p.name} screenshot ${i + 1}`}
+                      className="pf-mockup"
+                    />
                   ))}
                 </div>
               )}
             </div>
           ))}
         </div>
+
+        {/* Footer */}
+        <div className="pf-footer">
+          <a href="https://wayan-phantom.vercel.app/" className="pf-footer-link">
+            wayan-phantom.vercel.app
+          </a>
+        </div>
+
       </div>
     </div>
   );
