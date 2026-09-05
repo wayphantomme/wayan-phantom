@@ -126,10 +126,10 @@ function ProfileCard() {
 
       {/* Name + role */}
       <div className="cv-profile-name-wrap">
-        <h1 className="cv-name">Wayan Phantom Megaditha</h1>
+        <h1 className="cv-name">Wayan Phantom | AI & Web3 Engineer</h1>
         <div className="cv-role-row">
           <span className="cv-role-icon">🧑‍💻</span>
-          <span className="cv-role-label">Fullstack Software Engineer</span>
+          <span className="cv-role-label">Building AI automation systems and Web3 protocols</span>
         </div>
         <p className="cv-bio">Building full-stack web apps and DeFi protocols from first commit to production. Clean architecture, great UX, and code that scales.</p>
       </div>
