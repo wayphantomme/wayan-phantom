@@ -1343,3 +1343,41 @@ body {
   transition: color 0.15s;
 }
 .pf-footer-link:hover { color: #888; }
+
+/* Work Experience */
+.cv-experience-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  margin-bottom: 0.5rem;
+}
+.cv-experience-item {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  padding: 0.75rem 1rem;
+  background: #f7f7f7;
+  border-radius: 0.6rem;
+  border-left: 3px solid #111;
+}
+.cv-experience-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+.cv-experience-role {
+  font-size: 0.88rem;
+  font-weight: 700;
+  color: #111;
+}
+.cv-experience-period {
+  font-size: 0.75rem;
+  color: #888;
+  font-weight: 500;
+}
+.cv-experience-company {
+  font-size: 0.78rem;
+  color: #555;
+}
