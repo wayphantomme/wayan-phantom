@@ -5,7 +5,7 @@ export const projects = [
     logo: "https://raw.githubusercontent.com/wayphantomme/bulldex-finance/main/frontend/public/bulldex-logo.png",
     desc: "A full-stack DeFi platform on Ethereum — featuring a Jupiter-style token swap, faucet, and real-time liquidity pool interface. Built with Next.js, Solidity smart contracts, and ethers.js.",
     mockups: [
-      "https://raw.githubusercontent.com/wayphantomme/bulldex-finance/main/frontend/public/bulldex-landing.png",
+      "https://raw.githubusercontent.com/wayphantomme/bulldex-finance/main/frontend/public/bulldex-portrait.png",
       "https://raw.githubusercontent.com/wayphantomme/bulldex-finance/main/frontend/public/bulldex-swap.png",
     ],
     web: "https://bulldex-finance.vercel.app/",
