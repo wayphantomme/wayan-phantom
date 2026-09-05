@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { projects } from "../data/projects";
 
 // ─── Data ───────────────────────────────────────────────────────────────────
 
@@ -82,32 +83,6 @@ const certifications = [
   { id: "c7", img: "https://res.cloudinary.com/dwsapeq3m/image/upload/v1785467730/Lisk_Spark_Incubator_mnjlwz.jpg" },
 ];
 
-const projects = [
-  {
-    id: "bulldex",
-    name: "Bulldex Finance",
-    logo: "https://raw.githubusercontent.com/wayphantomme/bulldex-finance/main/frontend/public/bulldex-logo.png",
-    desc: "A full-stack DeFi platform on Ethereum — featuring a Jupiter-style token swap, faucet, and real-time liquidity pool interface. Built with Next.js, Solidity smart contracts, and ethers.js.",
-    mockups: [
-      "https://raw.githubusercontent.com/wayphantomme/bulldex-finance/main/frontend/public/bulldex-landing.png",
-      "https://raw.githubusercontent.com/wayphantomme/bulldex-finance/main/frontend/public/bulldex-swap.png",
-    ],
-    web: "https://bulldex-finance.vercel.app/",
-    github: "https://github.com/wayphantomme/bulldex-finance",
-  },
-  {
-    id: "nekosinga",
-    name: "Neko Singa AI",
-    logo: "https://raw.githubusercontent.com/nekosinga/web/main/public/nekosinga-logo.png",
-    desc: "Building AI-native crypto market tools exploring real-time data, wallet integrations, and agent workflows.",
-    mockups: [
-      "https://raw.githubusercontent.com/nekosinga/app/main/public/nekosinga-screen.png",
-      "https://raw.githubusercontent.com/nekosinga/app/main/public/nekosinga-cta.png",
-    ],
-    web: "https://nekosinga.vercel.app/",
-    github: "https://github.com/nekosinga",
-  },
-];
 
 const works = [
   {
@@ -132,7 +107,7 @@ const works = [
 
 // ─── Tab types ──────────────────────────────────────────────────────────────
 
-type Tab = "About" | "Works" | "Portfolio" | "Contact";
+type Tab = "About" | "Works" | "Experiences" | "Contact";
 
 // ─── ProfileCard ─────────────────────────────────────────────────────────────
 
@@ -159,7 +134,7 @@ function ProfileCard() {
         <p className="cv-bio">Building full-stack web apps and DeFi protocols from first commit to production. Clean architecture, great UX, and code that scales.</p>
       </div>
 
-      {/* Social links */}
+      {/* Social links + Portfolio button */}
       <div className="cv-social-row">
         <a href="https://github.com/wayphantomme" aria-label="GitHub" className="cv-social-btn" target="_blank" rel="noopener noreferrer">
           <svg width="16" height="16" fill="currentColor" viewBox="0 0 24 24">
@@ -189,6 +164,12 @@ function ProfileCard() {
         <a href="https://x.com/wayphantomme" aria-label="X (Twitter)" className="cv-social-btn" target="_blank" rel="noopener noreferrer">
           <svg width="16" height="16" fill="currentColor" viewBox="0 0 24 24">
             <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.744l7.737-8.835L1.254 2.25H8.08l4.253 5.622 5.911-5.622zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
+          </svg>
+        </a>
+        <a href="/portfolio" className="cv-portfolio-btn">
+          Portfolio
+          <svg width="12" height="12" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" d="M7 7h10m0 0v10m0-10L7 17"/>
           </svg>
         </a>
       </div>
@@ -460,51 +441,11 @@ function PlacesGallery() {
   );
 }
 
-function PortfolioTab() {
+function ExperiencesTab() {
   return (
     <div className="cv-tab-content">
-
-      {/* Projects */}
-      <h3 className="cv-tab-section-title">🗃️ Projects</h3>
-      <div className="cv-projects-list">
-        {projects.map((p) => (
-          <div key={p.id} className="cv-project-card">
-            <div className="cv-project-header">
-              <div className="cv-project-header-left">
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src={p.logo} alt={p.name} className="cv-project-logo" />
-                <span className="cv-project-name">{p.name}</span>
-              </div>
-              <div className="cv-project-links">
-                {p.web && (
-                  <a href={p.web} target="_blank" rel="noopener noreferrer" aria-label="Website" className="cv-project-link-btn">
-                    <svg width="14" height="14" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15.3 15.3 0 010 20M12 2a15.3 15.3 0 000 20"/></svg>
-                  </a>
-                )}
-                {p.github && (
-                  <a href={p.github} target="_blank" rel="noopener noreferrer" aria-label="GitHub" className="cv-project-link-btn">
-                    <svg width="14" height="14" fill="currentColor" viewBox="0 0 24 24"><path fillRule="evenodd" d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.53 1.032 1.53 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z" clipRule="evenodd"/></svg>
-                  </a>
-                )}
-              </div>
-            </div>
-            <p className="cv-project-desc">{p.desc}</p>
-            {p.mockups.length > 0 && (
-              <div className="cv-project-mockups">
-                {p.mockups.map((m, i) => (
-                  // eslint-disable-next-line @next/next/no-img-element
-                  <img key={i} src={m} alt={`${p.name} mockup ${i + 1}`} className="cv-project-mockup-img" />
-                ))}
-              </div>
-            )}
-          </div>
-        ))}
-      </div>
-
-      {/* Places & Communities */}
       <h3 className="cv-tab-section-title">📸 Places &amp; Communities</h3>
       <PlacesGallery />
-
     </div>
   );
 }
@@ -547,7 +488,7 @@ function ContactTab() {
 export default function CVLayout() {
   const [activeTab, setActiveTab] = useState<Tab>("About");
 
-  const tabs: Tab[] = ["About", "Works", "Portfolio", "Contact"];
+  const tabs: Tab[] = ["About", "Works", "Experiences", "Contact"];
 
   return (
     <div className="cv-page">
@@ -581,7 +522,7 @@ export default function CVLayout() {
           <div className="cv-panel">
             {activeTab === "About" && <AboutTab />}
             {activeTab === "Works" && <WorksTab />}
-            {activeTab === "Portfolio" && <PortfolioTab />}
+            {activeTab === "Experiences" && <ExperiencesTab />}
             {activeTab === "Contact" && <ContactTab />}
           </div>
         </div>
