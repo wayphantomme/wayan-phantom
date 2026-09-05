@@ -15,7 +15,7 @@ const plusJakarta = Plus_Jakarta_Sans({
 });
 
 export const metadata: Metadata = {
-  title: "Wayan Phantom",
+  title: "Wayan Phantom | AI & Web3 Engineer",
   description:
     "I build AI automation systems, n8n workflows, and intelligent bots that eliminate manual work and scale your operations. Available for freelance projects.",
   keywords: [
@@ -29,7 +29,7 @@ export const metadata: Metadata = {
     "Wayan Phantom",
   ],
   openGraph: {
-    title: "Wayan Phantom",
+    title: "Wayan Phantom | AI & Web3 Engineer",
     description:
       "I automate the work you hate so you can focus on what matters. AI workflows, n8n integrations, and intelligent bots built for real business impact.",
     type: "website",
