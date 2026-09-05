@@ -360,7 +360,7 @@ const experience = [
 function WorksTab() {
   return (
     <div className="cv-tab-content">
-      <h3 className="cv-tab-section-title">💼 Experiences</h3>
+      <h3 className="cv-tab-section-title">💼 Working Experiences</h3>
       <div className="cv-exp-list">
         {experience.map((exp, i) => (
           <div key={exp.id} className={`cv-exp-item ${i < experience.length - 1 ? "cv-exp-divider" : ""}`}>
