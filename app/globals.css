@@ -1290,7 +1290,7 @@ body {
   position: relative;
 }
 .pf-mockup {
-  object-fit: contain;
+  object-fit: cover;
   object-position: center;
   border-radius: 0.75rem;
   background: #e8e8e8;
