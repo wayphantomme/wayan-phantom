@@ -312,7 +312,7 @@ const experience = [
     role: "Fullstack Developer",
     company: "Megatha Tech",
     type: "Hybrid, Bali",
-    period: "Jul 2025 – Present",
+    period: "Jul 2025 – Jun 2026",
     bullets: [
       "Delivering AI automation, web development, and digital transformation services",
       "Built websites, landing pages, and business systems for startups and SMEs",
@@ -440,18 +440,7 @@ function PlacesGallery() {
 function ExperiencesTab() {
   return (
     <div className="cv-tab-content">
-      <h3 className="cv-tab-section-title">� Work Experience</h3>
-      <div className="cv-experience-list">
-        <div className="cv-experience-item">
-          <div className="cv-experience-header">
-            <span className="cv-experience-role">Fullstack Developer</span>
-            <span className="cv-experience-period">Jul 2025 – Jun 2026</span>
-          </div>
-          <span className="cv-experience-company">Megatha Tech • Hybrid, Bali</span>
-        </div>
-      </div>
-
-      <h3 className="cv-tab-section-title" style={{ marginTop: "1.5rem" }}>�📸 Places &amp; Communities</h3>
+      <h3 className="cv-tab-section-title">� Places &amp; Communities</h3>
       <PlacesGallery />
     </div>
   );
