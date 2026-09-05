@@ -12,6 +12,18 @@ export const projects = [
     github: "https://github.com/wayphantomme/bulldex-finance",
   },
   {
+    id: "nekosinga",
+    name: "Neko Singa AI",
+    logo: "https://raw.githubusercontent.com/nekosinga/web/main/public/nekosinga-logo.png",
+    desc: "Building AI-native crypto market tools exploring real-time data, wallet integrations, and agent workflows.",
+    mockups: [
+      "https://raw.githubusercontent.com/nekosinga/app/main/public/nekosinga-screen.png",
+      "https://raw.githubusercontent.com/nekosinga/app/main/public/nekosinga-cta.png",
+    ],
+    web: "https://nekosinga.vercel.app/",
+    github: "https://github.com/nekosinga",
+  },
+  {
     id: "pohenhillscamp",
     name: "Pohen Hills Camp",
     logo: "https://raw.githubusercontent.com/wayphantomme/pohenhillscamp/main/public/logo-rounded.png",
@@ -46,17 +58,5 @@ export const projects = [
     ],
     web: "https://megatha-resto.vercel.app/",
     github: "https://github.com/wayphantomme/megatha-restaurant-app",
-  },
-  {
-    id: "nekosinga",
-    name: "Neko Singa AI",
-    logo: "https://raw.githubusercontent.com/nekosinga/web/main/public/nekosinga-logo.png",
-    desc: "Building AI-native crypto market tools exploring real-time data, wallet integrations, and agent workflows.",
-    mockups: [
-      "https://raw.githubusercontent.com/nekosinga/app/main/public/nekosinga-screen.png",
-      "https://raw.githubusercontent.com/nekosinga/app/main/public/nekosinga-cta.png",
-    ],
-    web: "https://nekosinga.vercel.app/",
-    github: "https://github.com/nekosinga",
   },
 ];
