@@ -48,15 +48,15 @@ export const projects = [
     github: "https://github.com/wayphantomme/impact-stories-blog-automation",
   },
   {
-    id: "megatha-restaurant",
-    name: "Megatha Restaurant App",
-    logo: "https://raw.githubusercontent.com/wayphantomme/megatha-restaurant-app/main/public/Megatha%20Logo%20BW.png",
-    desc: "A full-stack restaurant management app with POS system, table management, and menu ordering. Built with Next.js and Tailwind CSS.",
+    id: "tech-with-phantom",
+    name: "Tech with Phantom",
+    logo: "https://raw.githubusercontent.com/wayphantomme/tech-with-phantom/main/public/TWP%20Logo.svg",
+    desc: "An online learning platform for tech education — featuring course management, video lessons, and student progress tracking. Built with Next.js, TypeScript, and modern web technologies.",
     mockups: [
-      "https://raw.githubusercontent.com/wayphantomme/megatha-restaurant-app/main/public/megatha-home.png",
-      "https://raw.githubusercontent.com/wayphantomme/megatha-restaurant-app/main/public/megatha-pos.png",
+      "https://raw.githubusercontent.com/wayphantomme/tech-with-phantom/main/public/screenshots/twp-landing-page.png",
+      "https://raw.githubusercontent.com/wayphantomme/tech-with-phantom/main/public/screenshots/twp-courses.png",
     ],
-    web: "https://megatha-resto.vercel.app/",
-    github: "https://github.com/wayphantomme/megatha-restaurant-app",
+    web: "https://techwithphantom.vercel.app/",
+    github: "https://github.com/wayphantomme/tech-with-phantom",
   },
 ];
