@@ -440,7 +440,7 @@ function PlacesGallery() {
 function ExperiencesTab() {
   return (
     <div className="cv-tab-content">
-      <h3 className="cv-tab-section-title">� Places &amp; Communities</h3>
+      <h3 className="cv-tab-section-title">🌏 Places &amp; Communities</h3>
       <PlacesGallery />
     </div>
   );
