@@ -290,37 +290,16 @@ function AboutTab() {
 
       <div className="cv-about-body">
         <p className="cv-about-lead">
-          I help turn <strong>real user problems and business ideas into working products</strong>, from understanding the problem to architecture, development, debugging, deployment, and handoff.
+          Turning real user problems and business ideas into working products, from architecture and development all the way to deployment and handoff.
         </p>
         <p className="cv-about-muted">
-          My process starts with <strong>BRD → PRD → TRD</strong>, connecting the business goal, user experience, and technical solution before development begins.
+          Every project starts with BRD, PRD, and TRD before a single line of code is written. Built across Web3, AI, and full-stack, including Bulldex Finance (a DeFi monorepo on Ethereum) and Neko Singa AI (an AI-native crypto platform).
         </p>
         <p className="cv-about-muted">
-          But product thinking doesn&apos;t only happen behind a screen. I regularly talk directly with users and communities at major events such as <strong>Coinfest Asia</strong> and <strong>CatLumpur in Kuala Lumpur, Malaysia</strong>, including conversations with the <strong>Jupiter community</strong>. These experiences help me understand what users actually struggle with, what they expect from a product, and where existing solutions fall short.
+          Talking directly with users at events like Coinfest Asia and CatLumpur in Malaysia helps understand what real problems actually look like, not just how they are described in a brief.
         </p>
         <p className="cv-about-muted">
-          I&apos;ve built across <strong>Web3, AI, and full-stack products</strong>, including:
-        </p>
-        
-        <div style={{ marginTop: "0.6rem", marginBottom: "0.6rem", paddingLeft: "0.75rem", borderLeft: "2px solid #e5e5e5" }}>
-          <p className="cv-about-muted" style={{ marginBottom: "0.6rem" }}>
-            <strong style={{ color: "#111" }}>Bulldex Finance</strong><br />
-            A DeFi platform built as a <strong>monorepo</strong>, combining Solidity smart contracts with a Next.js + ethers.js frontend. I worked across the DEX flow, wallet integration, token balances, faucet, liquidity pool, and contract integration.
-          </p>
-          <p className="cv-about-muted" style={{ margin: 0 }}>
-            <strong style={{ color: "#111" }}>Neko Singa AI</strong><br />
-            An AI-native crypto platform built as a <strong>polyrepo</strong>, combining real-time on-chain data, wallet integrations, and AI agent workflows into one product experience.
-          </p>
-        </div>
-
-        <p className="cv-about-muted">
-          I work across the stack and stay involved when things get complicated, from <strong>ABI mismatches, RPC issues, and environment problems to deployment and testing</strong>.
-        </p>
-        <p className="cv-about-muted">
-          I use modern AI-assisted development tools such as <strong>Google Antigravity, Codex, Kiro, Claude, Gemini, and GPT</strong> to move faster while keeping the product architecture and user experience intentional.
-        </p>
-        <p className="cv-about-lead" style={{ marginTop: "0.8rem" }}>
-          I don&apos;t just build what is requested. I try to understand why it is needed, who needs it, and how to make it actually work.
+          The goal is never just to build what is requested. Understanding why it is needed, who needs it, and how to make it actually work — that is what matters.
         </p>
       </div>
     </div>
@@ -404,12 +383,15 @@ function WorksTab() {
   );
 }
 
-const PER_PAGE = 3;
+const PER_PAGE = 6;
 
 function PlacesGallery() {
   const [page, setPage] = useState(0);
   const total = Math.ceil(portfolio.length / PER_PAGE);
   const visible = portfolio.slice(page * PER_PAGE, page * PER_PAGE + PER_PAGE);
+
+  const prev = () => setPage((p) => Math.max(0, p - 1));
+  const next = () => setPage((p) => Math.min(total - 1, p + 1));
 
   return (
     <div className="cv-places-card">
@@ -425,16 +407,30 @@ function PlacesGallery() {
           </div>
         ))}
       </div>
+
       {total > 1 && (
-        <div className="cv-places-dots">
-          {Array.from({ length: total }).map((_, i) => (
-            <button
-              key={i}
-              onClick={() => setPage(i)}
-              className={`cv-places-dot ${i === page ? "cv-places-dot-active" : ""}`}
-              aria-label={`Page ${i + 1}`}
-            />
-          ))}
+        <div className="cv-places-nav">
+          <button onClick={prev} disabled={page === 0} className="cv-places-arrow" aria-label="Previous">
+            <svg width="14" height="14" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7"/>
+            </svg>
+          </button>
+          <div className="cv-places-dots">
+            {Array.from({ length: total }).map((_, i) => (
+              <button
+                key={i}
+                onClick={() => setPage(i)}
+                className={`cv-places-dot ${i === page ? "cv-places-dot-active" : ""}`}
+                aria-label={`Page ${i + 1}`}
+              />
+            ))}
+          </div>
+          <span className="cv-places-counter">{page + 1} / {total}</span>
+          <button onClick={next} disabled={page === total - 1} className="cv-places-arrow" aria-label="Next">
+            <svg width="14" height="14" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7"/>
+            </svg>
+          </button>
         </div>
       )}
     </div>
