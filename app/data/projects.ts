@@ -42,7 +42,7 @@ export const projects = [
     desc: "An automated blog platform that generates and publishes impact stories using AI. Built with Next.js, with content pipeline automation for streamlined story creation and publishing.",
     mockups: [
       "https://raw.githubusercontent.com/wayphantomme/impact-stories-blog-automation/main/public/images/home-page.png",
-      "https://raw.githubusercontent.com/wayphantomme/impact-stories-blog-automation/main/public/images/blog-page.png",
+      "https://raw.githubusercontent.com/wayphantomme/impact-stories-blog-automation/main/public/images/post.png",
     ],
     web: "https://impact-stories-blog.vercel.app/",
     github: "https://github.com/wayphantomme/impact-stories-blog-automation",
