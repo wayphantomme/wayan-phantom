@@ -59,4 +59,16 @@ export const projects = [
     web: "https://techwithphantom.vercel.app/",
     github: "https://github.com/wayphantomme/tech-with-phantom",
   },
+  {
+    id: "megatha-restaurant",
+    name: "Megatha Restaurant App",
+    logo: "https://raw.githubusercontent.com/wayphantomme/megatha-restaurant-app/main/public/Megatha%20Logo%20BW.png",
+    desc: "A full-stack restaurant management app with POS system, table management, and menu ordering. Built with Next.js and Tailwind CSS.",
+    mockups: [
+      "https://raw.githubusercontent.com/wayphantomme/megatha-restaurant-app/main/public/megatha-home.png",
+      "https://raw.githubusercontent.com/wayphantomme/megatha-restaurant-app/main/public/megatha-pos.png",
+    ],
+    web: "https://megatha-resto.vercel.app/",
+    github: "https://github.com/wayphantomme/megatha-restaurant-app",
+  },
 ];
