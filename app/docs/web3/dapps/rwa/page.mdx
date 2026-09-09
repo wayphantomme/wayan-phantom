@@ -1,0 +1,274 @@
+export const metadata = {
+  title: "RWA (Real World Assets) | Wayan Phantom",
+  description: "Tokenizing real-world assets on-chain — how RWA works, the standards, key protocols, and how to build RWA-aware DApps.",
+};
+
+# RWA — Real World Assets
+
+RWA (Real World Assets) is the tokenization of off-chain assets — real estate, bonds, commodities, private credit, invoices — bringing them on-chain as digital tokens. It's one of the fastest-growing sectors in DeFi.
+
+---
+
+## What Gets Tokenized
+
+| Asset Class | Examples | Chains |
+|-------------|---------|--------|
+| US Treasuries | OUSG (Ondo), USDY, BUIDL (BlackRock) | Ethereum, Base, Solana |
+| Private Credit | Maple Finance, Goldfinch | Ethereum |
+| Real Estate | RealT, Tangible | Ethereum, Polygon |
+| Commodities | PAX Gold (PAXG), CACHE Gold | Ethereum |
+| Carbon Credits | Toucan Protocol, KlimaDAO | Polygon |
+| Equities | Backed Finance, Swarm Markets | Ethereum |
+| Invoices | Centrifuge | Ethereum |
+
+---
+
+## How RWA Tokenization Works
+
+```
+Off-chain asset (e.g., US Treasury bond)
+  → Legal entity holds the asset
+  → Issues tokens representing ownership/claim
+  → Token deployed on-chain (usually ERC-20 or ERC-1400)
+  → KYC/AML enforced via whitelist or permissioned transfers
+  → Yield/distributions sent on-chain periodically
+```
+
+The legal structure varies — some are direct ownership, some are debt claims, some are yield-bearing wrappers.
+
+---
+
+## Key Standards
+
+### ERC-1400 (Security Token Standard)
+
+Extends ERC-20 with compliance features: transfer restrictions, forced transfers (regulatory), partitions (tranches).
+
+```solidity
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.24;
+
+import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
+import "@openzeppelin/contracts/access/AccessControl.sol";
+
+contract RWAToken is ERC20, AccessControl {
+    bytes32 public constant COMPLIANCE_ROLE = keccak256("COMPLIANCE_ROLE");
+    bytes32 public constant ISSUER_ROLE = keccak256("ISSUER_ROLE");
+
+    // Whitelist of KYC-verified addresses
+    mapping(address => bool) public whitelist;
+
+    event WhitelistUpdated(address indexed account, bool status);
+
+    constructor(string memory name, string memory symbol) ERC20(name, symbol) {
+        _grantRole(DEFAULT_ADMIN_ROLE, msg.sender);
+        _grantRole(COMPLIANCE_ROLE, msg.sender);
+        _grantRole(ISSUER_ROLE, msg.sender);
+    }
+
+    // Restricted transfer — only whitelisted addresses
+    function _update(address from, address to, uint256 amount) internal override {
+        if (from != address(0) && to != address(0)) {
+            require(whitelist[from] && whitelist[to], "Transfer: address not whitelisted");
+        }
+        super._update(from, to, amount);
+    }
+
+    // Compliance officer can add/remove from whitelist
+    function setWhitelist(address account, bool status) external onlyRole(COMPLIANCE_ROLE) {
+        whitelist[account] = status;
+        emit WhitelistUpdated(account, status);
+    }
+
+    // Issuer mints tokens (represents issuance of underlying asset)
+    function issue(address to, uint256 amount) external onlyRole(ISSUER_ROLE) {
+        require(whitelist[to], "Recipient not whitelisted");
+        _mint(to, amount);
+    }
+
+    // Compliance can force-transfer (regulatory requirement, e.g., court order)
+    function forceTransfer(address from, address to, uint256 amount)
+        external onlyRole(COMPLIANCE_ROLE)
+    {
+        require(whitelist[to], "Recipient not whitelisted");
+        _transfer(from, to, amount);
+    }
+
+    // Redeem (burn) tokens when underlying asset is redeemed
+    function redeem(uint256 amount) external {
+        require(whitelist[msg.sender], "Not whitelisted");
+        _burn(msg.sender, amount);
+    }
+}
+```
+
+### ERC-3643 (T-REX — Token for Regulated EXchanges)
+
+The more complete standard used by institutional RWA protocols. Separates identity verification into an external identity registry.
+
+```
+Components:
+  Token Contract       ← ERC-20 + transfer restrictions
+  Identity Registry    ← Maps wallet → verified identity
+  Compliance Module    ← Pluggable rules (country whitelist, max holders, etc.)
+  Trusted Issuers      ← Which KYC providers are accepted
+```
+
+---
+
+## Yield-Bearing RWA Token
+
+This pattern mints tokens that accrue yield over time (like a rebasing stablecoin backed by T-Bills):
+
+```solidity
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.24;
+
+import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
+import "@openzeppelin/contracts/access/Ownable.sol";
+
+contract YieldRWA is ERC20, Ownable {
+    uint256 public constant DENOMINATOR = 1e18;
+    uint256 public index = 1e18; // starts at 1:1
+    mapping(address => uint256) private _shares;
+    uint256 private _totalShares;
+    mapping(address => bool) public whitelist;
+
+    constructor() ERC20("Yield RWA", "yRWA") Ownable(msg.sender) {}
+
+    // Owner updates the yield index (called periodically by oracle/admin)
+    function updateIndex(uint256 newIndex) external onlyOwner {
+        require(newIndex > index, "Index can only increase");
+        index = newIndex;
+    }
+
+    function mint(address to, uint256 amount) external onlyOwner {
+        require(whitelist[to], "Not whitelisted");
+        uint256 shares = (amount * DENOMINATOR) / index;
+        _shares[to] += shares;
+        _totalShares += shares;
+        emit Transfer(address(0), to, amount);
+    }
+
+    function balanceOf(address account) public view override returns (uint256) {
+        return (_shares[account] * index) / DENOMINATOR;
+    }
+
+    function totalSupply() public view override returns (uint256) {
+        return (_totalShares * index) / DENOMINATOR;
+    }
+
+    function setWhitelist(address account, bool status) external onlyOwner {
+        whitelist[account] = status;
+    }
+}
+```
+
+---
+
+## Connect to Existing RWA Protocols
+
+### Ondo Finance (OUSG — tokenized US Treasuries)
+
+```typescript
+const OUSG_ADDRESS = "0x1B19C19393e2d034D8Ff31ff34c81252FcBbee92"; // Mainnet
+const OUSG_ABI = [
+  "function balanceOf(address) view returns (uint256)",
+  "function subscribe(uint256 usdcAmount) external",   // deposit USDC, get OUSG
+  "function requestRedemption(uint256 ousgAmount) external", // redeem OUSG for USDC
+];
+
+const ousg = new ethers.Contract(OUSG_ADDRESS, OUSG_ABI, provider);
+const balance = await ousg.balanceOf(userAddress);
+console.log("OUSG balance:", ethers.formatEther(balance));
+```
+
+### Centrifuge (RWA lending pools)
+
+```typescript
+// Centrifuge Tinlake Pool
+const POOL_ABI = [
+  "function seniorTrancheTokenSupply() view returns (uint256)",
+  "function juniorTrancheTokenSupply() view returns (uint256)",
+  "function seniorInterestRate() view returns (uint256)",
+];
+
+const pool = new ethers.Contract(POOL_ADDRESS, POOL_ABI, provider);
+const [seniorSupply, rate] = await Promise.all([
+  pool.seniorTrancheTokenSupply(),
+  pool.seniorInterestRate(),
+]);
+console.log("Senior tranche:", ethers.formatEther(seniorSupply), "DAI");
+console.log("APY:", (Number(rate) / 1e27 - 1) * 365 * 100, "%"); // ray math
+```
+
+---
+
+## KYC / Identity Integration
+
+Most RWA tokens require KYC. Common approaches:
+
+| Provider | How It Works |
+|----------|-------------|
+| [Synaps](https://synaps.io) | KYC widget → verification status stored off-chain, address whitelisted on-chain |
+| [Fractal ID](https://fractal.id) | Issues on-chain credential → contract checks credential validity |
+| [Civic](https://civic.com) | On-chain pass (NFT) → your contract checks if user holds a valid pass |
+| [Worldcoin](https://worldcoin.org) | Proof of personhood — verifies unique human, not full KYC |
+
+### Civic Pass example
+
+```solidity
+import "@civic/ethereum-gateway/contracts/IGatewayTokenVerifier.sol";
+
+contract KYCGatedToken is ERC20 {
+    IGatewayTokenVerifier public immutable gatewayVerifier;
+    bytes32 public immutable gatekeeperNetwork;
+
+    constructor(address _verifier, bytes32 _network) ERC20("KYC Token", "KKYC") {
+        gatewayVerifier = IGatewayTokenVerifier(_verifier);
+        gatekeeperNetwork = _network;
+    }
+
+    function _update(address from, address to, uint256 amount) internal override {
+        if (to != address(0)) {
+            require(
+                gatewayVerifier.verifyToken(to, gatekeeperNetwork),
+                "Recipient must hold a valid Civic Pass"
+            );
+        }
+        super._update(from, to, amount);
+    }
+}
+```
+
+---
+
+## RWA in DApps — Frontend Patterns
+
+```typescript
+// Check if user is whitelisted before showing buy button
+const [isWhitelisted, setIsWhitelisted] = useState(false);
+
+useEffect(() => {
+  if (!address) return;
+  const token = new ethers.Contract(RWA_TOKEN_ADDRESS, RWA_ABI, provider);
+  token.whitelist(address).then(setIsWhitelisted);
+}, [address]);
+
+// In JSX:
+// {isWhitelisted ? <BuyButton /> : <KYCFlow />}
+```
+
+---
+
+## Why RWA Matters for DeFi
+
+- **Stable yield**: T-Bill backed tokens (5%+ APY) give DeFi protocols a real yield source vs purely inflationary incentives
+- **Institutional bridge**: Brings traditional finance capital on-chain
+- **Collateral**: RWA tokens used as collateral in MakerDAO (USDS), Aave
+- **Regulatory clarity**: On-chain compliance infrastructure is maturing
+- **Scale**: BlackRock BUIDL crossed $500M TVL in weeks — institutional demand is real
+
+---
+
+*Related: [DeFi DApp](/docs/web3/dapps/defi) | [Create ERC-20 Token](/docs/web3/ethereum/token) | [NFT Marketplace](/docs/web3/dapps/nft-marketplace)*

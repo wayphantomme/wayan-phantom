@@ -1,0 +1,297 @@
+export const metadata = {
+  title: "Create an SPL Token | Wayan Phantom",
+  description: "How to create, mint, and transfer SPL tokens on Solana — the equivalent of ERC-20 on Ethereum.",
+};
+
+# Create an SPL Token
+
+SPL (Solana Program Library) Token is the Solana equivalent of ERC-20. Unlike Ethereum where each token is its own contract, all SPL tokens use the **same on-chain Token Program** — only the data accounts differ.
+
+---
+
+## How SPL Tokens Work
+
+| Concept | Ethereum ERC-20 | Solana SPL |
+|---------|----------------|-----------|
+| Token logic | In your contract | Shared Token Program |
+| Token identity | Contract address | Mint account address |
+| User balance | Mapping in contract | Associated Token Account (ATA) |
+| Mint authority | Owner variable | Separate mint authority key |
+| Freeze authority | Custom implementation | Built-in |
+
+Every user who holds an SPL token has their own **Associated Token Account (ATA)** — a PDA derived from their wallet + the mint address.
+
+---
+
+## Create a Token with the CLI
+
+The fastest way to create and mint tokens:
+
+```bash
+# Switch to devnet
+solana config set --url devnet
+solana airdrop 2
+
+# Create a new token (mint)
+spl-token create-token
+# → Token: 7xKXtg2CW87d97TXJSDpbD4NiDiGekAzHRY3PbHuCTB7
+
+# Create a token account for yourself
+spl-token create-account 7xKXtg2CW87d97TXJSDpbD4NiDiGekAzHRY3PbHuCTB7
+# → Creating account AJZ...
+
+# Mint tokens (only mint authority can do this)
+spl-token mint 7xKXtg2CW87d97TXJSDpbD4NiDiGekAzHRY3PbHuCTB7 1000000
+# → Minting 1000000 tokens
+
+# Check balance
+spl-token balance 7xKXtg2CW87d97TXJSDpbD4NiDiGekAzHRY3PbHuCTB7
+
+# Transfer to another wallet
+spl-token transfer 7xKXtg2CW87d97TXJSDpbD4NiDiGekAzHRY3PbHuCTB7 100 RECIPIENT_ADDRESS --fund-recipient
+```
+
+`--fund-recipient` creates the recipient's ATA if it doesn't exist (costs a small amount of SOL).
+
+---
+
+## Create a Token with @solana/spl-token
+
+```bash
+npm install @solana/web3.js @solana/spl-token
+```
+
+```typescript
+import {
+  Connection,
+  Keypair,
+  clusterApiUrl,
+  LAMPORTS_PER_SOL,
+} from "@solana/web3.js";
+import {
+  createMint,
+  getOrCreateAssociatedTokenAccount,
+  mintTo,
+  transfer,
+  getMint,
+  getAccount,
+} from "@solana/spl-token";
+
+const connection = new Connection(clusterApiUrl("devnet"), "confirmed");
+
+// Load your keypair (in production, use a secure method)
+const payer = Keypair.fromSecretKey(Uint8Array.from(JSON.parse(process.env.PRIVATE_KEY!)));
+
+// 1. Create a new token mint
+const mint = await createMint(
+  connection,
+  payer,              // fee payer
+  payer.publicKey,    // mint authority
+  payer.publicKey,    // freeze authority (null to disable)
+  9                   // decimals (9 is standard for Solana, like 18 for ETH)
+);
+console.log("Mint address:", mint.toBase58());
+
+// 2. Create a token account for the payer
+const payerTokenAccount = await getOrCreateAssociatedTokenAccount(
+  connection,
+  payer,
+  mint,
+  payer.publicKey
+);
+console.log("Token account:", payerTokenAccount.address.toBase58());
+
+// 3. Mint tokens to the payer's account
+await mintTo(
+  connection,
+  payer,
+  mint,
+  payerTokenAccount.address,
+  payer,              // mint authority
+  1_000_000 * 10 ** 9  // 1 million tokens (9 decimals)
+);
+
+// 4. Check balance
+const accountInfo = await getAccount(connection, payerTokenAccount.address);
+console.log("Balance:", Number(accountInfo.amount) / 10 ** 9, "tokens");
+```
+
+---
+
+## Transfer Tokens
+
+```typescript
+import { transfer, getOrCreateAssociatedTokenAccount } from "@solana/spl-token";
+import { PublicKey } from "@solana/web3.js";
+
+const recipientPublicKey = new PublicKey("RECIPIENT_WALLET_ADDRESS");
+
+// Get or create recipient's token account
+const recipientTokenAccount = await getOrCreateAssociatedTokenAccount(
+  connection,
+  payer,            // fee payer for account creation
+  mint,
+  recipientPublicKey
+);
+
+// Transfer 100 tokens
+await transfer(
+  connection,
+  payer,
+  payerTokenAccount.address,    // from
+  recipientTokenAccount.address, // to
+  payer.publicKey,               // owner of source account
+  100 * 10 ** 9                  // amount (with decimals)
+);
+
+console.log("Transfer complete");
+```
+
+---
+
+## Read Token Info
+
+```typescript
+import { getMint, getAccount } from "@solana/spl-token";
+import { PublicKey } from "@solana/web3.js";
+
+const mintAddress = new PublicKey("YOUR_MINT_ADDRESS");
+
+// Mint info
+const mintInfo = await getMint(connection, mintAddress);
+console.log("Supply:", Number(mintInfo.supply) / 10 ** mintInfo.decimals);
+console.log("Decimals:", mintInfo.decimals);
+console.log("Mint authority:", mintInfo.mintAuthority?.toBase58());
+console.log("Freeze authority:", mintInfo.freezeAuthority?.toBase58() ?? "None");
+
+// User's balance
+const { getAssociatedTokenAddress } = await import("@solana/spl-token");
+const ata = await getAssociatedTokenAddress(mintAddress, walletPublicKey);
+const accountInfo = await getAccount(connection, ata);
+console.log("Balance:", Number(accountInfo.amount) / 10 ** mintInfo.decimals);
+```
+
+---
+
+## Disable Minting (Fixed Supply)
+
+After minting your total supply, you can revoke the mint authority to make it fixed forever:
+
+```typescript
+import { setAuthority, AuthorityType } from "@solana/spl-token";
+
+await setAuthority(
+  connection,
+  payer,
+  mint,
+  payer.publicKey,    // current authority
+  AuthorityType.MintTokens,
+  null               // set to null = revoke permanently
+);
+
+console.log("Mint authority revoked. Supply is now fixed.");
+```
+
+---
+
+## Token Metadata
+
+Bare SPL tokens have no name, symbol, or logo. You need the **Token Metadata Program** (by Metaplex) to add those.
+
+```bash
+npm install @metaplex-foundation/mpl-token-metadata @metaplex-foundation/umi @metaplex-foundation/umi-bundle-defaults
+```
+
+```typescript
+import { createUmi } from "@metaplex-foundation/umi-bundle-defaults";
+import { createFungible, mplTokenMetadata } from "@metaplex-foundation/mpl-token-metadata";
+import { createSignerFromKeypair, signerIdentity, generateSigner, percentAmount } from "@metaplex-foundation/umi";
+import { fromWeb3JsKeypair, fromWeb3JsPublicKey } from "@metaplex-foundation/umi-web3js-adapters";
+
+const umi = createUmi("https://api.devnet.solana.com").use(mplTokenMetadata());
+const keypair = umi.eddsa.createKeypairFromSecretKey(payer.secretKey);
+umi.use(signerIdentity(createSignerFromKeypair(umi, keypair)));
+
+const mintSigner = generateSigner(umi);
+
+await createFungible(umi, {
+  mint: mintSigner,
+  name: "Phantom Token",
+  symbol: "PHM",
+  uri: "https://arweave.net/YOUR_METADATA_JSON",  // hosted JSON with image etc.
+  sellerFeeBasisPoints: percentAmount(0),
+  decimals: 9,
+}).sendAndConfirm(umi);
+
+console.log("Token with metadata created:", mintSigner.publicKey);
+```
+
+---
+
+## Anchor Program for SPL Token
+
+If you need custom mint logic inside a program:
+
+```rust
+use anchor_lang::prelude::*;
+use anchor_spl::token::{self, Mint, Token, TokenAccount, MintTo};
+
+#[program]
+pub mod token_program {
+    use super::*;
+
+    pub fn mint_tokens(ctx: Context<MintTokens>, amount: u64) -> Result<()> {
+        let cpi_accounts = MintTo {
+            mint: ctx.accounts.mint.to_account_info(),
+            to: ctx.accounts.token_account.to_account_info(),
+            authority: ctx.accounts.authority.to_account_info(),
+        };
+        let cpi_program = ctx.accounts.token_program.to_account_info();
+        token::mint_to(CpiContext::new(cpi_program, cpi_accounts), amount)?;
+        Ok(())
+    }
+}
+
+#[derive(Accounts)]
+pub struct MintTokens<'info> {
+    #[account(mut)]
+    pub mint: Account<'info, Mint>,
+    #[account(mut)]
+    pub token_account: Account<'info, TokenAccount>,
+    pub authority: Signer<'info>,
+    pub token_program: Program<'info, Token>,
+}
+```
+
+---
+
+## Token-2022 (New Token Standard)
+
+Token-2022 extends SPL Token with additional features:
+
+| Feature | Description |
+|---------|-------------|
+| Transfer fees | Built-in tax on every transfer |
+| Non-transferable | Soulbound tokens |
+| Interest-bearing | Accrues interest over time |
+| Confidential transfers | Private amounts using ZK proofs |
+| Permanent delegate | Third-party can always transfer |
+
+```typescript
+import { TOKEN_2022_PROGRAM_ID, createMint } from "@solana/spl-token";
+
+const mint = await createMint(
+  connection,
+  payer,
+  payer.publicKey,
+  null,
+  9,
+  undefined,
+  undefined,
+  TOKEN_2022_PROGRAM_ID  // use Token-2022 program instead
+);
+```
+
+---
+
+*Related: [Create Solana NFT](/docs/web3/solana/nft) | [Deploy Solana Program](/docs/web3/solana/deploy) | [ERC-20 Token (Ethereum)](/docs/web3/ethereum/token)*

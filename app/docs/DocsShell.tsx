@@ -26,8 +26,11 @@ const NAV_SECTIONS: Section[] = [
       { label: "Overview",            href: "/docs/fullstack" },
       { label: "Next.js & React",     href: "/docs/fullstack/nextjs" },
       { label: "TypeScript Patterns", href: "/docs/fullstack/typescript" },
+      { label: "REST API & HTTP",     href: "/docs/fullstack/rest-api" },
       { label: "Monorepo vs Polyrepo",href: "/docs/fullstack/monorepo" },
-      { label: "GitHub, Vercel & Env",href: "/docs/fullstack/github-vercel" },
+      { label: "GitHub",               href: "/docs/fullstack/github" },
+      { label: "Vercel",               href: "/docs/fullstack/vercel" },
+      { label: "Env Variables",        href: "/docs/fullstack/env" },
       { label: "Deployment",          href: "/docs/fullstack/deployment" },
     ],
   },
@@ -39,12 +42,26 @@ const NAV_SECTIONS: Section[] = [
     ],
     subgroups: [
       {
+        label: "Basics",
+        items: [
+          { label: "Concepts",         href: "/docs/web3/basics/concepts" },
+          { label: "Faucets & Testnets",href: "/docs/web3/basics/faucets" },
+        ],
+      },
+      {
         label: "Ethereum",
         href: "/docs/web3/ethereum",
         items: [
-          { label: "Overview",          href: "/docs/web3/ethereum" },
-          { label: "Solidity Patterns", href: "/docs/web3/ethereum/solidity" },
-          { label: "ethers.js",         href: "/docs/web3/ethereum/ethersjs" },
+          { label: "Overview",              href: "/docs/web3/ethereum" },
+          { label: "Solidity Patterns",     href: "/docs/web3/ethereum/solidity" },
+          { label: "Solidity Fundamentals", href: "/docs/web3/ethereum/solidity/fundamentals" },
+          { label: "ERC Standards",         href: "/docs/web3/ethereum/erc" },
+          { label: "Smart Contract Security", href: "/docs/web3/ethereum/security" },
+          { label: "ethers.js",             href: "/docs/web3/ethereum/ethersjs" },
+          { label: "Create ERC-20",         href: "/docs/web3/ethereum/token" },
+          { label: "Create NFT",            href: "/docs/web3/ethereum/nft" },
+          { label: "Liquidity Pool",        href: "/docs/web3/ethereum/pool" },
+          { label: "Deploy Testnet → Mainnet", href: "/docs/web3/ethereum/deploy" },
         ],
       },
       {
@@ -54,6 +71,17 @@ const NAV_SECTIONS: Section[] = [
           { label: "Overview",          href: "/docs/web3/solana" },
           { label: "Wallet & Web3.js",  href: "/docs/web3/solana/wallet" },
           { label: "Anchor Programs",   href: "/docs/web3/solana/programs" },
+          { label: "Create SPL Token",  href: "/docs/web3/solana/token" },
+          { label: "Create NFT",        href: "/docs/web3/solana/nft" },
+          { label: "Deploy Program",    href: "/docs/web3/solana/deploy" },
+        ],
+      },
+      {
+        label: "DApps",
+        items: [
+          { label: "DeFi",              href: "/docs/web3/dapps/defi" },
+          { label: "NFT Marketplace",   href: "/docs/web3/dapps/nft-marketplace" },
+          { label: "RWA",               href: "/docs/web3/dapps/rwa" },
         ],
       },
     ],
@@ -115,12 +143,51 @@ const NAV_SECTIONS: Section[] = [
     ],
   },
   {
+    label: "Industry Domains",
+    href: "/docs/industry",
+    items: [
+      { label: "Overview", href: "/docs/industry" },
+    ],
+    subgroups: [
+      {
+        label: "Products",
+        items: [
+          { label: "Healthcare",     href: "/docs/industry/healthcare" },
+          { label: "Finance",        href: "/docs/industry/finance" },
+          { label: "E-commerce",     href: "/docs/industry/ecommerce" },
+          { label: "EdTech",         href: "/docs/industry/edtech" },
+          { label: "Logistics",      href: "/docs/industry/logistics" },
+          { label: "Legal Tech",     href: "/docs/industry/legal" },
+          { label: "Real Estate",    href: "/docs/industry/real-estate" },
+        ],
+      },
+      {
+        label: "Deep Tech",
+        items: [
+          { label: "DeFi Protocol",  href: "/docs/industry/defi" },
+          { label: "AI Products",    href: "/docs/industry/ai-products" },
+          { label: "Social / Creator", href: "/docs/industry/social" },
+        ],
+      },
+    ],
+  },
+  {
     label: "Chains & Ecosystems",
     href: "/docs/chains",
     items: [
       { label: "Overview", href: "/docs/chains" },
     ],
     subgroups: [
+      {
+        label: "Build Your Own Chain",
+        href: "/docs/chains/build",
+        items: [
+          { label: "Overview",          href: "/docs/chains/build" },
+          { label: "Arbitrum Orbit",    href: "/docs/chains/frameworks/orbit" },
+          { label: "OP Stack",          href: "/docs/chains/evm-l2s/op-stack" },
+          { label: "Substrate",         href: "/docs/chains/frameworks/substrate" },
+        ],
+      },
       {
         label: "EVM L2s",
         items: [
@@ -145,14 +212,6 @@ const NAV_SECTIONS: Section[] = [
           { label: "Overview",            href: "/docs/chains/private" },
           { label: "Hyperledger Fabric",  href: "/docs/chains/private/hyperledger" },
           { label: "Quorum",              href: "/docs/chains/private/quorum" },
-        ],
-      },
-      {
-        label: "Frameworks",
-        items: [
-          { label: "Overview",          href: "/docs/chains/frameworks" },
-          { label: "Arbitrum Orbit",    href: "/docs/chains/frameworks/orbit" },
-          { label: "Substrate",         href: "/docs/chains/frameworks/substrate" },
         ],
       },
     ],
@@ -182,6 +241,14 @@ const TOC_MAP: Record<string, { label: string; href: string }[]> = {
     { label: "Discriminated Unions",   href: "#discriminated-unions" },
     { label: "Zod Validation",         href: "#zod" },
   ],
+  "/docs/fullstack/rest-api": [
+    { label: "HTTP Methods",       href: "#http-methods" },
+    { label: "Status Codes",       href: "#http-status-codes" },
+    { label: "Headers",            href: "#headers" },
+    { label: "Authentication",     href: "#authentication-patterns" },
+    { label: "CORS",               href: "#cors" },
+    { label: "REST URL Design",    href: "#rest-url-design" },
+  ],
   "/docs/fullstack/monorepo": [
     { label: "Monorepo",           href: "#monorepo" },
     { label: "Polyrepo",           href: "#polyrepo" },
@@ -189,12 +256,37 @@ const TOC_MAP: Record<string, { label: string; href: string }[]> = {
     { label: "Turborepo Setup",    href: "#turborepo" },
     { label: "Shared Packages",    href: "#shared-packages" },
   ],
-  "/docs/fullstack/github-vercel": [
-    { label: "Create GitHub Repo",   href: "#github" },
-    { label: "Connect to Vercel",    href: "#vercel" },
-    { label: "Environment Variables",href: "#env" },
-    { label: "Multi-Project Setup",  href: "#multi-project" },
-    { label: "Web3 Contract Env",    href: "#web3-env" },
+  "/docs/fullstack/github": [
+    { label: "Setup",          href: "#setup" },
+    { label: "Create Repo",    href: "#create-a-repo" },
+    { label: "Commit Flow",    href: "#daily-commit-flow" },
+    { label: "Branching",      href: "#branching" },
+    { label: "Pull Requests",  href: "#pull-requests" },
+    { label: "Stash",          href: "#stash" },
+    { label: "Undoing",        href: "#undoing-things" },
+    { label: "Tags & Releases",href: "#tags--releases" },
+    { label: "GitHub Actions", href: "#github-actions-ci" },
+  ],
+  "/docs/fullstack/vercel": [
+    { label: "First Deploy",      href: "#first-deploy" },
+    { label: "GitHub Integration",href: "#github-integration-recommended" },
+    { label: "Deploy Commands",   href: "#deploy-commands" },
+    { label: "Preview URLs",      href: "#preview-urls" },
+    { label: "Custom Domains",    href: "#custom-domains" },
+    { label: "vercel.json",       href: "#verceljson-config" },
+    { label: "Monorepo",          href: "#monorepo-setup" },
+    { label: "Rollback",          href: "#rollback" },
+    { label: "Function Limits",   href: "#function-limits-free-tier--hobby-plan" },
+  ],
+  "/docs/fullstack/env": [
+    { label: "File Priority",    href: "#nextjs-env-file-priority" },
+    { label: "NEXT_PUBLIC",      href: "#next_public_-prefix" },
+    { label: "Local Dev Setup",  href: "#local-dev-setup" },
+    { label: "Production",       href: "#production-variables-vercel" },
+    { label: "Validation",       href: "#validating-env-vars-at-startup" },
+    { label: "Multi-Service",    href: "#multi-service-architecture" },
+    { label: "Web3 Contracts",   href: "#web3-contract-variables" },
+    { label: "Secrets Tips",     href: "#secrets-management-tips" },
   ],
   "/docs/fullstack/deployment": [
     { label: "Vercel Setup",         href: "#vercel" },
@@ -205,11 +297,62 @@ const TOC_MAP: Record<string, { label: string; href: string }[]> = {
     { label: "Ethereum", href: "#ethereum" },
     { label: "Solana",   href: "#solana" },
   ],
+  "/docs/web3/basics/concepts": [
+    { label: "Wallet",       href: "#wallet" },
+    { label: "Network",      href: "#network--chain" },
+    { label: "Token",        href: "#token" },
+    { label: "Gas",          href: "#gas" },
+    { label: "Transaction",  href: "#transaction-lifecycle" },
+    { label: "RPC Providers",href: "#rpc--node-providers" },
+  ],
+  "/docs/web3/basics/faucets": [
+    { label: "Ethereum Sepolia",   href: "#ethereum--sepolia" },
+    { label: "Base Sepolia",       href: "#base-sepolia" },
+    { label: "Arbitrum Sepolia",   href: "#arbitrum-sepolia" },
+    { label: "Solana Devnet",      href: "#solana--devnet" },
+    { label: "Tips",               href: "#tips" },
+  ],
   "/docs/web3/ethereum": [
     { label: "Why Ethereum",   href: "#why-ethereum" },
     { label: "My Projects",    href: "#my-projects" },
     { label: "EVM Chains",     href: "#evm-chains" },
     { label: "Dev Toolchain",  href: "#dev-toolchain" },
+  ],
+  "/docs/web3/ethereum/deploy": [
+    { label: "Toolchain",        href: "#toolchain" },
+    { label: "Hardhat Setup",    href: "#hardhat-setup" },
+    { label: "Foundry Setup",    href: "#foundry-setup" },
+    { label: "Deploy Testnet",   href: "#step-1-deploy-to-testnet" },
+    { label: "Verify",           href: "#step-2-verify-on-etherscan" },
+    { label: "Audit Checklist",  href: "#step-4-audit-checklist-pre-mainnet" },
+    { label: "Deploy Mainnet",   href: "#step-5-deploy-to-mainnet" },
+  ],
+  "/docs/web3/ethereum/token": [
+    { label: "ERC-20 Interface",  href: "#what-erc-20-defines" },
+    { label: "Basic Token",       href: "#basic-erc-20-with-openzeppelin" },
+    { label: "Fixed Supply",      href: "#fixed-supply-token-no-mint-after-deploy" },
+    { label: "Tax Token",         href: "#token-with-tax--transfer-fee" },
+    { label: "Deploy",            href: "#deploy" },
+    { label: "Interact",          href: "#interact-with-the-token" },
+    { label: "Decimals",          href: "#decimals" },
+  ],
+  "/docs/web3/ethereum/nft": [
+    { label: "ERC-721 vs 1155",  href: "#erc-721-vs-erc-1155" },
+    { label: "Basic NFT",        href: "#basic-erc-721-with-openzeppelin" },
+    { label: "Collection",       href: "#collection-with-max-supply-and-public-mint" },
+    { label: "Metadata",         href: "#metadata-structure" },
+    { label: "Deploy & Mint",    href: "#deploy-and-mint" },
+    { label: "ERC-721A",         href: "#erc-721a-gas-optimized-batch-mint" },
+    { label: "Royalties",        href: "#royalties-erc-2981" },
+  ],
+  "/docs/web3/ethereum/pool": [
+    { label: "How It Works",     href: "#how-it-works" },
+    { label: "Create Pool",      href: "#uniswap-v2--create-a-pool" },
+    { label: "Add Liquidity",    href: "#3-add-initial-liquidity-via-router" },
+    { label: "Read Pool State",  href: "#read-pool-state" },
+    { label: "Remove Liquidity", href: "#remove-liquidity" },
+    { label: "Uniswap V3",       href: "#uniswap-v3--concentrated-liquidity" },
+    { label: "Impermanent Loss", href: "#impermanent-loss" },
   ],
   "/docs/web3/ethereum/solidity": [
     { label: "ERC-20 Token",      href: "#erc-20-token" },
@@ -217,6 +360,41 @@ const TOC_MAP: Record<string, { label: string; href: string }[]> = {
     { label: "Access Control",    href: "#access-control" },
     { label: "Events",            href: "#events" },
     { label: "Testing",           href: "#testing" },
+  ],
+  "/docs/web3/ethereum/erc": [
+    { label: "ERC Standards",     href: "#ethereum-request-for-comment-erc" },
+    { label: "OpenZeppelin",      href: "#introduction-to-openzeppelin" },
+    { label: "OZ Wizard",         href: "#openzeppelin-wizard" },
+    { label: "Block Explorer",    href: "#interacting-with-a-smart-contract-from-a-block-explorer" },
+    { label: "Off-Chain Storage", href: "#off-chain-storage" },
+    { label: "IPFS",              href: "#ipfs" },
+    { label: "Gas Optimization",  href: "#gas-optimization-tips" },
+  ],
+  "/docs/web3/ethereum/security": [
+    { label: "Reentrancy",        href: "#reentrancy" },
+    { label: "Access Control",    href: "#access-control" },
+    { label: "Overflow / Underflow", href: "#overflow--underflow" },
+    { label: "Denial of Service", href: "#denial-of-service-gas-exhaustion" },
+    { label: "Timestamp Manipulation", href: "#timestamp-manipulation" },
+  ],
+  "/docs/web3/solidity": [
+    { label: "ERC-20 Token",      href: "#erc-20-token" },
+    { label: "Reentrancy Guard",  href: "#reentrancy-guard" },
+    { label: "Architecture",      href: "#bulldex-finance-architecture" },
+    { label: "Testing",           href: "#testing-with-hardhat" },
+  ],
+  "/docs/web3/ethereum/solidity/fundamentals": [
+    { label: "Remix IDE",              href: "#remix-ide" },
+    { label: "Contract Structure",     href: "#contract-structure" },
+    { label: "Data Types",             href: "#data-types" },
+    { label: "Array, Mapping, Struct", href: "#reference-types-mapping-array--struct" },
+    { label: "Functions",              href: "#functions" },
+    { label: "Visibility & Mutability",href: "#visibility--mutability" },
+    { label: "Events & Modifiers",     href: "#events-modifiers--custom-errors" },
+    { label: "Storage / Memory",       href: "#data-locations-storage-memory--calldata" },
+    { label: "Constant & Immutable",   href: "#constant--immutable" },
+    { label: "Inheritance",            href: "#inheritance-interface--library" },
+    { label: "Global Variables",       href: "#global-variables" },
   ],
   "/docs/web3/ethereum/ethersjs": [
     { label: "Connect Wallet",    href: "#connect-wallet" },
@@ -230,6 +408,60 @@ const TOC_MAP: Record<string, { label: string; href: string }[]> = {
     { label: "My Activity",    href: "#my-solana-activity" },
     { label: "Core Stack",     href: "#core-stack" },
     { label: "vs Ethereum",    href: "#key-differences-from-ethereum" },
+  ],
+  "/docs/web3/solana/deploy": [
+    { label: "vs Ethereum",    href: "#ethereum-vs-solana--key-differences" },
+    { label: "Install",        href: "#install-toolchain" },
+    { label: "New Project",    href: "#create-a-new-project" },
+    { label: "Build",          href: "#build" },
+    { label: "Test",           href: "#test-locally" },
+    { label: "Deploy Devnet",  href: "#deploy-to-devnet" },
+    { label: "Deploy Mainnet", href: "#deploy-to-mainnet" },
+    { label: "Upgrade",        href: "#upgrade-a-deployed-program" },
+    { label: "PDAs",           href: "#program-derived-addresses-pdas" },
+  ],
+  "/docs/web3/solana/token": [
+    { label: "How SPL Works",  href: "#how-spl-tokens-work" },
+    { label: "CLI",            href: "#create-a-token-with-the-cli" },
+    { label: "SDK",            href: "#create-a-token-with-solanaspl-token" },
+    { label: "Transfer",       href: "#transfer-tokens" },
+    { label: "Fixed Supply",   href: "#disable-minting-fixed-supply" },
+    { label: "Metadata",       href: "#token-metadata" },
+    { label: "Token-2022",     href: "#token-2022-new-token-standard" },
+  ],
+  "/docs/web3/solana/nft": [
+    { label: "vs Ethereum NFT", href: "#solana-nft-vs-ethereum-nft" },
+    { label: "Single NFT",      href: "#single-nft-with-metaplex-umi" },
+    { label: "Metadata JSON",   href: "#metadata-json-metaplex-standard" },
+    { label: "Collection",      href: "#collection-nft-10k-pfp-drop" },
+    { label: "pNFT",            href: "#pnft-programmable-nft" },
+    { label: "Read NFTs",       href: "#read-nfts-in-a-wallet" },
+  ],
+  "/docs/web3/dapps/defi": [
+    { label: "Categories",     href: "#defi-categories" },
+    { label: "Connect Wallet", href: "#connect-wallet-ethereum" },
+    { label: "Uniswap Swap",   href: "#token-swap--uniswap-v3-ethereum" },
+    { label: "Jupiter Swap",   href: "#token-swap--jupiter-solana" },
+    { label: "Read Protocol",  href: "#read-defi-protocol-data" },
+    { label: "Swap UI",        href: "#build-a-simple-swap-ui" },
+    { label: "Key Concepts",   href: "#key-defi-concepts" },
+  ],
+  "/docs/web3/dapps/nft-marketplace": [
+    { label: "Architecture",   href: "#architecture" },
+    { label: "Contract",       href: "#marketplace-contract" },
+    { label: "List NFT",       href: "#frontend--list-an-nft" },
+    { label: "Buy NFT",        href: "#frontend--buy-an-nft" },
+    { label: "Fetch Listings", href: "#fetch-active-listings" },
+    { label: "NFT Metadata",   href: "#render-nft-metadata" },
+  ],
+  "/docs/web3/dapps/rwa": [
+    { label: "What Gets Tokenized", href: "#what-gets-tokenized" },
+    { label: "How It Works",        href: "#how-rwa-tokenization-works" },
+    { label: "ERC-1400",            href: "#erc-1400-security-token-standard" },
+    { label: "Yield Token",         href: "#yield-bearing-rwa-token" },
+    { label: "Protocols",           href: "#connect-to-existing-rwa-protocols" },
+    { label: "KYC / Identity",      href: "#kyc--identity-integration" },
+    { label: "Why RWA Matters",     href: "#why-rwa-matters-for-defi" },
   ],
   "/docs/web3/solana/wallet": [
     { label: "Provider Setup",   href: "#provider-setup" },
@@ -278,11 +510,95 @@ const TOC_MAP: Record<string, { label: string; href: string }[]> = {
     { label: "Query",            href: "#query" },
     { label: "Chunking Tips",    href: "#chunking-tips" },
   ],
+  "/docs/industry": [
+    { label: "Why Domain Knowledge", href: "#why-domain-knowledge-matters" },
+    { label: "What's Covered",       href: "#whats-covered" },
+  ],
+  "/docs/industry/healthcare": [
+    { label: "Core Concepts",    href: "#core-concepts" },
+    { label: "EMR Data Model",   href: "#emr-data-model" },
+    { label: "FHIR Integration", href: "#fhir-integration" },
+    { label: "Audit Trail",      href: "#audit-trail" },
+    { label: "HIPAA Storage",    href: "#hipaa-compliant-storage-patterns" },
+    { label: "Access Control",   href: "#role-based-access-control" },
+  ],
+  "/docs/industry/finance": [
+    { label: "Double-Entry Ledger",  href: "#double-entry-ledger" },
+    { label: "Transaction State",    href: "#transaction-state-machine" },
+    { label: "Payment Webhooks",     href: "#payment-webhook-handling" },
+    { label: "KYC / AML",            href: "#kyc--aml-flow" },
+    { label: "Currency & Precision", href: "#currency--precision" },
+  ],
+  "/docs/industry/ecommerce": [
+    { label: "Data Model",       href: "#core-data-model" },
+    { label: "Order State",      href: "#order-state-machine" },
+    { label: "Inventory",        href: "#inventory-management" },
+    { label: "Checkout Flow",    href: "#checkout-flow" },
+    { label: "Coupons",          href: "#coupon--discount-engine" },
+    { label: "Fulfillment",      href: "#fulfillment--shipping" },
+  ],
+  "/docs/industry/edtech": [
+    { label: "LMS Data Model",   href: "#lms-data-model" },
+    { label: "Progress Tracking",href: "#progress-tracking" },
+    { label: "Quiz Engine",      href: "#quiz-engine" },
+    { label: "Certificates",     href: "#certificate-generation" },
+    { label: "Prerequisites",    href: "#prerequisite-enforcement" },
+  ],
+  "/docs/industry/logistics": [
+    { label: "Event Sourcing",   href: "#event-sourcing-for-shipments" },
+    { label: "Data Model",       href: "#core-data-model" },
+    { label: "Real-Time Tracking", href: "#real-time-tracking" },
+    { label: "Route Optimization", href: "#route-optimization" },
+    { label: "Zones & Pricing",  href: "#delivery-zones--pricing" },
+  ],
+  "/docs/industry/legal": [
+    { label: "Document Versioning", href: "#document-versioning" },
+    { label: "E-Signature Flow",    href: "#e-signature-flow" },
+    { label: "Contract Lifecycle",  href: "#contract-lifecycle" },
+    { label: "Matter Management",   href: "#matter--case-management" },
+    { label: "Audit Trail",         href: "#audit-trail" },
+  ],
+  "/docs/industry/real-estate": [
+    { label: "Listing Schema",   href: "#property-listing-schema" },
+    { label: "Search & Filter",  href: "#search--filter" },
+    { label: "Offer & Escrow",   href: "#transaction--offer-flow" },
+    { label: "Tokenized Property", href: "#tokenized-property-rwa" },
+    { label: "Viewing Scheduler", href: "#viewing-scheduler" },
+  ],
+  "/docs/industry/defi": [
+    { label: "AMM Formula",      href: "#amm-constant-product-formula" },
+    { label: "Lending & Liquidation", href: "#lending-protocol--liquidation" },
+    { label: "Oracle Integration", href: "#oracle-integration" },
+    { label: "Price Impact",     href: "#price-impact--slippage" },
+    { label: "Security Checklist", href: "#protocol-security-checklist" },
+  ],
+  "/docs/industry/ai-products": [
+    { label: "Chatbot Architecture", href: "#chatbot-architecture" },
+    { label: "Agent Memory",     href: "#agent-memory" },
+    { label: "Domain RAG",       href: "#domain-specific-rag" },
+    { label: "Evaluation",       href: "#evaluation-pipeline" },
+    { label: "Rate Limiting",    href: "#rate-limiting--cost-control" },
+  ],
+  "/docs/industry/social": [
+    { label: "Data Model",       href: "#core-data-model" },
+    { label: "Feed Algorithm",   href: "#feed-algorithm" },
+    { label: "Notifications",    href: "#real-time-notifications" },
+    { label: "Monetization",     href: "#creator-monetization" },
+    { label: "Moderation",       href: "#content-moderation" },
+    { label: "Trending",         href: "#trending-algorithm" },
+  ],
   "/docs/chains": [
     { label: "Public vs Private",  href: "#public-vs-private-blockchain" },
     { label: "L1 vs L2 vs L3",    href: "#l1-vs-l2-vs-l3" },
     { label: "Two Rollup Types",   href: "#two-rollup-approaches" },
     { label: "What's Covered",     href: "#whats-covered-here" },
+  ],
+  "/docs/chains/build": [
+    { label: "Why Build",          href: "#why-build-your-own-chain" },
+    { label: "Two Categories",     href: "#two-categories" },
+    { label: "Choosing a Framework", href: "#choosing-a-framework" },
+    { label: "Deployment Path",    href: "#high-level-deployment-path" },
+    { label: "What's Covered",     href: "#whats-covered" },
   ],
   "/docs/chains/evm-l2s": [
     { label: "Why L2s Exist",      href: "#why-l2s-exist" },
@@ -377,22 +693,53 @@ const BREADCRUMB_MAP: Record<string, string[]> = {
   "/docs/fullstack":                 ["Fullstack", "Overview"],
   "/docs/fullstack/nextjs":          ["Fullstack", "Next.js & React"],
   "/docs/fullstack/typescript":      ["Fullstack", "TypeScript Patterns"],
+  "/docs/fullstack/rest-api":        ["Fullstack", "REST API & HTTP"],
   "/docs/fullstack/monorepo":        ["Fullstack", "Monorepo vs Polyrepo"],
-  "/docs/fullstack/github-vercel":   ["Fullstack", "GitHub, Vercel & Env"],
+  "/docs/fullstack/github":          ["Fullstack", "GitHub"],
+  "/docs/fullstack/vercel":          ["Fullstack", "Vercel"],
+  "/docs/fullstack/env":             ["Fullstack", "Env Variables"],
   "/docs/fullstack/deployment":      ["Fullstack", "Deployment"],
   "/docs/web3":                      ["Web3 & Blockchain", "Overview"],
+  "/docs/web3/basics/concepts":      ["Web3 & Blockchain", "Basics", "Concepts"],
+  "/docs/web3/basics/faucets":       ["Web3 & Blockchain", "Basics", "Faucets & Testnets"],
   "/docs/web3/ethereum":             ["Web3 & Blockchain", "Ethereum", "Overview"],
-  "/docs/web3/ethereum/solidity":    ["Web3 & Blockchain", "Ethereum", "Solidity Patterns"],
+  "/docs/web3/ethereum/solidity":             ["Web3 & Blockchain", "Ethereum", "Solidity Patterns"],
+  "/docs/web3/ethereum/solidity/fundamentals":["Web3 & Blockchain", "Ethereum", "Solidity Fundamentals"],
+  "/docs/web3/ethereum/erc":                  ["Web3 & Blockchain", "Ethereum", "ERC Standards"],
+  "/docs/web3/ethereum/security":             ["Web3 & Blockchain", "Ethereum", "Smart Contract Security"],
+  "/docs/web3/solidity":                      ["Web3 & Blockchain", "Solidity", "Patterns"],
   "/docs/web3/ethereum/ethersjs":    ["Web3 & Blockchain", "Ethereum", "ethers.js"],
+  "/docs/web3/ethereum/token":       ["Web3 & Blockchain", "Ethereum", "Create ERC-20"],
+  "/docs/web3/ethereum/nft":         ["Web3 & Blockchain", "Ethereum", "Create NFT"],
+  "/docs/web3/ethereum/pool":        ["Web3 & Blockchain", "Ethereum", "Liquidity Pool"],
+  "/docs/web3/ethereum/deploy":      ["Web3 & Blockchain", "Ethereum", "Deploy Testnet → Mainnet"],
   "/docs/web3/solana":               ["Web3 & Blockchain", "Solana", "Overview"],
   "/docs/web3/solana/wallet":        ["Web3 & Blockchain", "Solana", "Wallet & Web3.js"],
   "/docs/web3/solana/programs":      ["Web3 & Blockchain", "Solana", "Anchor Programs"],
+  "/docs/web3/solana/token":         ["Web3 & Blockchain", "Solana", "Create SPL Token"],
+  "/docs/web3/solana/nft":           ["Web3 & Blockchain", "Solana", "Create NFT"],
+  "/docs/web3/solana/deploy":        ["Web3 & Blockchain", "Solana", "Deploy Program"],
+  "/docs/web3/dapps/defi":           ["Web3 & Blockchain", "DApps", "DeFi"],
+  "/docs/web3/dapps/nft-marketplace":["Web3 & Blockchain", "DApps", "NFT Marketplace"],
+  "/docs/web3/dapps/rwa":            ["Web3 & Blockchain", "DApps", "RWA"],
   "/docs/ai":                        ["AI & Automation", "Overview"],
   "/docs/ai/llm":    ["AI & Automation", "LLM Stack"],
   "/docs/ai/gemini": ["AI & Automation", "Google AI Studio"],
   "/docs/ai/n8n":    ["AI & Automation", "n8n Workflows"],
   "/docs/ai/rag":                    ["AI & Automation", "RAG Pipeline"],
+  "/docs/industry":                          ["Industry Domains", "Overview"],
+  "/docs/industry/healthcare":               ["Industry Domains", "Healthcare"],
+  "/docs/industry/finance":                  ["Industry Domains", "Finance"],
+  "/docs/industry/ecommerce":                ["Industry Domains", "E-commerce"],
+  "/docs/industry/edtech":                   ["Industry Domains", "EdTech"],
+  "/docs/industry/logistics":                ["Industry Domains", "Logistics"],
+  "/docs/industry/legal":                    ["Industry Domains", "Legal Tech"],
+  "/docs/industry/real-estate":              ["Industry Domains", "Real Estate"],
+  "/docs/industry/defi":                     ["Industry Domains", "DeFi Protocol"],
+  "/docs/industry/ai-products":              ["Industry Domains", "AI Products"],
+  "/docs/industry/social":                   ["Industry Domains", "Social / Creator"],
   "/docs/chains":                          ["Chains & Ecosystems", "Overview"],
+  "/docs/chains/build":                    ["Chains & Ecosystems", "Build Your Own Chain", "Overview"],
   "/docs/chains/evm-l2s":                  ["Chains & Ecosystems", "EVM L2s", "Overview"],
   "/docs/chains/evm-l2s/arbitrum":         ["Chains & Ecosystems", "EVM L2s", "Arbitrum"],
   "/docs/chains/evm-l2s/base":             ["Chains & Ecosystems", "EVM L2s", "Base"],
@@ -404,9 +751,9 @@ const BREADCRUMB_MAP: Record<string, string[]> = {
   "/docs/chains/private":                  ["Chains & Ecosystems", "Private Chains", "Overview"],
   "/docs/chains/private/hyperledger":      ["Chains & Ecosystems", "Private Chains", "Hyperledger Fabric"],
   "/docs/chains/private/quorum":           ["Chains & Ecosystems", "Private Chains", "Quorum"],
-  "/docs/chains/frameworks":               ["Chains & Ecosystems", "Frameworks", "Overview"],
-  "/docs/chains/frameworks/orbit":         ["Chains & Ecosystems", "Frameworks", "Arbitrum Orbit"],
-  "/docs/chains/frameworks/substrate":     ["Chains & Ecosystems", "Frameworks", "Substrate"],
+  "/docs/chains/frameworks":               ["Chains & Ecosystems", "Build Your Own Chain", "Overview"],
+  "/docs/chains/frameworks/orbit":         ["Chains & Ecosystems", "Build Your Own Chain", "Arbitrum Orbit"],
+  "/docs/chains/frameworks/substrate":     ["Chains & Ecosystems", "Build Your Own Chain", "Substrate"],
   "/docs/fundamentals":                            ["Fundamentals", "Overview"],
   "/docs/fundamentals/data-structures":            ["Fundamentals", "Data Structures", "Overview"],
   "/docs/fundamentals/data-structures/arrays":     ["Fundamentals", "Data Structures", "Arrays"],
@@ -431,7 +778,32 @@ const BREADCRUMB_MAP: Record<string, string[]> = {
 
 function Sidebar() {
   const pathname = usePathname();
-  const [collapsed, setCollapsed] = useState<Record<string, boolean>>({});
+
+  // Build initial collapsed state: all sections collapsed except the active one
+  const getInitialCollapsed = () => {
+    const state: Record<string, boolean> = {};
+    NAV_SECTIONS.forEach((section, si) => {
+      if (!section.label) return; // Introduction row — always visible
+      // Collapse section unless pathname is under it
+      const sectionPrefix = section.href ?? (section.items?.[0]?.href ?? "");
+      const isActive = sectionPrefix && pathname.startsWith(sectionPrefix.replace(/\/[^/]+$/, "").replace(/^\/$/, "/docs"));
+      // Simpler: collapse all top-level sections except the one whose items/subgroups match
+      const hasActiveItem = [
+        ...(section.items ?? []).map(i => i.href),
+        ...(section.subgroups ?? []).flatMap(sg => sg.items.map(i => i.href)),
+      ].some(href => pathname.startsWith(href));
+      state[`s-${si}`] = !hasActiveItem;
+
+      // Collapse all subgroups except the active one
+      (section.subgroups ?? []).forEach((sub, gi) => {
+        const hasActiveSub = sub.items.some(i => pathname.startsWith(i.href));
+        state[`g-${si}-${gi}`] = !hasActiveSub;
+      });
+    });
+    return state;
+  };
+
+  const [collapsed, setCollapsed] = useState<Record<string, boolean>>(getInitialCollapsed);
 
   const toggle = (key: string) =>
     setCollapsed((prev) => ({ ...prev, [key]: !prev[key] }));
@@ -539,10 +911,6 @@ function RightTOC() {
           <a key={item.href} href={item.href} className="docs-toc-link">{item.label}</a>
         ))}
       </nav>
-      <div className="docs-toc-divider" />
-      <a href="https://github.com/wayphantomme" className="docs-toc-action" target="_blank" rel="noopener noreferrer">
-        Edit this page
-      </a>
     </aside>
   );
 }
@@ -571,6 +939,7 @@ const SEARCH_INDEX = Object.entries(BREADCRUMB_MAP).map(([href, crumbs]) => ({
   href,
   title: crumbs[crumbs.length - 1],
   section: crumbs[0],
+  breadcrumb: crumbs.slice(0, -1).join(" / "),
 }));
 
 function Search() {
@@ -582,9 +951,17 @@ function Search() {
   const results = query.length >= 1
     ? SEARCH_INDEX.filter(p =>
         p.title.toLowerCase().includes(query.toLowerCase()) ||
-        p.section.toLowerCase().includes(query.toLowerCase())
-      ).slice(0, 8)
+        p.section.toLowerCase().includes(query.toLowerCase()) ||
+        p.breadcrumb.toLowerCase().includes(query.toLowerCase())
+      ).slice(0, 12)
     : [];
+
+  // Group results by section
+  const grouped = results.reduce<Record<string, typeof results>>((acc, r) => {
+    if (!acc[r.section]) acc[r.section] = [];
+    acc[r.section].push(r);
+    return acc;
+  }, {});
 
   useEffect(() => {
     const handler = (e: KeyboardEvent) => {
@@ -638,17 +1015,26 @@ function Search() {
           />
           {(results.length > 0 || query.length > 0) && (
             <div className="docs-search-dropdown">
-              {results.length > 0 ? results.map(r => (
-                <Link
-                  key={r.href}
-                  href={r.href}
-                  className="docs-search-result"
-                  onClick={() => { setOpen(false); setQuery(""); }}
-                >
-                  <span className="docs-search-result-title">{r.title}</span>
-                  <span className="docs-search-result-section">{r.section}</span>
-                </Link>
-              )) : (
+              {results.length > 0 ? (
+                Object.entries(grouped).map(([section, items]) => (
+                  <div key={section} className="docs-search-group">
+                    <div className="docs-search-group-label">{section}</div>
+                    {items.map(r => (
+                      <Link
+                        key={r.href}
+                        href={r.href}
+                        className="docs-search-result"
+                        onClick={() => { setOpen(false); setQuery(""); }}
+                      >
+                        <span className="docs-search-result-title">{r.title}</span>
+                        {r.breadcrumb && (
+                          <span className="docs-search-result-section">{r.breadcrumb}</span>
+                        )}
+                      </Link>
+                    ))}
+                  </div>
+                ))
+              ) : (
                 <p className="docs-search-empty">No results for &ldquo;{query}&rdquo;</p>
               )}
             </div>

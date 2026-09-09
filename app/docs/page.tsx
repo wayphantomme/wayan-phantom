@@ -11,7 +11,7 @@ const CATEGORIES = [
     href: "/docs/fullstack",
     icon: "🖥️",
     label: "Fullstack",
-    desc: "Notes on building end-to-end web apps — Next.js, React, TypeScript, Node.js, PostgreSQL, and deployment patterns I use in production.",
+    desc: "Notes on building end-to-end web apps. Next.js, React, TypeScript, Node.js, PostgreSQL, and deployment patterns I use in production.",
     tags: ["Next.js", "React", "TypeScript", "Node.js", "PostgreSQL"],
     color: "#3b82f6",
   },
@@ -19,7 +19,7 @@ const CATEGORIES = [
     href: "/docs/web3",
     icon: "⛓️",
     label: "Web3 & Blockchain",
-    desc: "Everything I've learned building DeFi protocols on Ethereum and Solana — smart contracts, token swaps, liquidity pools, wallet integrations.",
+    desc: "Everything I've learned building DeFi protocols on Ethereum and Solana. Smart contracts, token swaps, liquidity pools, wallet integrations.",
     tags: ["Solidity", "ethers.js", "Solana", "DeFi", "EVM"],
     color: "#8b5cf6",
   },
@@ -27,7 +27,7 @@ const CATEGORIES = [
     href: "/docs/ai",
     icon: "🤖",
     label: "AI & Automation",
-    desc: "How I build AI-powered products — LLM integration, n8n workflow automation, RAG pipelines, and chatbot architecture.",
+    desc: "How I build AI-powered products. LLM integration, n8n workflow automation, RAG pipelines, and chatbot architecture.",
     tags: ["LLMs", "n8n", "RAG", "Gemini", "Claude"],
     color: "#10b981",
   },
@@ -40,7 +40,7 @@ export default function DocsPage() {
         <h1 className="docs-landing-title">Developer Docs</h1>
         <p className="docs-landing-sub">
           Notes, patterns, and things I&apos;ve built across Fullstack, Web3, and AI.
-          Written for developers — feel free to use anything here.
+          Written for developers, feel free to use anything here.
         </p>
       </div>
 

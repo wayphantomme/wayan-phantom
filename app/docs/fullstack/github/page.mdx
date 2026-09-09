@@ -1,0 +1,342 @@
+export const metadata = {
+  title: "GitHub & Version Control | Wayan Phantom",
+  description: "Git fundamentals, GitHub CLI, branching strategy, pull requests, commits, tags, and team workflows.",
+};
+
+# GitHub & Version Control
+
+Git is the foundation of every project. This covers the daily workflow — commits, branches, PRs — plus the GitHub CLI to skip the browser entirely.
+
+---
+
+## Setup
+
+```bash
+# First-time global config
+git config --global user.name "Wayan Phantom"
+git config --global user.email "you@example.com"
+git config --global init.defaultBranch main
+git config --global core.editor "code --wait"  # VS Code as default editor
+
+# Install GitHub CLI
+brew install gh   # macOS
+gh auth login
+```
+
+---
+
+## Create a Repo
+
+```bash
+# Init locally then push to GitHub
+git init
+git add .
+git commit -m "init"
+gh repo create my-project --public --source=. --remote=origin --push
+
+# Clone existing repo
+git clone https://github.com/username/my-project.git
+cd my-project
+
+# Clone via SSH (no password prompts)
+git clone git@github.com:username/my-project.git
+```
+
+---
+
+## Daily Commit Flow
+
+```bash
+# Check what changed
+git status
+git diff
+
+# Stage specific files (preferred over git add .)
+git add src/components/Button.tsx
+git add src/styles/button.css
+
+# Stage all changes in a directory
+git add src/
+
+# Commit
+git commit -m "feat: add Button component with hover states"
+
+# Stage + commit tracked files in one step
+git commit -am "fix: correct border radius on mobile"
+
+# Push
+git push
+git push -u origin main   # first push, sets upstream
+```
+
+### Commit message conventions
+
+Follow [Conventional Commits](https://www.conventionalcommits.org):
+
+```
+feat:     new feature
+fix:      bug fix
+docs:     documentation only
+style:    formatting, no logic change
+refactor: code restructure, no behavior change
+perf:     performance improvement
+test:     adding tests
+chore:    build process, tooling, deps
+ci:       CI/CD changes
+```
+
+---
+
+## Branching
+
+```bash
+# Create and switch to new branch
+git checkout -b feat/auth-flow
+
+# Modern equivalent
+git switch -c feat/auth-flow
+
+# List all branches
+git branch -a
+
+# Switch branch
+git switch main
+
+# Delete branch (local)
+git branch -d feat/auth-flow       # safe delete (only if merged)
+git branch -D feat/auth-flow       # force delete
+
+# Delete branch (remote)
+git push origin --delete feat/auth-flow
+
+# Rename current branch
+git branch -m new-name
+```
+
+### Branch naming
+
+```
+feat/user-auth
+fix/login-redirect
+chore/update-deps
+release/v1.2.0
+hotfix/payment-null-check
+```
+
+---
+
+## Pull Requests
+
+```bash
+# Push branch and open PR in one command
+git push -u origin feat/auth-flow
+gh pr create --title "feat: add user auth flow" --body "Closes #42"
+
+# Open PR in browser
+gh pr view --web
+
+# List open PRs
+gh pr list
+
+# Check out someone else's PR locally
+gh pr checkout 42
+
+# Merge PR via CLI
+gh pr merge 42 --squash --delete-branch
+```
+
+### PR workflow (solo)
+
+```bash
+git switch -c feat/dark-mode
+# ... make changes ...
+git add . && git commit -m "feat: add dark mode toggle"
+git push -u origin feat/dark-mode
+gh pr create --fill          # uses commit message as title/body
+gh pr merge --squash --delete-branch
+git switch main && git pull
+```
+
+### PR workflow (team)
+
+```bash
+# Keep branch up to date with main
+git fetch origin
+git rebase origin/main        # preferred over merge for cleaner history
+
+# Resolve conflicts if any
+git add .
+git rebase --continue
+
+# Force push after rebase (only safe on your own branch)
+git push --force-with-lease
+```
+
+---
+
+## Stash
+
+```bash
+# Save uncommitted changes temporarily
+git stash
+git stash push -m "wip: half-done modal"
+
+# List stashes
+git stash list
+
+# Apply latest stash (keeps it in stash list)
+git stash apply
+
+# Apply and remove from list
+git stash pop
+
+# Apply specific stash
+git stash apply stash@{2}
+
+# Drop a stash
+git stash drop stash@{0}
+```
+
+---
+
+## Undoing Things
+
+```bash
+# Undo last commit, keep changes staged
+git reset --soft HEAD~1
+
+# Undo last commit, unstage changes (default)
+git reset HEAD~1
+
+# Discard uncommitted changes to a file
+git checkout -- src/app/page.tsx
+git restore src/app/page.tsx  # modern equivalent
+
+# Discard all uncommitted changes
+git restore .
+
+# Revert a pushed commit (creates a new "undo" commit)
+git revert abc1234
+
+# Amend last commit message (only if not pushed yet)
+git commit --amend -m "fix: correct typo in commit message"
+```
+
+---
+
+## Tags & Releases
+
+```bash
+# Create annotated tag (for releases)
+git tag -a v1.0.0 -m "Release v1.0.0"
+git push origin v1.0.0
+
+# Push all tags
+git push origin --tags
+
+# List tags
+git tag -l
+
+# Delete a tag
+git tag -d v1.0.0
+git push origin --delete v1.0.0
+
+# Create GitHub release from tag
+gh release create v1.0.0 --title "v1.0.0" --notes "Initial release"
+```
+
+---
+
+## Log & History
+
+```bash
+# Pretty oneline log
+git log --oneline --graph --decorate --all
+
+# Last 10 commits
+git log -10 --oneline
+
+# See who changed what line (blame)
+git blame src/app/page.tsx
+
+# Search commits by message
+git log --grep="auth"
+
+# Find commit that introduced a bug (binary search)
+git bisect start
+git bisect bad                  # current commit is broken
+git bisect good v1.0.0          # known good state
+# git tests each midpoint — mark good/bad until found
+git bisect reset
+```
+
+---
+
+## GitHub Actions (CI)
+
+Basic CI that runs lint + build on every PR:
+
+```yaml
+# .github/workflows/ci.yml
+name: CI
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - run: npm ci
+      - run: npm run lint
+      - run: npm run build
+```
+
+---
+
+## .gitignore Essentials
+
+```gitignore
+# Dependencies
+node_modules/
+
+# Build output
+.next/
+dist/
+out/
+
+# Environment files
+.env
+.env.local
+.env.*.local
+
+# OS
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
+
+# Logs
+*.log
+npm-debug.log*
+
+# Solidity / Web3
+artifacts/
+cache/
+typechain-types/
+```
+
+---
+
+*Related: [Vercel Deployment](/docs/fullstack/vercel) | [Environment Variables](/docs/fullstack/env)*

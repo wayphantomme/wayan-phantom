@@ -1977,7 +1977,7 @@ body {
 }
 .docs-topbar-center {
   flex: 1;
-  max-width: 28rem;
+  max-width: 40rem;
   margin: 0 auto;
 }
 .docs-search-btn {
@@ -2018,6 +2018,9 @@ body {
   align-items: center;
   gap: 0.75rem;
   flex-shrink: 0;
+}
+.docs-search-wrap {
+  min-width: 14rem;
 }
 .docs-topbar-gh {
   display: flex;
@@ -2236,6 +2239,7 @@ body {
   line-height: 1.15;
   letter-spacing: -0.03em;
   margin: 0 0 0.625rem;
+  scroll-margin-top: 5rem;
 }
 .docs-article h2 {
   font-size: 1.25rem;
@@ -2495,6 +2499,7 @@ body {
 /* ─── Docs search ───────────────────────────────────────────────────────── */
 .docs-search-wrap {
   position: relative;
+  min-width: 14rem;
 }
 .docs-search-btn {
   display: flex;
@@ -2503,19 +2508,22 @@ body {
   background: #f8fafc;
   border: 1px solid #e2e8f0;
   border-radius: 0.5rem;
-  padding: 0.35rem 0.625rem;
+  padding: 0.35rem 0.75rem;
   cursor: pointer;
   color: #94a3b8;
   transition: border-color 0.15s, background 0.15s;
   white-space: nowrap;
+  width: 100%;
 }
 .docs-search-btn:hover {
   border-color: #cbd5e1;
   background: #f1f5f9;
 }
 .docs-search-placeholder {
+  flex: 1;
   font-size: 0.8rem;
   color: #94a3b8;
+  text-align: left;
 }
 .docs-search-kbd {
   font-size: 0.65rem;
@@ -2525,63 +2533,130 @@ body {
   border-radius: 0.25rem;
   padding: 0.1rem 0.3rem;
   font-family: inherit;
+  margin-left: auto;
 }
 .docs-search-active {
   display: flex;
   align-items: center;
-  gap: 0.4rem;
+  gap: 0.5rem;
   background: #fff;
   border: 1px solid #94a3b8;
   border-radius: 0.5rem;
-  padding: 0.35rem 0.625rem;
-  width: 18rem;
+  padding: 0.4rem 0.75rem;
+  width: 100%;
   position: relative;
+  box-shadow: 0 0 0 3px rgba(100,116,139,0.1);
 }
 .docs-search-input {
   flex: 1;
   border: none;
   outline: none;
-  font-size: 0.8rem;
+  font-size: 0.82rem;
   background: transparent;
   color: #111;
   min-width: 0;
 }
 .docs-search-input::placeholder { color: #94a3b8; }
+
+/* Dropdown */
 .docs-search-dropdown {
   position: absolute;
-  top: calc(100% + 0.375rem);
+  top: calc(100% + 0.5rem);
   right: 0;
-  width: 20rem;
+  width: 22rem;
   background: #fff;
   border: 1px solid #e2e8f0;
   border-radius: 0.75rem;
-  box-shadow: 0 8px 24px rgba(0,0,0,0.1);
+  box-shadow: 0 12px 32px rgba(0,0,0,0.1), 0 2px 8px rgba(0,0,0,0.06);
   overflow: hidden;
   z-index: 200;
+  max-height: 28rem;
+  overflow-y: auto;
 }
-.docs-search-result {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 0.6rem 0.875rem;
-  text-decoration: none;
-  transition: background 0.1s;
+
+/* Group label (section header) */
+.docs-search-group {
   border-bottom: 1px solid #f1f5f9;
 }
-.docs-search-result:last-child { border-bottom: none; }
-.docs-search-result:hover { background: #f8fafc; }
+.docs-search-group:last-child { border-bottom: none; }
+.docs-search-group-label {
+  padding: 0.5rem 0.875rem 0.25rem;
+  font-size: 0.65rem;
+  font-weight: 700;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  color: #94a3b8;
+}
+
+/* Result row */
+.docs-search-result {
+  display: flex;
+  flex-direction: column;
+  gap: 0.125rem;
+  padding: 0.5rem 0.875rem;
+  text-decoration: none;
+  transition: background 0.1s;
+  border-radius: 0;
+}
+.docs-search-result:hover {
+  background: #f8fafc;
+}
 .docs-search-result-title {
   font-size: 0.82rem;
   font-weight: 500;
   color: #111;
+  line-height: 1.3;
 }
 .docs-search-result-section {
   font-size: 0.72rem;
   color: #94a3b8;
 }
 .docs-search-empty {
-  padding: 0.875rem;
+  padding: 1.25rem 0.875rem;
   font-size: 0.82rem;
   color: #94a3b8;
   text-align: center;
+}
+
+/* ─── Mermaid diagrams ──────────────────────────────────────────────────── */
+.mermaid-wrap {
+  margin: 1.5rem 0;
+  padding: 1.5rem;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 0.75rem;
+  overflow-x: auto;
+  display: flex;
+  justify-content: center;
+}
+.mermaid-wrap svg {
+  max-width: 100%;
+  height: auto;
+}
+.mermaid-loading {
+  margin: 1.5rem 0;
+  height: 8rem;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 0.75rem;
+  animation: mermaid-pulse 1.5s ease-in-out infinite;
+}
+@keyframes mermaid-pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+.mermaid-error {
+  margin: 1.5rem 0;
+  padding: 1rem 1.25rem;
+  background: #fef2f2;
+  border: 1px solid #fecaca;
+  border-radius: 0.75rem;
+  font-size: 0.82rem;
+  color: #dc2626;
+}
+.mermaid-error pre {
+  margin-top: 0.5rem;
+  font-size: 0.75rem;
+  color: #991b1b;
+  white-space: pre-wrap;
 }

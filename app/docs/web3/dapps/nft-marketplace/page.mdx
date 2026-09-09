@@ -1,0 +1,335 @@
+export const metadata = {
+  title: "NFT Marketplace DApp | Wayan Phantom",
+  description: "Building an NFT marketplace with listing, buying, and royalty logic on Ethereum using Solidity and ethers.js.",
+};
+
+# NFT Marketplace DApp
+
+An NFT marketplace lets users list, buy, and sell NFTs peer-to-peer with smart contract escrow. The contract holds the NFT during listing and releases it to the buyer (or back to the seller on cancel).
+
+---
+
+## Architecture
+
+```
+User lists NFT
+  → NFT transferred to Marketplace contract (escrow)
+  → Listing stored on-chain (price, seller, token ID)
+
+Buyer purchases
+  → Buyer sends ETH
+  → Contract takes platform fee (e.g., 2.5%)
+  → Remaining ETH sent to seller
+  → NFT transferred to buyer
+
+Seller cancels
+  → NFT returned to seller
+  → Listing deleted
+```
+
+---
+
+## Marketplace Contract
+
+```solidity
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.24;
+
+import "@openzeppelin/contracts/token/ERC721/IERC721.sol";
+import "@openzeppelin/contracts/token/ERC721/IERC721Receiver.sol";
+import "@openzeppelin/contracts/token/common/ERC2981.sol";
+import "@openzeppelin/contracts/access/Ownable.sol";
+import "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
+
+contract NFTMarketplace is IERC721Receiver, Ownable, ReentrancyGuard {
+
+    struct Listing {
+        address seller;
+        address nftContract;
+        uint256 tokenId;
+        uint256 price;
+        bool active;
+    }
+
+    uint256 public platformFeeBps = 250; // 2.5%
+    uint256 private _listingCounter;
+
+    mapping(uint256 => Listing) public listings;
+
+    event Listed(uint256 indexed listingId, address indexed seller, address nftContract, uint256 tokenId, uint256 price);
+    event Sold(uint256 indexed listingId, address indexed buyer, uint256 price);
+    event Cancelled(uint256 indexed listingId);
+
+    constructor() Ownable(msg.sender) {}
+
+    // ─── List ──────────────────────────────────────────────────────────────────
+
+    function list(
+        address nftContract,
+        uint256 tokenId,
+        uint256 price
+    ) external returns (uint256 listingId) {
+        require(price > 0, "Price must be > 0");
+
+        IERC721(nftContract).safeTransferFrom(msg.sender, address(this), tokenId);
+
+        listingId = _listingCounter++;
+        listings[listingId] = Listing({
+            seller: msg.sender,
+            nftContract: nftContract,
+            tokenId: tokenId,
+            price: price,
+            active: true
+        });
+
+        emit Listed(listingId, msg.sender, nftContract, tokenId, price);
+    }
+
+    // ─── Buy ───────────────────────────────────────────────────────────────────
+
+    function buy(uint256 listingId) external payable nonReentrant {
+        Listing storage listing = listings[listingId];
+        require(listing.active, "Not active");
+        require(msg.value >= listing.price, "Insufficient payment");
+
+        listing.active = false;
+
+        // Platform fee
+        uint256 fee = (listing.price * platformFeeBps) / 10_000;
+
+        // Royalty (ERC-2981)
+        uint256 royaltyAmount = 0;
+        try IERC2981(listing.nftContract).royaltyInfo(listing.tokenId, listing.price)
+            returns (address royaltyReceiver, uint256 royaltyFee)
+        {
+            royaltyAmount = royaltyFee;
+            if (royaltyAmount > 0 && royaltyReceiver != address(0)) {
+                (bool royaltyOk, ) = royaltyReceiver.call{ value: royaltyAmount }("");
+                require(royaltyOk, "Royalty transfer failed");
+            }
+        } catch {}
+
+        // Seller receives remainder
+        uint256 sellerAmount = listing.price - fee - royaltyAmount;
+        (bool sellerOk, ) = listing.seller.call{ value: sellerAmount }("");
+        require(sellerOk, "Seller payment failed");
+
+        // Refund overpayment
+        if (msg.value > listing.price) {
+            (bool refundOk, ) = msg.sender.call{ value: msg.value - listing.price }("");
+            require(refundOk, "Refund failed");
+        }
+
+        // Transfer NFT to buyer
+        IERC721(listing.nftContract).safeTransferFrom(address(this), msg.sender, listing.tokenId);
+
+        emit Sold(listingId, msg.sender, listing.price);
+    }
+
+    // ─── Cancel ────────────────────────────────────────────────────────────────
+
+    function cancel(uint256 listingId) external nonReentrant {
+        Listing storage listing = listings[listingId];
+        require(listing.active, "Not active");
+        require(listing.seller == msg.sender, "Not seller");
+
+        listing.active = false;
+        IERC721(listing.nftContract).safeTransferFrom(address(this), msg.sender, listing.tokenId);
+
+        emit Cancelled(listingId);
+    }
+
+    // ─── Admin ─────────────────────────────────────────────────────────────────
+
+    function setFee(uint256 bps) external onlyOwner {
+        require(bps <= 1000, "Max 10%");
+        platformFeeBps = bps;
+    }
+
+    function withdrawFees() external onlyOwner {
+        (bool ok, ) = owner().call{ value: address(this).balance }("");
+        require(ok, "Withdraw failed");
+    }
+
+    function onERC721Received(address, address, uint256, bytes calldata)
+        external pure override returns (bytes4)
+    {
+        return this.onERC721Received.selector;
+    }
+}
+
+interface IERC2981 {
+    function royaltyInfo(uint256 tokenId, uint256 salePrice)
+        external view returns (address receiver, uint256 royaltyAmount);
+}
+```
+
+---
+
+## Frontend — List an NFT
+
+```typescript
+import { useWriteContract, useWaitForTransactionReceipt } from "wagmi";
+import { parseEther } from "viem";
+
+export function ListNFT({ nftContract, tokenId }: { nftContract: string; tokenId: bigint }) {
+  const [price, setPrice] = useState("");
+  const [step, setStep] = useState<"approve" | "list" | "done">("approve");
+
+  // Step 1: Approve marketplace to transfer NFT
+  const { writeContract: approve, data: approveHash } = useWriteContract();
+  const { isSuccess: approved } = useWaitForTransactionReceipt({ hash: approveHash });
+
+  // Step 2: List on marketplace
+  const { writeContract: list, data: listHash } = useWriteContract();
+  const { isSuccess: listed } = useWaitForTransactionReceipt({ hash: listHash });
+
+  const handleApprove = () => {
+    approve({
+      address: nftContract as `0x${string}`,
+      abi: ERC721_ABI,
+      functionName: "approve",
+      args: [MARKETPLACE_ADDRESS, tokenId],
+    });
+  };
+
+  const handleList = () => {
+    list({
+      address: MARKETPLACE_ADDRESS,
+      abi: MARKETPLACE_ABI,
+      functionName: "list",
+      args: [nftContract, tokenId, parseEther(price)],
+    });
+  };
+
+  if (listed) return <p>Listed successfully!</p>;
+
+  return (
+    <div>
+      <input value={price} onChange={(e) => setPrice(e.target.value)} placeholder="Price in ETH" />
+      {!approved ? (
+        <button onClick={handleApprove}>1. Approve Marketplace</button>
+      ) : (
+        <button onClick={handleList}>2. List NFT</button>
+      )}
+    </div>
+  );
+}
+```
+
+---
+
+## Frontend — Buy an NFT
+
+```typescript
+import { useWriteContract } from "wagmi";
+import { parseEther } from "viem";
+
+export function BuyButton({ listingId, price }: { listingId: bigint; price: bigint }) {
+  const { writeContract, isPending } = useWriteContract();
+
+  return (
+    <button
+      disabled={isPending}
+      onClick={() =>
+        writeContract({
+          address: MARKETPLACE_ADDRESS,
+          abi: MARKETPLACE_ABI,
+          functionName: "buy",
+          args: [listingId],
+          value: price,
+        })
+      }
+    >
+      {isPending ? "Buying..." : `Buy for ${formatEther(price)} ETH`}
+    </button>
+  );
+}
+```
+
+---
+
+## Fetch Active Listings
+
+Read listings from events (more efficient than iterating on-chain):
+
+```typescript
+import { ethers } from "ethers";
+
+const marketplace = new ethers.Contract(MARKETPLACE_ADDRESS, MARKETPLACE_ABI, provider);
+
+// Get all Listed events
+const listedFilter = marketplace.filters.Listed();
+const listedEvents = await marketplace.queryFilter(listedFilter, 0, "latest");
+
+// Get all Sold and Cancelled events to filter them out
+const soldFilter = marketplace.filters.Sold();
+const cancelledFilter = marketplace.filters.Cancelled();
+const [soldEvents, cancelledEvents] = await Promise.all([
+  marketplace.queryFilter(soldFilter, 0, "latest"),
+  marketplace.queryFilter(cancelledFilter, 0, "latest"),
+]);
+
+const inactiveIds = new Set([
+  ...soldEvents.map((e) => (e as any).args.listingId.toString()),
+  ...cancelledEvents.map((e) => (e as any).args.listingId.toString()),
+]);
+
+const activeListings = listedEvents
+  .filter((e) => !inactiveIds.has((e as any).args.listingId.toString()))
+  .map((e) => ({
+    listingId: (e as any).args.listingId,
+    seller: (e as any).args.seller,
+    nftContract: (e as any).args.nftContract,
+    tokenId: (e as any).args.tokenId,
+    price: (e as any).args.price,
+  }));
+
+console.log("Active listings:", activeListings.length);
+```
+
+Or use a subgraph (The Graph) for indexed queries in production.
+
+---
+
+## Render NFT Metadata
+
+```typescript
+async function fetchNFTMetadata(contractAddress: string, tokenId: bigint) {
+  const nft = new ethers.Contract(contractAddress, ERC721_ABI, provider);
+  const uri = await nft.tokenURI(tokenId);
+
+  // Handle IPFS URIs
+  const url = uri.startsWith("ipfs://")
+    ? uri.replace("ipfs://", "https://ipfs.io/ipfs/")
+    : uri;
+
+  const res = await fetch(url);
+  const metadata = await res.json();
+
+  return {
+    name: metadata.name,
+    image: (metadata.image as string).replace("ipfs://", "https://ipfs.io/ipfs/"),
+    attributes: metadata.attributes,
+  };
+}
+```
+
+---
+
+## Solana NFT Marketplace
+
+On Solana, use [Tensor](https://tensor.trade) or [Magic Eden SDK](https://magiceden.dev) for marketplace interactions, or build with Anchor:
+
+```typescript
+// Buy via Tensor API
+const response = await fetch(
+  `https://api.tensor.so/api/v1/tx/buy_single_listing?mint=${mintAddress}&buyer=${walletAddress}&maxPrice=${priceInLamports}`
+);
+const { txs } = await response.json();
+// txs is an array of base64-encoded transactions to sign and send
+```
+
+---
+
+*Related: [Create NFT (ERC-721)](/docs/web3/ethereum/nft) | [Solana NFT](/docs/web3/solana/nft) | [DeFi DApp](/docs/web3/dapps/defi)*

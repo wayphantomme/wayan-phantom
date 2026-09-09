@@ -22,7 +22,7 @@ const nextConfig: NextConfig = {
 const withMDX = createMDX({
   options: {
     remarkPlugins: ["remark-gfm"],
-    rehypePlugins: [],
+    rehypePlugins: ["rehype-slug"],
   },
 });
 

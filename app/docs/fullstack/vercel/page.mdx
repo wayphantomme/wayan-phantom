@@ -1,0 +1,290 @@
+export const metadata = {
+  title: "Vercel Deployment | Wayan Phantom",
+  description: "Deploying Next.js apps to Vercel — CLI, GitHub integration, preview URLs, custom domains, and multi-project setups.",
+};
+
+# Vercel Deployment
+
+Vercel is the fastest way to get a Next.js app live. Every push to `main` → production. Every PR → preview URL. Zero config for most setups.
+
+---
+
+## Install & Login
+
+```bash
+npm install -g vercel
+vercel login
+```
+
+Or use `npx vercel` without installing globally.
+
+---
+
+## First Deploy
+
+```bash
+# From your project root
+vercel
+
+# Vercel asks a few questions (first time only):
+# Set up and deploy? → Y
+# Which scope? → your account
+# Link to existing project? → N (new)
+# Project name → my-project
+# Directory → ./
+# Override settings? → N
+
+# Output:
+# → https://my-project.vercel.app  (preview)
+# → https://my-project-abc123.vercel.app  (unique URL)
+```
+
+After the first deploy, Vercel creates a `.vercel/project.json` that links your local repo to the Vercel project.
+
+---
+
+## GitHub Integration (Recommended)
+
+Link your GitHub repo to Vercel for automatic deploys:
+
+1. Go to [vercel.com/new](https://vercel.com/new)
+2. Import GitHub repo
+3. Framework auto-detected (Next.js)
+4. Add environment variables
+5. Deploy
+
+After this:
+- Push to `main` → **production deploy**
+- Push to any other branch / open PR → **preview deploy** with unique URL
+- Comment on PR automatically with preview link
+
+```bash
+# Link existing local project to Vercel
+vercel link
+
+# Pull env vars from Vercel to local
+vercel env pull .env.local
+```
+
+---
+
+## Deploy Commands
+
+```bash
+# Deploy to preview (default)
+vercel
+
+# Deploy to production
+vercel --prod
+
+# Deploy specific directory
+vercel ./dist --prod
+
+# Deploy and open browser
+vercel --prod --open
+
+# Check deploy status
+vercel ls
+
+# Inspect a deployment
+vercel inspect https://my-project-abc123.vercel.app
+```
+
+---
+
+## Preview URLs
+
+Every PR and branch push gets a unique preview URL. Useful for:
+- Sharing with stakeholders before merging
+- Testing on mobile without running locally
+- QA review
+
+```bash
+# Get preview URL for current branch
+vercel
+
+# List all deployments
+vercel ls my-project
+
+# Alias a deployment to a custom URL
+vercel alias my-project-abc123.vercel.app staging.myproject.com
+```
+
+---
+
+## Custom Domains
+
+```bash
+# Add a domain to your project
+vercel domains add myproject.com
+
+# List domains
+vercel domains ls
+
+# Remove a domain
+vercel domains rm myproject.com
+```
+
+Via dashboard: Project → Settings → Domains → Add. Vercel auto-configures SSL.
+
+DNS setup (if using external DNS):
+- Add `A` record: `76.76.21.21`
+- Add `CNAME` for `www`: `cname.vercel-dns.com`
+
+Or point nameservers to Vercel for automatic management.
+
+---
+
+## Environment Variables via CLI
+
+```bash
+# Add a variable to production
+vercel env add DATABASE_URL production
+
+# Add to all environments
+vercel env add DATABASE_URL production
+vercel env add DATABASE_URL preview
+vercel env add DATABASE_URL development
+
+# List all variables
+vercel env ls
+
+# Remove a variable
+vercel env rm DATABASE_URL production
+
+# Pull all remote env vars to local .env.local
+vercel env pull .env.local
+```
+
+---
+
+## vercel.json Config
+
+Optional config file for advanced setups:
+
+```json
+{
+  "framework": "nextjs",
+  "buildCommand": "npm run build",
+  "devCommand": "npm run dev",
+  "outputDirectory": ".next",
+  "regions": ["sin1"],
+  "headers": [
+    {
+      "source": "/api/(.*)",
+      "headers": [
+        { "key": "Access-Control-Allow-Origin", "value": "*" },
+        { "key": "Access-Control-Allow-Methods", "value": "GET,POST,OPTIONS" }
+      ]
+    }
+  ],
+  "rewrites": [
+    { "source": "/old-path", "destination": "/new-path" }
+  ],
+  "redirects": [
+    { "source": "/blog/:slug", "destination": "/posts/:slug", "permanent": true }
+  ]
+}
+```
+
+### Available regions
+
+| Code | Location |
+|------|----------|
+| `iad1` | Washington D.C. (default) |
+| `sin1` | Singapore |
+| `syd1` | Sydney |
+| `lhr1` | London |
+| `cdg1` | Paris |
+| `bom1` | Mumbai |
+
+Set `regions` to deploy Edge Functions closer to your users.
+
+---
+
+## Monorepo Setup
+
+If you have multiple apps in one repo (Turborepo, etc.):
+
+```bash
+# In the monorepo root, link each app separately
+cd apps/web
+vercel link   # links to "my-project-web"
+
+cd apps/admin
+vercel link   # links to "my-project-admin"
+```
+
+Or configure in Vercel dashboard: Project → Settings → Root Directory → set to `apps/web`.
+
+---
+
+## Multi-Environment Setup
+
+```
+Branches:
+  main          → production (myproject.com)
+  staging       → staging (staging.myproject.com)
+  feat/*        → preview (random URL per PR)
+```
+
+Set different env vars per environment in Vercel dashboard. A common pattern:
+
+```bash
+# Production
+vercel env add API_URL production
+# → https://api.myproject.com
+
+# Preview (staging + feature branches)
+vercel env add API_URL preview
+# → https://staging-api.myproject.com
+```
+
+---
+
+## Rollback
+
+```bash
+# List recent deployments
+vercel ls my-project
+
+# Promote a previous deployment to production
+vercel promote https://my-project-old-abc.vercel.app --scope my-team
+```
+
+Or via dashboard: Deployments → click any previous deploy → Promote to Production.
+
+---
+
+## Build Logs & Errors
+
+```bash
+# Stream logs from latest production deployment
+vercel logs my-project --prod
+
+# Stream from specific deployment
+vercel logs https://my-project-abc123.vercel.app
+
+# Runtime logs (serverless functions)
+vercel logs my-project --prod --follow
+```
+
+---
+
+## Function Limits (Free Tier — Hobby Plan)
+
+| Limit | Value |
+|-------|-------|
+| Execution timeout | 10s (Serverless), 25s (Edge) |
+| Memory | 1024 MB |
+| Payload size | 4.5 MB |
+| Bandwidth | 100 GB/month |
+| Deployments | Unlimited |
+| Custom domains | Unlimited |
+| Serverless function regions | 1 |
+
+Pro plan bumps execution timeout to 300s and adds more regions.
+
+---
+
+*Related: [GitHub & Version Control](/docs/fullstack/github) | [Environment Variables](/docs/fullstack/env)*

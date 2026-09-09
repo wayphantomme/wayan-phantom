@@ -1,0 +1,302 @@
+export const metadata = {
+  title: "NFT on Solana | Wayan Phantom",
+  description: "How to create, mint, and manage NFTs on Solana using Metaplex — from single NFTs to 10K collections.",
+};
+
+# NFT on Solana
+
+Solana NFTs use the **Metaplex** standard — a collection of programs that handle metadata, collections, royalties, and minting. Under the hood, every NFT is just an SPL token with a supply of 1 and 0 decimals.
+
+---
+
+## Solana NFT vs Ethereum NFT
+
+| | Ethereum ERC-721 | Solana (Metaplex) |
+|--|-----------------|------------------|
+| Token type | Separate ERC-721 contract | SPL Token (supply = 1) |
+| Metadata | On-chain URI or IPFS | Metaplex Metadata Program |
+| Royalties | ERC-2981 (marketplace optional) | On-chain, enforced by pNFT |
+| Minting tool | ethers.js / Hardhat | Metaplex UMI / Candy Machine |
+| Collection standard | ERC-721 contract | Collection NFT (Metaplex) |
+| Storage | IPFS / Arweave | Arweave (permanent) recommended |
+
+---
+
+## Single NFT with Metaplex UMI
+
+```bash
+npm install @metaplex-foundation/umi \
+  @metaplex-foundation/umi-bundle-defaults \
+  @metaplex-foundation/mpl-token-metadata \
+  @metaplex-foundation/umi-web3js-adapters
+```
+
+```typescript
+import { createUmi } from "@metaplex-foundation/umi-bundle-defaults";
+import {
+  createNft,
+  mplTokenMetadata,
+  fetchDigitalAsset,
+} from "@metaplex-foundation/mpl-token-metadata";
+import {
+  createSignerFromKeypair,
+  signerIdentity,
+  generateSigner,
+  percentAmount,
+} from "@metaplex-foundation/umi";
+import { Keypair } from "@solana/web3.js";
+
+const umi = createUmi("https://api.devnet.solana.com").use(mplTokenMetadata());
+
+// Set wallet
+const keypair = umi.eddsa.createKeypairFromSecretKey(yourSecretKey);
+umi.use(signerIdentity(createSignerFromKeypair(umi, keypair)));
+
+// Generate a new mint address for this NFT
+const mint = generateSigner(umi);
+
+// Create the NFT
+await createNft(umi, {
+  mint,
+  name: "Phantom #001",
+  symbol: "PHM",
+  uri: "https://arweave.net/YOUR_METADATA_JSON_URI",
+  sellerFeeBasisPoints: percentAmount(5), // 5% royalties
+  isMutable: true,
+}).sendAndConfirm(umi);
+
+console.log("NFT minted:", mint.publicKey);
+
+// Fetch NFT data
+const asset = await fetchDigitalAsset(umi, mint.publicKey);
+console.log("Name:", asset.metadata.name);
+console.log("URI:", asset.metadata.uri);
+```
+
+---
+
+## Metadata JSON (Metaplex Standard)
+
+Upload this to Arweave or IPFS. The `uri` field in your NFT points here.
+
+```json
+{
+  "name": "Phantom #001",
+  "symbol": "PHM",
+  "description": "A dark phantom from the void.",
+  "image": "https://arweave.net/IMAGE_HASH",
+  "animation_url": null,
+  "external_url": "https://wayphantom.dev",
+  "attributes": [
+    { "trait_type": "Background", "value": "Void" },
+    { "trait_type": "Eyes", "value": "Glowing" },
+    { "trait_type": "Rarity", "value": "Legendary" },
+    { "trait_type": "Power", "value": 95 }
+  ],
+  "properties": {
+    "files": [{ "uri": "https://arweave.net/IMAGE_HASH", "type": "image/png" }],
+    "category": "image",
+    "creators": [
+      { "address": "YOUR_WALLET", "share": 100 }
+    ]
+  }
+}
+```
+
+Upload assets with [Bundlr/Irys](https://irys.xyz) for permanent Arweave storage:
+
+```bash
+npm install @irys/sdk
+```
+
+```typescript
+import Irys from "@irys/sdk";
+
+const irys = new Irys({
+  url: "https://devnet.irys.xyz",
+  token: "solana",
+  key: yourSecretKey,
+  config: { providerUrl: "https://api.devnet.solana.com" },
+});
+
+// Upload image
+const imageReceipt = await irys.uploadFile("./images/001.png", {
+  tags: [{ name: "Content-Type", value: "image/png" }],
+});
+const imageUri = `https://arweave.net/${imageReceipt.id}`;
+
+// Upload metadata
+const metadata = { name: "Phantom #001", image: imageUri, /* ... */ };
+const metaReceipt = await irys.upload(JSON.stringify(metadata), {
+  tags: [{ name: "Content-Type", value: "application/json" }],
+});
+const metadataUri = `https://arweave.net/${metaReceipt.id}`;
+```
+
+---
+
+## Collection NFT (10K PFP Drop)
+
+Metaplex **Candy Machine** is the standard launchpad for large collections.
+
+```bash
+npm install @metaplex-foundation/mpl-candy-machine
+```
+
+### 1. Create a Collection NFT
+
+Every NFT in the collection links back to this.
+
+```typescript
+import { createNft } from "@metaplex-foundation/mpl-token-metadata";
+
+const collectionMint = generateSigner(umi);
+
+await createNft(umi, {
+  mint: collectionMint,
+  name: "Phantom Collection",
+  symbol: "PHM",
+  uri: "https://arweave.net/COLLECTION_METADATA_URI",
+  sellerFeeBasisPoints: percentAmount(5),
+  isCollection: true,
+}).sendAndConfirm(umi);
+
+console.log("Collection mint:", collectionMint.publicKey);
+```
+
+### 2. Create a Candy Machine
+
+```typescript
+import {
+  create,
+  mplCandyMachine,
+  fetchCandyMachine,
+} from "@metaplex-foundation/mpl-candy-machine";
+import { sol, dateTime } from "@metaplex-foundation/umi";
+
+umi.use(mplCandyMachine());
+
+const candyMachine = generateSigner(umi);
+
+await create(umi, {
+  candyMachine,
+  collectionMint: collectionMint.publicKey,
+  collectionUpdateAuthority: umi.identity,
+  tokenStandard: 0, // 0 = NonFungible (regular NFT)
+  sellerFeeBasisPoints: percentAmount(5),
+  itemsAvailable: 10_000,
+  creators: [{ address: umi.identity.publicKey, verified: true, percentageShare: 100 }],
+  configLineSettings: {
+    prefixName: "Phantom #",
+    nameLength: 4,
+    prefixUri: "https://arweave.net/",
+    uriLength: 43,
+    isSequential: false,
+  },
+  guards: {
+    solPayment: { lamports: sol(0.5), destination: umi.identity.publicKey },
+    startDate: { date: dateTime("2026-10-01T00:00:00Z") },
+  },
+}).sendAndConfirm(umi);
+
+console.log("Candy Machine:", candyMachine.publicKey);
+```
+
+### 3. Add Items to Candy Machine
+
+```typescript
+import { addConfigLines } from "@metaplex-foundation/mpl-candy-machine";
+
+await addConfigLines(umi, {
+  candyMachine: candyMachine.publicKey,
+  index: 0,
+  configLines: Array.from({ length: 10_000 }, (_, i) => ({
+    name: `${i + 1}`,
+    uri: `ITEM_${i + 1}_ARWEAVE_HASH`,
+  })),
+}).sendAndConfirm(umi);
+```
+
+### 4. Mint from Candy Machine (User)
+
+```typescript
+import { mintV2, fetchCandyGuard } from "@metaplex-foundation/mpl-candy-machine";
+import { setComputeUnitLimit } from "@metaplex-foundation/mpl-toolbox";
+
+const nftMint = generateSigner(umi);
+const candyGuard = await fetchCandyGuard(umi, candyMachineAccount.mintAuthority);
+
+await mintV2(umi, {
+  candyMachine: candyMachine.publicKey,
+  candyGuard: candyGuard.publicKey,
+  nftMint,
+  collectionMint: collectionMint.publicKey,
+  collectionUpdateAuthority: umi.identity.publicKey,
+  mintArgs: {
+    solPayment: { destination: umi.identity.publicKey },
+  },
+})
+.prepend(setComputeUnitLimit(umi, { units: 400_000 }))
+.sendAndConfirm(umi);
+```
+
+---
+
+## pNFT (Programmable NFT)
+
+pNFTs enforce royalties on-chain — marketplaces can't bypass them. Ideal for collections that want guaranteed creator earnings.
+
+```typescript
+import { TokenStandard } from "@metaplex-foundation/mpl-token-metadata";
+
+await createNft(umi, {
+  mint,
+  name: "Phantom pNFT #001",
+  uri: "https://arweave.net/...",
+  sellerFeeBasisPoints: percentAmount(5),
+  tokenStandard: TokenStandard.ProgrammableNonFungible, // pNFT
+  ruleSet: null, // or a custom rule set for transfer restrictions
+}).sendAndConfirm(umi);
+```
+
+---
+
+## Read NFTs in a Wallet
+
+```typescript
+import { fetchAllDigitalAssetByOwner } from "@metaplex-foundation/mpl-token-metadata";
+import { publicKey } from "@metaplex-foundation/umi";
+
+const assets = await fetchAllDigitalAssetByOwner(umi, publicKey("WALLET_ADDRESS"));
+
+for (const asset of assets) {
+  console.log(asset.metadata.name, "→", asset.metadata.uri);
+}
+```
+
+Or use **Helius DAS API** for a faster, indexed read:
+
+```typescript
+const response = await fetch(process.env.HELIUS_RPC_URL!, {
+  method: "POST",
+  headers: { "Content-Type": "application/json" },
+  body: JSON.stringify({
+    jsonrpc: "2.0",
+    id: "get-assets",
+    method: "getAssetsByOwner",
+    params: {
+      ownerAddress: "WALLET_ADDRESS",
+      page: 1,
+      limit: 100,
+    },
+  }),
+});
+
+const { result } = await response.json();
+console.log(`Found ${result.total} assets`);
+result.items.forEach((item: any) => console.log(item.content.metadata.name));
+```
+
+---
+
+*Related: [Create SPL Token](/docs/web3/solana/token) | [Deploy Solana Program](/docs/web3/solana/deploy) | [NFT ERC-721 (Ethereum)](/docs/web3/ethereum/nft)*

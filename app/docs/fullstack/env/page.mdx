@@ -1,0 +1,310 @@
+export const metadata = {
+  title: "Environment Variables | Wayan Phantom",
+  description: "Managing environment variables in Next.js — local dev, production, NEXT_PUBLIC prefix, secrets, multi-service, and Web3 contracts.",
+};
+
+# Environment Variables
+
+Env vars are how you configure your app per environment without touching code. Different values for local, staging, and production — all from one codebase.
+
+---
+
+## Next.js Env File Priority
+
+Next.js loads these files in order (higher = higher priority):
+
+```
+.env.local              ← Always loaded, overrides everything. Never commit.
+.env.development.local  ← Local dev only
+.env.test.local         ← Test environment only
+.env.production.local   ← Production only (local copy)
+.env.development        ← Dev defaults (can commit)
+.env.test               ← Test defaults (can commit)
+.env.production         ← Production defaults (can commit, no secrets)
+.env                    ← All environments (can commit, no secrets)
+```
+
+In practice, you mostly use:
+- `.env.local` for secrets and local overrides (gitignored)
+- `.env` for non-secret defaults shared across environments
+
+---
+
+## NEXT_PUBLIC_ Prefix
+
+The most important rule in Next.js env vars:
+
+```bash
+# ✅ Available in browser AND server
+NEXT_PUBLIC_APP_URL="https://myproject.com"
+NEXT_PUBLIC_CHAIN_ID="1"
+
+# ✅ Server-only (API routes, Server Components, getServerSideProps)
+DATABASE_URL="postgresql://..."
+GEMINI_API_KEY="your-secret-key"
+JWT_SECRET="super-secret"
+PRIVATE_KEY="0xdeployerwallet"
+```
+
+**`NEXT_PUBLIC_` variables are bundled into client JS** — anyone can read them in DevTools. Only use for non-sensitive values: public URLs, chain IDs, public API keys.
+
+**Non-prefixed variables never leave the server.** Use for all secrets.
+
+```typescript
+// This works in Server Components and API routes
+const db = process.env.DATABASE_URL;
+
+// This works everywhere (but value is public)
+const url = process.env.NEXT_PUBLIC_APP_URL;
+
+// This returns undefined on the client — intentionally
+const secret = process.env.JWT_SECRET; // → undefined in browser
+```
+
+---
+
+## Local Dev Setup
+
+```bash
+# .env.local
+# App
+NEXT_PUBLIC_APP_URL="http://localhost:3000"
+NEXT_PUBLIC_APP_NAME="My Project"
+
+# Database
+DATABASE_URL="postgresql://postgres:password@localhost:5432/mydb"
+
+# Auth
+NEXTAUTH_URL="http://localhost:3000"
+NEXTAUTH_SECRET="dev-secret-at-least-32-chars-long"
+
+# AI
+GEMINI_API_KEY="your-key-here"
+OPENAI_API_KEY="sk-..."
+
+# Storage
+AWS_ACCESS_KEY_ID="AKIA..."
+AWS_SECRET_ACCESS_KEY="..."
+AWS_S3_BUCKET="my-dev-bucket"
+
+# Payments
+STRIPE_SECRET_KEY="sk_test_..."
+NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY="pk_test_..."
+```
+
+---
+
+## Production Variables (Vercel)
+
+```bash
+# Push variables to Vercel
+vercel env add DATABASE_URL production
+vercel env add NEXTAUTH_SECRET production
+vercel env add GEMINI_API_KEY production
+
+# Pull remote vars to local .env.local
+vercel env pull .env.local
+
+# List all
+vercel env ls
+```
+
+Via dashboard: Project → Settings → Environment Variables.
+
+Set separate values per environment:
+- **Production** → real DB, real API keys, real Stripe keys
+- **Preview** → staging DB, test API keys
+- **Development** → same as .env.local
+
+---
+
+## Validating Env Vars at Startup
+
+Catch missing variables at build time instead of runtime crashes:
+
+```typescript
+// lib/env.ts
+import { z } from "zod";
+
+const envSchema = z.object({
+  // Server
+  DATABASE_URL: z.string().url(),
+  NEXTAUTH_SECRET: z.string().min(32),
+  GEMINI_API_KEY: z.string().startsWith("AI"),
+
+  // Public (available on client)
+  NEXT_PUBLIC_APP_URL: z.string().url(),
+  NEXT_PUBLIC_CHAIN_ID: z.coerce.number().int().positive(),
+});
+
+// Throws at build time if any var is missing or wrong type
+export const env = envSchema.parse({
+  DATABASE_URL: process.env.DATABASE_URL,
+  NEXTAUTH_SECRET: process.env.NEXTAUTH_SECRET,
+  GEMINI_API_KEY: process.env.GEMINI_API_KEY,
+  NEXT_PUBLIC_APP_URL: process.env.NEXT_PUBLIC_APP_URL,
+  NEXT_PUBLIC_CHAIN_ID: process.env.NEXT_PUBLIC_CHAIN_ID,
+});
+```
+
+```typescript
+// Use typed env everywhere instead of process.env directly
+import { env } from "@/lib/env";
+
+const db = new PrismaClient({ datasourceUrl: env.DATABASE_URL });
+```
+
+---
+
+## Multi-Service Architecture
+
+Frontend talks to a separate backend — both need env vars wired up correctly.
+
+```
+Frontend (Vercel)         Backend API (Railway / Render)
+      │                           │
+NEXT_PUBLIC_API_URL  ──────────▶  deployed URL
+API_SECRET_KEY       ──────────▶  shared secret (server-only)
+```
+
+```bash
+# Frontend .env.local
+NEXT_PUBLIC_API_URL="http://localhost:4000"    # local backend
+API_SECRET_KEY="shared-secret-between-apps"    # server-only, not NEXT_PUBLIC
+
+# Backend .env
+FRONTEND_URL="http://localhost:3000"
+API_SECRET_KEY="shared-secret-between-apps"
+```
+
+```typescript
+// Frontend — server-side call with secret
+const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/data`, {
+  headers: {
+    "x-api-key": process.env.API_SECRET_KEY!,  // server-only, safe
+  },
+});
+```
+
+For multiple frontends sharing one backend:
+
+```bash
+# Both frontends point to same backend
+# frontend-web .env
+NEXT_PUBLIC_API_URL="https://api.myproject.com"
+
+# frontend-admin .env
+NEXT_PUBLIC_API_URL="https://api.myproject.com"
+
+# backend .env
+ALLOWED_ORIGINS="https://myproject.com,https://admin.myproject.com"
+```
+
+```typescript
+// backend CORS
+const allowed = process.env.ALLOWED_ORIGINS?.split(",") ?? [];
+app.use((req, res, next) => {
+  const origin = req.headers.origin;
+  if (origin && allowed.includes(origin)) {
+    res.setHeader("Access-Control-Allow-Origin", origin);
+  }
+  next();
+});
+```
+
+---
+
+## Web3 Contract Variables
+
+```bash
+# .env.local
+# Contract addresses (public — on-chain, not sensitive)
+NEXT_PUBLIC_CONTRACT_ADDRESS="0xYourContractAddress"
+NEXT_PUBLIC_NFT_ADDRESS="0xYourNFTAddress"
+
+# Chain config
+NEXT_PUBLIC_CHAIN_ID="11155111"          # 11155111 = Sepolia, 1 = mainnet
+NEXT_PUBLIC_RPC_URL="https://eth-sepolia.g.alchemy.com/v2/YOUR_KEY"
+
+# Private deployer key — NEVER NEXT_PUBLIC
+PRIVATE_KEY="0xYourDeployerPrivateKey"   # server-only, for scripts
+
+# RPC keys — keep server-side if possible
+ALCHEMY_API_KEY="your-alchemy-key"
+```
+
+```typescript
+// lib/contracts.ts — server-side contract factory
+import { ethers } from "ethers";
+import MyContractABI from "@/abis/MyContract.json";
+
+export function getContract(signer?: ethers.Signer) {
+  const provider = new ethers.JsonRpcProvider(process.env.NEXT_PUBLIC_RPC_URL);
+  return new ethers.Contract(
+    process.env.NEXT_PUBLIC_CONTRACT_ADDRESS!,
+    MyContractABI,
+    signer ?? provider
+  );
+}
+```
+
+Switching testnet → mainnet = update 3 vars in Vercel dashboard, no code changes.
+
+---
+
+## Secrets Management Tips
+
+```
+✅ Do
+  - Use .env.local for all secrets in dev (gitignored by default)
+  - Rotate secrets if accidentally committed (assume compromised immediately)
+  - Use Vercel's encrypted env storage for production
+  - Validate all env vars at startup with Zod
+  - Use separate secrets per environment (dev ≠ staging ≠ prod)
+
+❌ Don't
+  - Never prefix secrets with NEXT_PUBLIC_
+  - Never commit .env.local or .env.*.local
+  - Never hardcode secrets in source code
+  - Never share the same private key between dev and mainnet
+  - Never log process.env values in production
+```
+
+---
+
+## Type-Safe Env (t3-env)
+
+If you want full type safety without writing the schema manually:
+
+```bash
+npm install @t3-oss/env-nextjs zod
+```
+
+```typescript
+// env.ts
+import { createEnv } from "@t3-oss/env-nextjs";
+import { z } from "zod";
+
+export const env = createEnv({
+  server: {
+    DATABASE_URL: z.string().url(),
+    NEXTAUTH_SECRET: z.string().min(32),
+    GEMINI_API_KEY: z.string(),
+  },
+  client: {
+    NEXT_PUBLIC_APP_URL: z.string().url(),
+    NEXT_PUBLIC_CHAIN_ID: z.coerce.number(),
+  },
+  runtimeEnv: {
+    DATABASE_URL: process.env.DATABASE_URL,
+    NEXTAUTH_SECRET: process.env.NEXTAUTH_SECRET,
+    GEMINI_API_KEY: process.env.GEMINI_API_KEY,
+    NEXT_PUBLIC_APP_URL: process.env.NEXT_PUBLIC_APP_URL,
+    NEXT_PUBLIC_CHAIN_ID: process.env.NEXT_PUBLIC_CHAIN_ID,
+  },
+});
+```
+
+---
+
+*Related: [GitHub & Version Control](/docs/fullstack/github) | [Vercel Deployment](/docs/fullstack/vercel)*

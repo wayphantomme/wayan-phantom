@@ -1,0 +1,268 @@
+export const metadata = {
+  title: "DeFi DApp | Wayan Phantom",
+  description: "Building DeFi applications — DEX integrations, lending, yield, and connecting wallets on Ethereum and Solana.",
+};
+
+# DeFi DApp
+
+DeFi (Decentralized Finance) is financial infrastructure that runs on smart contracts instead of banks. The major categories: DEXs, lending/borrowing, yield farming, liquid staking, and derivatives.
+
+---
+
+## DeFi Categories
+
+| Category | Examples | How It Works |
+|----------|---------|--------------|
+| DEX | Uniswap, Jupiter | Swap tokens via liquidity pools |
+| Lending | Aave, Compound | Deposit collateral, borrow assets |
+| Yield | Yearn, Convex | Auto-compound across protocols |
+| Liquid Staking | Lido, Jito | Stake ETH/SOL, get liquid receipt token |
+| Perps | GMX, dYdX | Leveraged trading without expiry |
+| Stablecoins | MakerDAO, Frax | Algorithmic or collateral-backed USD |
+
+---
+
+## Connect Wallet (Ethereum)
+
+```bash
+npm install @rainbow-me/rainbowkit wagmi viem @tanstack/react-query
+```
+
+```typescript
+// app/providers.tsx
+"use client";
+import { RainbowKitProvider, getDefaultConfig } from "@rainbow-me/rainbowkit";
+import { WagmiProvider } from "wagmi";
+import { mainnet, base, arbitrum, sepolia } from "wagmi/chains";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import "@rainbow-me/rainbowkit/styles.css";
+
+const config = getDefaultConfig({
+  appName: "Phantom DeFi",
+  projectId: process.env.NEXT_PUBLIC_WALLETCONNECT_ID!,
+  chains: [mainnet, base, arbitrum, sepolia],
+});
+
+const queryClient = new QueryClient();
+
+export function Providers({ children }: { children: React.ReactNode }) {
+  return (
+    <WagmiProvider config={config}>
+      <QueryClientProvider client={queryClient}>
+        <RainbowKitProvider>{children}</RainbowKitProvider>
+      </QueryClientProvider>
+    </WagmiProvider>
+  );
+}
+```
+
+```typescript
+// components/ConnectButton.tsx
+"use client";
+import { ConnectButton } from "@rainbow-me/rainbowkit";
+import { useAccount, useBalance } from "wagmi";
+
+export function WalletInfo() {
+  const { address, isConnected } = useAccount();
+  const { data: balance } = useBalance({ address });
+
+  if (!isConnected) return <ConnectButton />;
+
+  return (
+    <div>
+      <ConnectButton />
+      <p>{address?.slice(0, 6)}...{address?.slice(-4)}</p>
+      <p>{balance?.formatted} {balance?.symbol}</p>
+    </div>
+  );
+}
+```
+
+---
+
+## Token Swap — Uniswap V3 (Ethereum)
+
+```bash
+npm install @uniswap/v3-sdk @uniswap/sdk-core
+```
+
+```typescript
+import { ethers } from "ethers";
+
+const SWAP_ROUTER = "0xE592427A0AEce92De3Edee1F18E0157C05861564"; // Uniswap V3 Router
+const ROUTER_ABI = [
+  "function exactInputSingle((address tokenIn, address tokenOut, uint24 fee, address recipient, uint256 deadline, uint256 amountIn, uint256 amountOutMinimum, uint160 sqrtPriceLimitX96)) external payable returns (uint256 amountOut)",
+];
+
+const WETH = "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2";
+const USDC = "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48";
+
+async function swapETHforUSDC(amountInEth: string, signer: ethers.Signer) {
+  const router = new ethers.Contract(SWAP_ROUTER, ROUTER_ABI, signer);
+
+  const params = {
+    tokenIn: WETH,
+    tokenOut: USDC,
+    fee: 3000, // 0.3% pool
+    recipient: await signer.getAddress(),
+    deadline: Math.floor(Date.now() / 1000) + 60 * 20,
+    amountIn: ethers.parseEther(amountInEth),
+    amountOutMinimum: 0n, // set properly in production (slippage protection)
+    sqrtPriceLimitX96: 0n,
+  };
+
+  // Swap ETH → WETH → USDC
+  const tx = await router.exactInputSingle(params, {
+    value: ethers.parseEther(amountInEth),
+  });
+  const receipt = await tx.wait();
+  console.log("Swapped. Tx:", receipt.hash);
+}
+```
+
+---
+
+## Token Swap — Jupiter (Solana)
+
+Jupiter is the main DEX aggregator on Solana — finds best route across all Solana DEXs.
+
+```bash
+npm install @jup-ag/api
+```
+
+```typescript
+import { createJupiterApiClient } from "@jup-ag/api";
+import { Connection, VersionedTransaction, PublicKey } from "@solana/web3.js";
+
+const connection = new Connection(process.env.HELIUS_RPC_URL!, "confirmed");
+const jupiterApi = createJupiterApiClient();
+
+const SOL_MINT = "So11111111111111111111111111111111111111112";
+const USDC_MINT = "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v";
+
+async function swapSOLtoUSDC(amountSol: number, walletPublicKey: PublicKey) {
+  // 1. Get quote
+  const quote = await jupiterApi.quoteGet({
+    inputMint: SOL_MINT,
+    outputMint: USDC_MINT,
+    amount: amountSol * 1e9,  // lamports
+    slippageBps: 50,           // 0.5% slippage
+  });
+
+  console.log("Expected output:", quote.outAmount / 1e6, "USDC");
+
+  // 2. Get swap transaction
+  const { swapTransaction } = await jupiterApi.swapPost({
+    swapRequest: {
+      quoteResponse: quote,
+      userPublicKey: walletPublicKey.toBase58(),
+      dynamicComputeUnitLimit: true,
+      prioritizationFeeLamports: "auto",
+    },
+  });
+
+  // 3. Deserialize and sign
+  const tx = VersionedTransaction.deserialize(Buffer.from(swapTransaction, "base64"));
+  tx.sign([wallet]); // wallet = Keypair or browser wallet adapter
+
+  // 4. Send
+  const txId = await connection.sendRawTransaction(tx.serialize());
+  await connection.confirmTransaction(txId, "confirmed");
+  console.log("Swap complete:", txId);
+}
+```
+
+---
+
+## Read DeFi Protocol Data
+
+### Aave — Get user position
+
+```typescript
+const AAVE_POOL = "0x87870Bca3F3fD6335C3F4ce8392D69350B4fA4E2"; // Mainnet V3
+const POOL_ABI = [
+  "function getUserAccountData(address user) external view returns (uint256 totalCollateralBase, uint256 totalDebtBase, uint256 availableBorrowsBase, uint256 currentLiquidationThreshold, uint256 ltv, uint256 healthFactor)",
+];
+
+const pool = new ethers.Contract(AAVE_POOL, POOL_ABI, provider);
+const data = await pool.getUserAccountData(userAddress);
+
+console.log("Collateral:", ethers.formatUnits(data.totalCollateralBase, 8), "USD");
+console.log("Debt:", ethers.formatUnits(data.totalDebtBase, 8), "USD");
+console.log("Health factor:", ethers.formatEther(data.healthFactor));
+// healthFactor < 1 = liquidatable
+```
+
+### Uniswap V2 — Pool price
+
+```typescript
+const PAIR_ABI = [
+  "function getReserves() view returns (uint112 r0, uint112 r1, uint32 ts)",
+];
+const pair = new ethers.Contract(PAIR_ADDRESS, PAIR_ABI, provider);
+const [r0, r1] = await pair.getReserves();
+const price = Number(r0) / Number(r1);
+console.log("Price:", price);
+```
+
+---
+
+## Build a Simple Swap UI
+
+```typescript
+// components/SwapWidget.tsx
+"use client";
+import { useState } from "react";
+import { useAccount, useWriteContract, useWaitForTransactionReceipt } from "wagmi";
+import { parseEther } from "viem";
+
+export function SwapWidget() {
+  const [amount, setAmount] = useState("");
+  const { address } = useAccount();
+  const { writeContract, data: hash, isPending } = useWriteContract();
+  const { isLoading, isSuccess } = useWaitForTransactionReceipt({ hash });
+
+  const handleSwap = () => {
+    if (!amount) return;
+    writeContract({
+      address: SWAP_ROUTER_ADDRESS,
+      abi: ROUTER_ABI,
+      functionName: "exactInputSingle",
+      args: [/* params */],
+      value: parseEther(amount),
+    });
+  };
+
+  return (
+    <div>
+      <input
+        type="number"
+        value={amount}
+        onChange={(e) => setAmount(e.target.value)}
+        placeholder="ETH amount"
+      />
+      <button onClick={handleSwap} disabled={isPending || isLoading}>
+        {isPending ? "Confirm in wallet..." : isLoading ? "Swapping..." : "Swap"}
+      </button>
+      {isSuccess && <p>Swap complete! Tx: {hash}</p>}
+    </div>
+  );
+}
+```
+
+---
+
+## Key DeFi Concepts
+
+| Concept | Description |
+|---------|-------------|
+| Slippage | Price movement between quote and execution. Set a max % tolerance. |
+| Price impact | How much your trade moves the pool price. Larger trade = more impact. |
+| MEV / Sandwich | Bots front-run your tx to profit from your slippage. Use private RPCs or set tight slippage. |
+| Liquidation | If health factor drops below 1 in lending, collateral is seized. |
+| Impermanent loss | LP position loses value when token prices diverge. See [Liquidity Pool](/docs/web3/ethereum/pool). |
+| TVL | Total Value Locked — how much capital is deposited in a protocol. |
+
+---
+
+*Related: [Liquidity Pool](/docs/web3/ethereum/pool) | [RWA DApp](/docs/web3/dapps/rwa) | [NFT Marketplace](/docs/web3/dapps/nft-marketplace)*
