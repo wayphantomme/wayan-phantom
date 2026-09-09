@@ -1,0 +1,198 @@
+export const metadata = {
+  title: "Wallet & Web3.js | Wayan Phantom",
+  description: "Notes on connecting wallets and reading on-chain data on Solana.",
+};
+
+# Wallet & Web3.js
+
+How to connect Phantom/Solflare and read on-chain data in a Next.js app.
+
+---
+
+## Install
+
+```bash
+npm install @solana/wallet-adapter-react @solana/wallet-adapter-react-ui \
+  @solana/wallet-adapter-wallets @solana/web3.js
+```
+
+---
+
+## Provider Setup
+
+Wrap your app in the wallet providers. In Next.js App Router, this goes in a client component.
+
+```tsx
+// app/providers.tsx
+"use client";
+
+import {
+  ConnectionProvider,
+  WalletProvider,
+} from "@solana/wallet-adapter-react";
+import { WalletModalProvider } from "@solana/wallet-adapter-react-ui";
+import { PhantomWalletAdapter, SolflareWalletAdapter } from "@solana/wallet-adapter-wallets";
+import { clusterApiUrl } from "@solana/web3.js";
+import "@solana/wallet-adapter-react-ui/styles.css";
+
+const endpoint = clusterApiUrl("mainnet-beta");
+// or: "https://mainnet.helius-rpc.com/?api-key=YOUR_KEY"
+
+const wallets = [
+  new PhantomWalletAdapter(),
+  new SolflareWalletAdapter(),
+];
+
+export function Providers({ children }: { children: React.ReactNode }) {
+  return (
+    <ConnectionProvider endpoint={endpoint}>
+      <WalletProvider wallets={wallets} autoConnect>
+        <WalletModalProvider>
+          {children}
+        </WalletModalProvider>
+      </WalletProvider>
+    </ConnectionProvider>
+  );
+}
+```
+
+```tsx
+// app/layout.tsx
+import { Providers } from "./providers";
+
+export default function RootLayout({ children }) {
+  return (
+    <html>
+      <body>
+        <Providers>{children}</Providers>
+      </body>
+    </html>
+  );
+}
+```
+
+---
+
+## Connect Button
+
+```tsx
+import { WalletMultiButton } from "@solana/wallet-adapter-react-ui";
+
+export function ConnectWallet() {
+  return <WalletMultiButton />;
+}
+```
+
+Or build a custom button:
+
+```tsx
+"use client";
+import { useWallet } from "@solana/wallet-adapter-react";
+import { useWalletModal } from "@solana/wallet-adapter-react-ui";
+
+export function CustomConnectButton() {
+  const { publicKey, disconnect, connected } = useWallet();
+  const { setVisible } = useWalletModal();
+
+  if (connected && publicKey) {
+    const short = `${publicKey.toBase58().slice(0, 4)}...${publicKey.toBase58().slice(-4)}`;
+    return (
+      <button onClick={disconnect}>
+        {short} (disconnect)
+      </button>
+    );
+  }
+
+  return <button onClick={() => setVisible(true)}>Connect Wallet</button>;
+}
+```
+
+---
+
+## Read SOL Balance
+
+```typescript
+"use client";
+import { useConnection, useWallet } from "@solana/wallet-adapter-react";
+import { LAMPORTS_PER_SOL } from "@solana/web3.js";
+import { useEffect, useState } from "react";
+
+export function SolBalance() {
+  const { connection } = useConnection();
+  const { publicKey } = useWallet();
+  const [balance, setBalance] = useState<number | null>(null);
+
+  useEffect(() => {
+    if (!publicKey) return;
+
+    connection.getBalance(publicKey).then((lamports) => {
+      setBalance(lamports / LAMPORTS_PER_SOL);
+    });
+  }, [publicKey, connection]);
+
+  if (!publicKey) return <p>Not connected</p>;
+  return <p>{balance?.toFixed(4)} SOL</p>;
+}
+```
+
+---
+
+## Read SPL Token Balance
+
+```typescript
+import { getAssociatedTokenAddress, getAccount } from "@solana/spl-token";
+import { Connection, PublicKey } from "@solana/web3.js";
+
+async function getSPLBalance(
+  connection: Connection,
+  mintAddress: string,
+  ownerAddress: string
+): Promise<number> {
+  const mint = new PublicKey(mintAddress);
+  const owner = new PublicKey(ownerAddress);
+
+  const ata = await getAssociatedTokenAddress(mint, owner);
+  const account = await getAccount(connection, ata);
+
+  // amount is BigInt, divide by decimals (USDC = 6, most SPL = 9)
+  return Number(account.amount) / 10 ** 6;
+}
+```
+
+---
+
+## Transaction: Send SOL
+
+```typescript
+import {
+  Connection, PublicKey, Transaction,
+  SystemProgram, sendAndConfirmTransaction
+} from "@solana/web3.js";
+import { useConnection, useWallet } from "@solana/wallet-adapter-react";
+
+async function sendSOL(toAddress: string, amountSOL: number) {
+  const { connection } = useConnection();
+  const { publicKey, sendTransaction } = useWallet();
+
+  if (!publicKey) throw new Error("Wallet not connected");
+
+  const to = new PublicKey(toAddress);
+  const lamports = amountSOL * LAMPORTS_PER_SOL;
+
+  const transaction = new Transaction().add(
+    SystemProgram.transfer({
+      fromPubkey: publicKey,
+      toPubkey: to,
+      lamports,
+    })
+  );
+
+  const signature = await sendTransaction(transaction, connection);
+  await connection.confirmTransaction(signature, "confirmed");
+  return signature;
+}
+```
+
+---
+
+*Last updated: September 2026.*

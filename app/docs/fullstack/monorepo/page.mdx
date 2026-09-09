@@ -1,33 +1,33 @@
 export const metadata = {
   title: "Monorepo vs Polyrepo | Wayan Phantom",
-  description: "Notes on monorepo and polyrepo architecture, when to use each, and how I structure projects.",
+  description: "Notes on monorepo and polyrepo architecture. Using Neko Singa AI as a real polyrepo example.",
 };
 
 # Monorepo vs Polyrepo
 
-Two different ways to organize a project across multiple apps or packages. Both work — the tradeoff is about team size, complexity, and deployment independence.
+Two different ways to organize a project with multiple apps or services. The tradeoff is between shared code convenience (monorepo) and deployment independence (polyrepo).
 
 ---
 
 ## What is a Monorepo
 
-One Git repository, multiple apps or packages inside it.
+One Git repository, multiple apps or packages inside.
 
 ```
 my-project/                   ← single repo
 ├── apps/
-│   ├── web/                  → Next.js frontend
-│   ├── api/                  → Express/Node backend
-│   └── mobile/               → React Native
+│   ├── web/                  → Next.js frontend (marketing)
+│   ├── app/                  → Next.js app (dashboard)
+│   └── api/                  → Express backend
 ├── packages/
 │   ├── ui/                   → shared component library
 │   ├── types/                → shared TypeScript types
 │   └── config/               → shared ESLint, Tailwind config
 ├── package.json
-└── turbo.json                → build orchestration
+└── turbo.json
 ```
 
-One `git push` can trigger builds for all affected apps. Shared code lives in `packages/` and is imported directly — no publishing to npm.
+One `git push` can trigger builds for all affected apps. Shared code lives in `packages/` and is imported directly without publishing to npm.
 
 **Tools:** Turborepo, Nx, pnpm workspaces
 
@@ -37,15 +37,25 @@ One `git push` can trigger builds for all affected apps. Shared code lives in `p
 
 Each app or service lives in its own separate Git repository.
 
+**Real example: Neko Singa AI**
+
 ```
-github.com/wayphantomme/bulldex-finance    ← frontend + contracts
-github.com/wayphantomme/bulldex-api        ← backend API
-github.com/wayphantomme/bulldex-contracts  ← Solidity only
+github.com/nekosinga/web    → marketing site
+github.com/nekosinga/app    → main application (AI tools)
+github.com/nekosinga/api    → backend API
+github.com/nekosinga/docs   → documentation
 ```
 
-Each repo is fully independent. Different teams can move at different speeds. Breaking changes in one service don't block others.
+Each repo deploys independently to its own Vercel project:
 
-**Downside:** sharing code between repos requires publishing packages or copy-pasting.
+| Repo | Vercel Project | Live URL |
+|------|---------------|----------|
+| web | nekosinga-web | nekosinga.vercel.app |
+| app | nekosinga-app | app-nekosinga.vercel.app |
+| api | nekosinga-api | api-nekosinga.vercel.app |
+| docs | nekosinga-docs | docs-nekosinga.vercel.app |
+
+Each repo moves at its own pace. The docs can be updated without touching the app. The API can be redeployed without rebuilding the marketing site.
 
 ---
 
@@ -53,18 +63,39 @@ Each repo is fully independent. Different teams can move at different speeds. Br
 
 | Situation | Use |
 |-----------|-----|
-| Solo project, everything related | Monorepo |
-| Small team, tight coupling between apps | Monorepo |
-| Different teams, different deployment cadences | Polyrepo |
-| Microservices with independent scaling | Polyrepo |
-| Open source with separate packages | Monorepo (Turborepo) |
-| DeFi project with contracts + frontend | Polyrepo (security isolation) |
+| Solo project, everything tightly coupled | Monorepo |
+| Small team, shared components everywhere | Monorepo |
+| Multiple apps with independent deploy cadences | Polyrepo |
+| Different teams owning different services | Polyrepo |
+| Public-facing site + internal dashboard + API | Polyrepo |
+| AI product with web, app, API, docs | Polyrepo (like Neko Singa) |
 
-For most of my projects I use **polyrepo** because each app deploys independently to Vercel and has its own environment variables. The Bulldex Finance repo is a monorepo exception because the contracts, frontend, and scripts are tightly coupled.
+For Neko Singa I chose **polyrepo** because:
+- The marketing site (`web`) and the AI dashboard (`app`) have completely different update cycles
+- The API can be redeployed independently when endpoints change
+- Docs can be written and published without triggering a full app rebuild
+- Each Vercel project has its own environment variables
 
 ---
 
-## Turborepo Setup (if you go monorepo)
+## Polyrepo: How the Services Talk to Each Other
+
+Each service exposes a URL that others call via environment variables.
+
+```bash
+# nekosinga/app .env.local
+NEXT_PUBLIC_API_URL="https://api-nekosinga.vercel.app"
+
+# nekosinga/api .env
+ALLOWED_ORIGINS="https://app-nekosinga.vercel.app,https://nekosinga.vercel.app"
+DATABASE_URL="postgresql://..."
+```
+
+The app frontend never hardcodes the API URL. It reads from `NEXT_PUBLIC_API_URL`. Switching from staging to production is just an env variable change in Vercel.
+
+---
+
+## Turborepo Setup (if you go monorepo instead)
 
 ```bash
 npx create-turbo@latest
@@ -82,8 +113,7 @@ npx create-turbo@latest
     "dev": {
       "cache": false,
       "persistent": true
-    },
-    "lint": {}
+    }
   }
 }
 ```
@@ -99,11 +129,11 @@ npx create-turbo@latest
 }
 ```
 
-Run only the affected apps on every commit. Turbo caches build outputs so unchanged apps are skipped.
+Turbo only rebuilds what changed. If you edit only `packages/ui`, only apps that import from `ui` get rebuilt.
 
 ---
 
-## Shared Packages Pattern
+## Shared Packages Pattern (monorepo)
 
 ```
 packages/ui/
@@ -116,39 +146,18 @@ packages/ui/
 ```json
 // packages/ui/package.json
 {
-  "name": "@myapp/ui",
+  "name": "@nekosinga/ui",
   "main": "./src/index.ts",
-  "exports": {
-    ".": "./src/index.ts"
-  }
+  "exports": { ".": "./src/index.ts" }
 }
 ```
 
 ```tsx
-// apps/web/src/app/page.tsx
-import { Button } from "@myapp/ui";
+// apps/web/app/page.tsx
+import { Button } from "@nekosinga/ui";
 ```
 
-No publishing step needed inside a monorepo. Turborepo resolves the package locally.
-
----
-
-## Bulldex Finance (Polyrepo Example)
-
-```
-github.com/wayphantomme/bulldex-finance
-├── frontend/         → Next.js app (deployed to Vercel)
-│   ├── app/
-│   └── lib/
-│       └── contracts.ts   → ABI + contract addresses
-├── contracts/        → Hardhat project
-│   ├── contracts/
-│   ├── scripts/
-│   └── test/
-└── README.md
-```
-
-The frontend reads contract addresses from environment variables, so switching between testnet and mainnet is just an env change with no code edits.
+No npm publish needed. Turborepo resolves the package locally at build time.
 
 ---
 

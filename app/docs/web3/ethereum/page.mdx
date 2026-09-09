@@ -1,0 +1,117 @@
+export const metadata = {
+  title: "Ethereum | Wayan Phantom",
+  description: "Overview of Ethereum development — EVM, smart contracts, DeFi, and my projects on Ethereum.",
+};
+
+# Ethereum
+
+Notes on building on Ethereum. My main chain for DeFi protocols and smart contract work.
+
+---
+
+## Why Ethereum
+
+The EVM (Ethereum Virtual Machine) is the most battle-tested smart contract runtime. Every major DeFi protocol lives here. The tooling (Hardhat, Foundry, ethers.js, OpenZeppelin) is mature and well-documented.
+
+Tradeoffs:
+- Gas fees are high on mainnet — most projects deploy on L2s (Arbitrum, Optimism, Base, Lisk)
+- Slower finality than Solana
+- But: best liquidity, most developers, most audited patterns
+
+---
+
+## My Ethereum Projects
+
+| Project | What It Is |
+|---------|-----------|
+| Bulldex Finance | Full DeFi monorepo — token swap, liquidity pool, faucet |
+| Krono Finance | Lisk Spark Incubator 2025 — $4,000 grant |
+| Neko Singa AI | AI-native crypto tools with on-chain integrations |
+
+---
+
+## EVM Chains I Deploy On
+
+| Chain | Type | Use Case |
+|-------|------|----------|
+| Ethereum Mainnet | L1 | Production, high-value protocols |
+| Sepolia | Testnet | Testing before mainnet |
+| Lisk | L2 (OP Stack) | Krono Finance |
+| Arbitrum | L2 | Lower gas DeFi |
+| Base | L2 | Consumer apps |
+
+The beauty of EVM-compatible chains is that the same Solidity code and ethers.js frontend works across all of them. Just change the RPC URL and contract address via environment variables.
+
+---
+
+## Dev Toolchain
+
+```bash
+# Smart contracts
+npm install --save-dev hardhat @nomicfoundation/hardhat-toolbox
+# or
+curl -L https://foundry.paradigm.xyz | bash && foundryup
+
+# OpenZeppelin (audited contract library)
+npm install @openzeppelin/contracts
+
+# Frontend
+npm install ethers
+```
+
+---
+
+## Project Structure
+
+```
+my-dapp/
+├── contracts/
+│   ├── Token.sol
+│   ├── Swap.sol
+│   └── interfaces/
+│       └── ISwap.sol
+├── scripts/
+│   └── deploy.js
+├── test/
+│   └── Token.test.js
+├── hardhat.config.js
+└── frontend/
+    ├── app/
+    └── lib/
+        ├── contracts.ts    → ABI + address constants
+        └── wagmi.ts        → wallet config
+```
+
+---
+
+## Quick Hardhat Setup
+
+```javascript
+// hardhat.config.js
+require("@nomicfoundation/hardhat-toolbox");
+require("dotenv").config();
+
+module.exports = {
+  solidity: "0.8.20",
+  networks: {
+    sepolia: {
+      url: process.env.SEPOLIA_RPC_URL,
+      accounts: [process.env.PRIVATE_KEY],
+    },
+    lisk: {
+      url: "https://rpc.api.lisk.com",
+      accounts: [process.env.PRIVATE_KEY],
+    },
+  },
+};
+```
+
+```bash
+npx hardhat compile
+npx hardhat test
+npx hardhat run scripts/deploy.js --network sepolia
+```
+
+---
+
+*Last updated: September 2026.*

@@ -1,0 +1,146 @@
+export const metadata = {
+  title: "ethers.js | Wayan Phantom",
+  description: "Notes on connecting Next.js frontends to Ethereum smart contracts with ethers.js v6.",
+};
+
+# ethers.js
+
+How I wire up Next.js frontends to smart contracts. Using ethers.js v6.
+
+---
+
+## Install
+
+```bash
+npm install ethers
+```
+
+---
+
+## Connect Wallet
+
+```typescript
+import { BrowserProvider, JsonRpcSigner } from "ethers";
+
+async function connectWallet(): Promise<JsonRpcSigner> {
+  if (!window.ethereum) throw new Error("No wallet found. Install MetaMask.");
+  const provider = new BrowserProvider(window.ethereum);
+  await provider.send("eth_requestAccounts", []);
+  return provider.getSigner();
+}
+```
+
+---
+
+## Read from Contract
+
+Reading does not require the user's wallet. Use a public RPC provider.
+
+```typescript
+import { JsonRpcProvider, Contract } from "ethers";
+import ERC20_ABI from "./abis/ERC20.json";
+
+const provider = new JsonRpcProvider(process.env.NEXT_PUBLIC_RPC_URL);
+
+async function getTokenBalance(tokenAddress: string, walletAddress: string) {
+  const contract = new Contract(tokenAddress, ERC20_ABI, provider);
+  const raw = await contract.balanceOf(walletAddress);
+  return formatUnits(raw, 18);
+}
+```
+
+---
+
+## Write Transaction
+
+Writing requires a signer from the user's wallet.
+
+```typescript
+import { Contract, formatUnits, parseUnits } from "ethers";
+import SWAP_ABI from "./abis/BulldexSwap.json";
+
+async function swapTokens(
+  contractAddress: string,
+  tokenIn: string,
+  tokenOut: string,
+  amountIn: string
+) {
+  const signer = await connectWallet();
+  const contract = new Contract(contractAddress, SWAP_ABI, signer);
+
+  const amountInWei = parseUnits(amountIn, 18);
+  const minOut = 0n; // in production, calculate slippage tolerance
+
+  const tx = await contract.swap(tokenIn, tokenOut, amountInWei, minOut);
+  const receipt = await tx.wait();
+  console.log("Confirmed in block:", receipt.blockNumber);
+  return receipt;
+}
+```
+
+---
+
+## Format & Parse Values
+
+```typescript
+import { formatEther, parseEther, formatUnits, parseUnits } from "ethers";
+
+formatEther(1500000000000000000n)  // "1.5" (18 decimals)
+parseEther("1.5")                  // 1500000000000000000n
+
+formatUnits(100000000n, 6)         // "100.0" (USDC = 6 decimals)
+parseUnits("100", 6)               // 100000000n
+```
+
+---
+
+## Listen to Events
+
+```typescript
+const contract = new Contract(address, abi, provider);
+
+// Subscribe to all Swap events
+contract.on("Swap", (user, tokenIn, tokenOut, amountIn, amountOut, event) => {
+  console.log(`${user} swapped ${formatEther(amountIn)} for ${formatEther(amountOut)}`);
+});
+
+// One-time listener
+contract.once("Transfer", (from, to, value) => {
+  console.log("Transfer detected");
+});
+
+// Always clean up on component unmount
+contract.removeAllListeners();
+```
+
+---
+
+## Contract Config Pattern
+
+Keep contract addresses and ABIs in one file, driven by env vars.
+
+```typescript
+// lib/contracts.ts
+import { Contract, JsonRpcProvider, BrowserProvider } from "ethers";
+import SWAP_ABI from "./abis/Swap.json";
+
+export const CONTRACT_ADDRESS = process.env.NEXT_PUBLIC_CONTRACT_ADDRESS!;
+export const CHAIN_ID = Number(process.env.NEXT_PUBLIC_CHAIN_ID);
+
+export function getReadContract() {
+  const provider = new JsonRpcProvider(process.env.NEXT_PUBLIC_RPC_URL);
+  return new Contract(CONTRACT_ADDRESS, SWAP_ABI, provider);
+}
+
+export async function getWriteContract() {
+  const provider = new BrowserProvider(window.ethereum);
+  const signer = await provider.getSigner();
+  return new Contract(CONTRACT_ADDRESS, SWAP_ABI, signer);
+}
+```
+
+Switching networks (Sepolia to Lisk to Mainnet) is just changing 3 env vars in Vercel.
+
+---
+
+*Last updated: September 2026.*

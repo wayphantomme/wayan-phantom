@@ -1,0 +1,192 @@
+export const metadata = {
+  title: "Solidity Patterns | Wayan Phantom",
+  description: "Solidity smart contract patterns. ERC-20, reentrancy guard, access control, events.",
+};
+
+# Solidity Patterns
+
+Patterns I keep coming back to. All examples use Solidity 0.8.20+ with OpenZeppelin.
+
+---
+
+## ERC-20 Token
+
+```solidity
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.20;
+
+import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
+import "@openzeppelin/contracts/access/Ownable.sol";
+
+contract MyToken is ERC20, Ownable {
+    constructor(uint256 initialSupply)
+        ERC20("MyToken", "MTK")
+        Ownable(msg.sender)
+    {
+        _mint(msg.sender, initialSupply * 10 ** decimals());
+    }
+
+    function mint(address to, uint256 amount) external onlyOwner {
+        _mint(to, amount);
+    }
+}
+```
+
+Always use OpenZeppelin. Do not reimplement ERC-20 from scratch.
+
+---
+
+## Reentrancy Guard
+
+The most common DeFi vulnerability. Always update state before making external calls.
+
+```solidity
+// WRONG — reentrancy attack possible
+function withdraw(uint256 amount) external {
+    (bool ok,) = msg.sender.call{value: amount}(""); // attacker re-enters here
+    balances[msg.sender] -= amount; // never reached on attack
+}
+
+// CORRECT — checks-effects-interactions pattern
+function withdraw(uint256 amount) external {
+    require(balances[msg.sender] >= amount, "Insufficient balance");
+    balances[msg.sender] -= amount;  // 1. effects first
+    (bool ok,) = msg.sender.call{value: amount}("");  // 2. then interact
+    require(ok, "Transfer failed");
+}
+```
+
+Or use OpenZeppelin's `ReentrancyGuard`:
+
+```solidity
+import "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
+
+contract Vault is ReentrancyGuard {
+    function withdraw(uint256 amount) external nonReentrant {
+        // safe from reentrancy
+    }
+}
+```
+
+---
+
+## Access Control
+
+```solidity
+import "@openzeppelin/contracts/access/AccessControl.sol";
+
+contract Protocol is AccessControl {
+    bytes32 public constant OPERATOR_ROLE = keccak256("OPERATOR_ROLE");
+
+    constructor() {
+        _grantRole(DEFAULT_ADMIN_ROLE, msg.sender);
+        _grantRole(OPERATOR_ROLE, msg.sender);
+    }
+
+    function adminAction() external onlyRole(DEFAULT_ADMIN_ROLE) {
+        // only admin
+    }
+
+    function operatorAction() external onlyRole(OPERATOR_ROLE) {
+        // admin or operator
+    }
+}
+```
+
+---
+
+## Events
+
+Events are cheap to emit, indexed by the blockchain, and readable from the frontend. Emit an event for every state-changing action.
+
+```solidity
+contract TokenSwap {
+    event Swap(
+        address indexed user,
+        address indexed tokenIn,
+        address indexed tokenOut,
+        uint256 amountIn,
+        uint256 amountOut
+    );
+
+    function swap(address tokenIn, address tokenOut, uint256 amountIn)
+        external
+        returns (uint256 amountOut)
+    {
+        // swap logic...
+        emit Swap(msg.sender, tokenIn, tokenOut, amountIn, amountOut);
+    }
+}
+```
+
+---
+
+## Bulldex Finance Swap Contract (simplified)
+
+```solidity
+contract BulldexSwap is ReentrancyGuard, Ownable {
+    mapping(address => mapping(address => uint256)) public reserves;
+
+    function swap(
+        address tokenIn,
+        address tokenOut,
+        uint256 amountIn,
+        uint256 minAmountOut
+    ) external nonReentrant returns (uint256 amountOut) {
+        require(amountIn > 0, "Amount must be positive");
+
+        // Transfer tokens in
+        IERC20(tokenIn).transferFrom(msg.sender, address(this), amountIn);
+
+        // Calculate output (simplified constant product formula)
+        uint256 reserveIn = reserves[tokenIn][tokenOut];
+        uint256 reserveOut = reserves[tokenOut][tokenIn];
+        amountOut = (amountIn * reserveOut) / (reserveIn + amountIn);
+
+        require(amountOut >= minAmountOut, "Slippage too high");
+
+        // Update reserves
+        reserves[tokenIn][tokenOut] += amountIn;
+        reserves[tokenOut][tokenIn] -= amountOut;
+
+        // Transfer tokens out
+        IERC20(tokenOut).transfer(msg.sender, amountOut);
+
+        emit Swap(msg.sender, tokenIn, tokenOut, amountIn, amountOut);
+    }
+}
+```
+
+---
+
+## Testing with Hardhat
+
+```javascript
+const { expect } = require("chai");
+const { ethers } = require("hardhat");
+
+describe("MyToken", function () {
+  let token, owner, addr1;
+
+  beforeEach(async function () {
+    [owner, addr1] = await ethers.getSigners();
+    const Token = await ethers.getContractFactory("MyToken");
+    token = await Token.deploy(1000);
+  });
+
+  it("should assign total supply to owner", async function () {
+    const balance = await token.balanceOf(owner.address);
+    expect(balance).to.equal(ethers.parseUnits("1000", 18));
+  });
+
+  it("should transfer tokens", async function () {
+    await token.transfer(addr1.address, ethers.parseUnits("100", 18));
+    expect(await token.balanceOf(addr1.address))
+      .to.equal(ethers.parseUnits("100", 18));
+  });
+});
+```
+
+---
+
+*Last updated: September 2026.*

@@ -1,0 +1,142 @@
+export const metadata = {
+  title: "n8n Workflows | Wayan Phantom",
+  description: "Notes on building automation workflows with n8n. Real patterns I use for lead capture, content pipelines, and AI workflows.",
+};
+
+# n8n Workflows
+
+Notes on building automation with n8n. I am a certified n8n professional and use it for everything from lead capture to AI content pipelines.
+
+---
+
+## What n8n Is Good For
+
+- Connecting APIs without writing glue code
+- Automating repetitive manual tasks
+- Building AI pipelines that process data through multiple steps
+- Webhook receivers that trigger on external events
+- Scheduled jobs (daily reports, weekly digests, data syncs)
+
+Not great for: real-time latency-sensitive operations, complex stateful workflows, or anything needing sub-second response times.
+
+---
+
+## Core Concepts
+
+| Concept | What It Means |
+|---------|---------------|
+| Node | A single step in a workflow (HTTP request, condition, code, etc.) |
+| Workflow | A chain of nodes connected by edges |
+| Trigger | The first node — what starts the workflow |
+| Credential | Stored auth config reused across nodes |
+| Expression | Dynamic values using `{{ $json.fieldName }}` syntax |
+
+---
+
+## Lead Capture Workflow
+
+Webhook receives a form submission, saves to database, sends welcome email, notifies Slack.
+
+```
+Webhook trigger
+  → Set node (clean and normalize fields)
+  → Airtable node (save lead)
+  → Gmail node (send welcome email)
+  → Slack node (notify #leads channel)
+```
+
+```json
+// Webhook payload example
+{
+  "name": "Wayan Phantom",
+  "email": "wayanphantomme@gmail.com",
+  "message": "Interested in AI automation"
+}
+```
+
+In the Gmail node, use expressions to personalize:
+
+```
+Subject: Welcome, {{ $json.name }}
+Body: Hi {{ $json.name }}, thanks for reaching out...
+```
+
+---
+
+## AI Content Pipeline (Impact Stories)
+
+Automated blog platform that generates and publishes articles daily.
+
+```
+Schedule trigger (every day at 8am)
+  → HTTP Request (fetch topic/source from CMS)
+  → OpenAI node (generate article draft)
+  → Code node (format, add metadata, sanitize)
+  → HTTP Request POST (publish to CMS API)
+  → Telegram node (notify me it published)
+```
+
+The Code node does the heavy lifting — stripping unsafe HTML, generating slugs, adding frontmatter:
+
+```javascript
+// Code node (JavaScript)
+const title = $input.item.json.title;
+const content = $input.item.json.content;
+
+return [{
+  json: {
+    slug: title.toLowerCase().replace(/\s+/g, "-"),
+    publishedAt: new Date().toISOString(),
+    content: content.trim(),
+    wordCount: content.split(" ").length,
+  }
+}];
+```
+
+---
+
+## HTTP Request Node
+
+The most used node. Calls any REST API.
+
+```
+Method: POST
+URL: https://api.example.com/articles
+Authentication: Header Auth
+  Header Name: Authorization
+  Header Value: Bearer {{ $credentials.apiKey }}
+Body (JSON):
+  {
+    "title": "{{ $json.title }}",
+    "content": "{{ $json.content }}"
+  }
+```
+
+---
+
+## Webhook + AI Agent Pattern
+
+Useful for AI-powered Slack bots, customer support, or any chat-based workflow.
+
+```
+Webhook trigger (POST from Slack/Telegram)
+  → Code node (extract user message)
+  → HTTP Request (POST /api/chat with message history)
+  → Code node (format response)
+  → HTTP Request (POST reply back to Slack/Telegram)
+```
+
+The `/api/chat` endpoint is your own Next.js route handler with the LLM logic.
+
+---
+
+## Tips
+
+- Use **Split In Batches** node when processing arrays — don't try to process 1000 items in one shot
+- Store credentials in n8n credential store, not hardcoded in nodes
+- Use **Error Workflow** to catch failures and send yourself a Telegram alert
+- Self-hosted n8n on Railway or Render is cheap and gives you full control
+
+---
+
+*Last updated: September 2026.*

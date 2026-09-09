@@ -2410,3 +2410,41 @@ body {
   .docs-landing-title { font-size: 1.5rem; }
   .docs-category-grid { grid-template-columns: 1fr; }
 }
+
+/* ─── Docs nav subgroup (3rd level) ─────────────────────────────────────── */
+.docs-nav-subgroup {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 0.125rem;
+}
+.docs-nav-subgroup-btn {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0.3rem 0.5rem;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: #475569;
+  border-radius: 0.375rem;
+  transition: color 0.15s, background 0.15s;
+}
+.docs-nav-subgroup-btn:hover {
+  color: #111;
+  background: #f8fafc;
+}
+.docs-nav-sub-children {
+  display: flex;
+  flex-direction: column;
+  padding-left: 0.625rem;
+  border-left: 1px solid #f1f5f9;
+  margin-left: 0.75rem;
+  gap: 0.0625rem;
+}
+.docs-nav-item-deep {
+  font-size: 0.79rem !important;
+  padding: 0.25rem 0.625rem !important;
+}

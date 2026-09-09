@@ -1,0 +1,191 @@
+export const metadata = {
+  title: "RAG Pipeline | Wayan Phantom",
+  description: "Notes on building RAG (Retrieval-Augmented Generation) pipelines. When to use RAG and when not to.",
+};
+
+# RAG Pipeline
+
+RAG (Retrieval-Augmented Generation) lets an LLM answer questions about your own documents. Instead of fine-tuning the model, you retrieve relevant chunks at query time and inject them into the context.
+
+---
+
+## When to Use RAG
+
+Use RAG when:
+- Your knowledge base is too large to fit in a single prompt (100+ pages, large codebases, documentation sites)
+- You need the model to cite sources
+- The content changes frequently (product docs, internal wikis)
+- You want to keep proprietary data out of the model's training
+
+**Do not use RAG when your knowledge fits in ~3,000 tokens.** A well-crafted system prompt with all the relevant info is faster, cheaper, and more reliable than a full RAG pipeline. The portfolio chatbot on this site uses a system prompt, not RAG.
+
+---
+
+## Architecture
+
+```
+INGESTION (run once or on updates)
+
+Document
+  → Split into chunks (500-1000 tokens each)
+  → Embed each chunk (vector = array of floats)
+  → Store in vector database
+
+QUERY (every user message)
+
+User question
+  → Embed the question
+  → Similarity search (find top 5 most relevant chunks)
+  → Inject chunks into LLM context as "background info"
+  → LLM generates answer
+  → Return to user
+```
+
+---
+
+## Stack
+
+| Layer | Tool |
+|-------|------|
+| Embeddings | Gemini Embedding 001, OpenAI text-embedding-3-small |
+| Vector DB | Supabase pgvector, Pinecone |
+| LLM | Gemini Flash, Claude Haiku |
+| Orchestration | n8n, LangChain (when needed) |
+
+Supabase pgvector is the simplest option if you are already using PostgreSQL. No extra service to manage.
+
+---
+
+## Supabase pgvector Setup
+
+```sql
+-- Enable extension
+create extension vector;
+
+-- Create documents table
+create table documents (
+  id uuid primary key default gen_random_uuid(),
+  content text not null,
+  embedding vector(768),  -- 768 for Gemini, 1536 for OpenAI
+  metadata jsonb,
+  created_at timestamp default now()
+);
+
+-- Create index for fast similarity search
+create index on documents
+  using ivfflat (embedding vector_cosine_ops)
+  with (lists = 100);
+```
+
+---
+
+## Ingestion
+
+```typescript
+import { GoogleGenerativeAI } from "@google/generative-ai";
+import { createClient } from "@supabase/supabase-js";
+
+const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY!);
+const supabase = createClient(process.env.SUPABASE_URL!, process.env.SUPABASE_KEY!);
+
+async function ingestDocument(text: string, metadata: object) {
+  // Split into chunks
+  const chunks = splitIntoChunks(text, 800);
+
+  for (const chunk of chunks) {
+    // Embed the chunk
+    const model = genAI.getGenerativeModel({ model: "gemini-embedding-001" });
+    const result = await model.embedContent(chunk);
+    const embedding = result.embedding.values;
+
+    // Store in Supabase
+    await supabase.from("documents").insert({
+      content: chunk,
+      embedding,
+      metadata,
+    });
+  }
+}
+
+function splitIntoChunks(text: string, maxTokens: number): string[] {
+  // Simple split by paragraphs, then merge until size limit
+  const paragraphs = text.split("\n\n");
+  const chunks: string[] = [];
+  let current = "";
+
+  for (const para of paragraphs) {
+    if ((current + para).length > maxTokens * 4) { // ~4 chars per token
+      if (current) chunks.push(current.trim());
+      current = para;
+    } else {
+      current += "\n\n" + para;
+    }
+  }
+  if (current) chunks.push(current.trim());
+  return chunks;
+}
+```
+
+---
+
+## Query
+
+```typescript
+async function queryRAG(userQuestion: string): Promise<string> {
+  // 1. Embed the question
+  const model = genAI.getGenerativeModel({ model: "gemini-embedding-001" });
+  const result = await model.embedContent(userQuestion);
+  const queryEmbedding = result.embedding.values;
+
+  // 2. Find similar chunks
+  const { data: chunks } = await supabase.rpc("match_documents", {
+    query_embedding: queryEmbedding,
+    match_count: 5,
+    match_threshold: 0.7,
+  });
+
+  // 3. Build context from retrieved chunks
+  const context = chunks.map((c: { content: string }) => c.content).join("\n\n---\n\n");
+
+  // 4. Ask LLM with context
+  const chatModel = genAI.getGenerativeModel({
+    model: "gemini-2.5-flash",
+    systemInstruction: `Answer questions using only the provided context. If the answer is not in the context, say so.\n\nContext:\n${context}`,
+  });
+
+  const chat = chatModel.startChat();
+  const response = await chat.sendMessage(userQuestion);
+  return response.response.text();
+}
+```
+
+```sql
+-- Supabase function for similarity search
+create or replace function match_documents(
+  query_embedding vector(768),
+  match_count int,
+  match_threshold float
+)
+returns table (id uuid, content text, similarity float)
+language sql stable
+as $$
+  select id, content, 1 - (embedding <=> query_embedding) as similarity
+  from documents
+  where 1 - (embedding <=> query_embedding) > match_threshold
+  order by similarity desc
+  limit match_count;
+$$;
+```
+
+---
+
+## Chunking Tips
+
+- 500-1000 tokens per chunk is the sweet spot
+- Overlap chunks by 10-20% to avoid cutting context in the middle of a thought
+- Add metadata (source file, page number, section title) so the LLM can cite sources
+- For code documentation, keep entire functions together rather than splitting mid-function
+
+---
+
+*Last updated: September 2026.*

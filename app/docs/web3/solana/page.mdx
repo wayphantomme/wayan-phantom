@@ -1,125 +1,61 @@
 export const metadata = {
-  title: "Solana Ecosystem | Wayan Phantom",
-  description: "Personal notes on the Solana ecosystem, wallet adapters, SPL tokens, and Anchor.",
+  title: "Solana | Wayan Phantom",
+  description: "Overview of the Solana ecosystem. Community, tooling, and what I have built.",
 };
 
-# Solana Ecosystem
+# Solana
 
-Notes from being active in Superteam Indonesia and Singapore. More community and ecosystem-level than deep protocol engineering, but here's what I know.
-
----
-
-## Wallet Adapter
-
-```tsx
-// _app.tsx or layout.tsx
-import {
-  ConnectionProvider,
-  WalletProvider,
-} from "@solana/wallet-adapter-react";
-import { WalletModalProvider } from "@solana/wallet-adapter-react-ui";
-import { PhantomWalletAdapter } from "@solana/wallet-adapter-wallets";
-import { clusterApiUrl } from "@solana/web3.js";
-
-const endpoint = clusterApiUrl("mainnet-beta");
-const wallets = [new PhantomWalletAdapter()];
-
-export default function App({ children }) {
-  return (
-    <ConnectionProvider endpoint={endpoint}>
-      <WalletProvider wallets={wallets} autoConnect>
-        <WalletModalProvider>
-          {children}
-        </WalletModalProvider>
-      </WalletProvider>
-    </ConnectionProvider>
-  );
-}
-```
+Notes on the Solana ecosystem. I am active in Superteam Indonesia and Singapore as an ecosystem builder — more community and product than deep protocol engineering, but I know the stack.
 
 ---
 
-## Read Wallet Balance
+## Why Solana
 
-```typescript
-import { useConnection, useWallet } from "@solana/wallet-adapter-react";
-import { LAMPORTS_PER_SOL } from "@solana/web3.js";
+- Sub-second finality, fees under $0.001
+- Fast-growing DeFi and consumer app ecosystem
+- Best community infrastructure in crypto (Superteam)
+- Native support for compressed NFTs, token extensions
 
-function BalanceDisplay() {
-  const { connection } = useConnection();
-  const { publicKey } = useWallet();
-
-  async function getBalance() {
-    if (!publicKey) return;
-    const balance = await connection.getBalance(publicKey);
-    console.log(balance / LAMPORTS_PER_SOL, "SOL");
-  }
-}
-```
+Tradeoffs vs Ethereum: less mature tooling for complex DeFi, programs (smart contracts) written in Rust which has a steeper learning curve, and the network has had historical outages.
 
 ---
 
-## SPL Tokens
+## My Solana Activity
 
-SPL is Solana's equivalent of ERC-20.
-
-```typescript
-import { getAssociatedTokenAddress, getAccount } from "@solana/spl-token";
-import { PublicKey } from "@solana/web3.js";
-
-async function getSPLBalance(
-  connection: Connection,
-  mint: PublicKey,
-  owner: PublicKey
-) {
-  const ata = await getAssociatedTokenAddress(mint, owner);
-  const account = await getAccount(connection, ata);
-  return account.amount; // BigInt, divide by 10^decimals
-}
-```
+| Activity | Details |
+|----------|---------|
+| Superteam Indonesia | Ecosystem builder, events, community |
+| Superteam Singapore | Member, attended meetups |
+| Neko Singa AI | AI-native crypto tools with Solana integrations |
+| Solana Foundation Indonesia 2026 | Bali Community Grants $4,000 |
+| Jupiter Malaysia | Community event, CatLumpur |
 
 ---
 
-## Anchor Framework
+## Core Stack
 
-Anchor is like Hardhat + ethers.js but for Solana. Programs are written in Rust.
-
-```rust
-// Basic Anchor program structure
-use anchor_lang::prelude::*;
-
-declare_id!("YourProgramId...");
-
-#[program]
-pub mod my_program {
-    use super::*;
-
-    pub fn initialize(ctx: Context<Initialize>, data: u64) -> Result<()> {
-        ctx.accounts.my_account.data = data;
-        Ok(())
-    }
-}
-
-#[derive(Accounts)]
-pub struct Initialize<'info> {
-    #[account(init, payer = user, space = 8 + 8)]
-    pub my_account: Account<'info, MyAccount>,
-    #[account(mut)]
-    pub user: Signer<'info>,
-    pub system_program: Program<'info, System>,
-}
-
-#[account]
-pub struct MyAccount {
-    pub data: u64,
-}
-```
+| Layer | Tool |
+|-------|------|
+| Wallet connection | @solana/wallet-adapter-react |
+| On-chain reads | @solana/web3.js |
+| Token operations | @solana/spl-token |
+| Smart contracts | Anchor (Rust) |
+| RPC | Helius, QuickNode |
 
 ---
 
-## Ecosystem Notes
+## Key Differences from Ethereum
 
-Events I've attended and found useful for Solana context: Coinfest Asia, CatLumpur in Malaysia, Bali Blockchain Summit, Superteam Singapore meetups. Worth going to if you're serious about building in this ecosystem.
+| Concept | Ethereum | Solana |
+|---------|----------|--------|
+| Smart contract | Solidity (.sol) | Program (Rust, with Anchor) |
+| Token standard | ERC-20 | SPL Token |
+| Wallet library | ethers.js / wagmi | @solana/wallet-adapter |
+| Block time | ~12 seconds | ~400ms |
+| Unit | Wei (10^-18 ETH) | Lamport (10^-9 SOL) |
+| Contract storage | Inside the contract | Separate account model |
+
+The biggest conceptual difference is the **account model**. On Solana, data lives in separate accounts, not inside the program. Programs are stateless — they just process instructions against accounts.
 
 ---
 
