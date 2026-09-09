@@ -1,15 +1,15 @@
 import { GoogleGenerativeAI } from "@google/generative-ai";
 import { NextRequest } from "next/server";
 
-// ─── Model fallback chain (highest to lowest tier) ───────────────────────────
+// ─── Model fallback chain — fast models first ────────────────────────────────
 const MODEL_CHAIN = [
-  "gemini-3.8-flash",
-  "gemini-3.7-flash",
-  "gemini-3.6-flash",
-  "gemini-3.5-flash",
+  "gemini-2.5-flash",       // fastest stable, best speed/quality
+  "gemini-2.5-flash-lite",  // cheapest fallback
+  "gemini-3.5-flash",       // try newer if available
   "gemini-3.1-flash-lite",
-  "gemini-2.5-flash",
-  "gemini-2.5-flash-lite",
+  "gemini-3.6-flash",
+  "gemini-3.7-flash",
+  "gemini-3.8-flash",
 ] as const;
 
 // ─── System prompt — full persona knowledge base ─────────────────────────────
@@ -111,7 +111,7 @@ interface RequestBody {
   messages: Message[];
 }
 
-// ─── POST handler ─────────────────────────────────────────────────────────────
+// ─── POST handler — streaming ─────────────────────────────────────────────────
 export async function POST(request: NextRequest) {
   const apiKey = process.env.GEMINI_API_KEY;
 
@@ -137,7 +137,6 @@ export async function POST(request: NextRequest) {
 
   const genAI = new GoogleGenerativeAI(apiKey);
 
-  // Build Gemini history (all messages except the last user message)
   const history = messages.slice(0, -1).map((m) => ({
     role: m.role,
     parts: [{ text: m.content }],
@@ -145,7 +144,6 @@ export async function POST(request: NextRequest) {
 
   const lastMessage = messages[messages.length - 1];
 
-  // Try each model in the fallback chain
   let lastError: Error | null = null;
 
   for (const modelId of MODEL_CHAIN) {
@@ -163,17 +161,39 @@ export async function POST(request: NextRequest) {
         },
       });
 
-      const result = await chat.sendMessage(lastMessage.content);
-      const text = result.response.text();
+      // Use streaming — tokens flow to client as they're generated
+      const streamResult = await chat.sendMessageStream(lastMessage.content);
 
-      return Response.json({
-        message: text,
-        model: modelId,
+      const encoder = new TextEncoder();
+      const stream = new ReadableStream({
+        async start(controller) {
+          // Send model name as first chunk so client knows which model responded
+          controller.enqueue(
+            encoder.encode(`data: ${JSON.stringify({ model: modelId })}\n\n`)
+          );
+          for await (const chunk of streamResult.stream) {
+            const text = chunk.text();
+            if (text) {
+              controller.enqueue(
+                encoder.encode(`data: ${JSON.stringify({ token: text })}\n\n`)
+              );
+            }
+          }
+          controller.enqueue(encoder.encode("data: [DONE]\n\n"));
+          controller.close();
+        },
+      });
+
+      return new Response(stream, {
+        headers: {
+          "Content-Type": "text/event-stream",
+          "Cache-Control": "no-cache",
+          Connection: "keep-alive",
+        },
       });
     } catch (error) {
       lastError = error instanceof Error ? error : new Error(String(error));
 
-      // Only fallback on quota/rate-limit/resource-exhausted errors
       const errMsg = lastError.message.toLowerCase();
       const shouldFallback =
         errMsg.includes("quota") ||
@@ -185,8 +205,6 @@ export async function POST(request: NextRequest) {
         errMsg.includes("404");
 
       if (!shouldFallback) break;
-
-      // Continue to next model in chain
       continue;
     }
   }

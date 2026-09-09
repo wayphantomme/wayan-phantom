@@ -1866,21 +1866,19 @@ body {
 
 /* ─── ChatBot eyes blink animation ──────────────────────────────────────── */
 
-/* Eyelid sits on top of the eye, scaled to 0 (open) normally.
-   On blink it scales to 1 (closed) then back to 0. */
 .chatbot-eye-lid {
-  transform-origin: center 18px; /* pivot at eye vertical center */
+  transform-origin: center 20px;
   transform: scaleY(0);
   animation: chatbot-blink 4s ease-in-out infinite;
 }
 .chatbot-eye-lid-right {
-  animation-delay: 0.04s; /* tiny offset so both lids don't close at identical frame */
+  animation-delay: 0.04s;
 }
 
 @keyframes chatbot-blink {
-  0%,  92%           { transform: scaleY(0); }   /* open most of the time */
-  95%               { transform: scaleY(1); }   /* closed */
-  98%, 100%         { transform: scaleY(0); }   /* open again */
+  0%,  92%  { transform: scaleY(0); }
+  95%       { transform: scaleY(1); }
+  98%, 100% { transform: scaleY(0); }
 }
 
 @media (max-width: 480px) {

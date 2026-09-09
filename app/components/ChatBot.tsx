@@ -65,7 +65,7 @@ function renderText(text: string) {
   });
 }
 
-// ─── Animated eyes avatar ────────────────────────────────────────────────────
+// ─── Animated eyes avatar (Kiro-style: white bg, big black eyes) ─────────────
 
 function EyesAvatar({ size = "sm" }: { size?: "sm" | "md" | "lg" }) {
   const dim = size === "lg" ? 48 : size === "md" ? 32 : 26;
@@ -80,35 +80,22 @@ function EyesAvatar({ size = "sm" }: { size?: "sm" | "md" | "lg" }) {
       style={{ flexShrink: 0, display: "block" }}
       aria-hidden="true"
     >
-      {/* Face circle */}
-      <circle cx="20" cy="20" r="19" fill="#f1f5f9" stroke="#e2e8f0" strokeWidth="1" />
+      {/* White face */}
+      <circle cx="20" cy="20" r="19" fill="white" stroke="#e2e8f0" strokeWidth="1" />
 
-      {/* Left eye white */}
-      <ellipse cx="13" cy="18" rx="5" ry="5.5" fill="white" stroke="#cbd5e1" strokeWidth="0.8" />
-      {/* Left pupil */}
-      <circle cx="13" cy="18" r="2.5" fill="#111" className="chatbot-eye-pupil" />
-      {/* Left eyelid — animates down to blink */}
-      <ellipse cx="13" cy="18" rx="5.2" ry="5.7" fill="#f1f5f9" className="chatbot-eye-lid chatbot-eye-lid-left" />
-      {/* Left shine */}
-      <circle cx="14.2" cy="16.8" r="0.8" fill="white" />
+      {/* Left eye */}
+      <circle cx="13" cy="20" r="5.5" fill="#111111" />
+      {/* Left pupil shine */}
+      <circle cx="14.8" cy="18.2" r="1.6" fill="white" />
+      {/* Left eyelid blink */}
+      <ellipse cx="13" cy="20" rx="5.6" ry="5.6" fill="white" className="chatbot-eye-lid chatbot-eye-lid-left" />
 
-      {/* Right eye white */}
-      <ellipse cx="27" cy="18" rx="5" ry="5.5" fill="white" stroke="#cbd5e1" strokeWidth="0.8" />
-      {/* Right pupil */}
-      <circle cx="27" cy="18" r="2.5" fill="#111" className="chatbot-eye-pupil" />
-      {/* Right eyelid */}
-      <ellipse cx="27" cy="18" rx="5.2" ry="5.7" fill="#f1f5f9" className="chatbot-eye-lid chatbot-eye-lid-right" />
-      {/* Right shine */}
-      <circle cx="28.2" cy="16.8" r="0.8" fill="white" />
-
-      {/* Smile */}
-      <path
-        d="M14 27 Q20 31 26 27"
-        stroke="#94a3b8"
-        strokeWidth="1.5"
-        strokeLinecap="round"
-        fill="none"
-      />
+      {/* Right eye */}
+      <circle cx="27" cy="20" r="5.5" fill="#111111" />
+      {/* Right pupil shine */}
+      <circle cx="28.8" cy="18.2" r="1.6" fill="white" />
+      {/* Right eyelid blink */}
+      <ellipse cx="27" cy="20" rx="5.6" ry="5.6" fill="white" className="chatbot-eye-lid chatbot-eye-lid-right" />
     </svg>
   );
 }
@@ -197,21 +184,61 @@ export default function ChatBot() {
           body: JSON.stringify({ messages: next }),
         });
 
-        const data = await res.json();
-
         if (!res.ok) {
+          const data = await res.json();
           throw new Error(data.error ?? "Something went wrong");
         }
 
-        setMessages((prev) => [
-          ...prev,
-          { role: "model", content: data.message },
-        ]);
-        if (data.model) setUsedModel(data.model);
-      } catch (err) {
-        setError(err instanceof Error ? err.message : "Failed to get response");
-      } finally {
+        // Stream SSE tokens into the bot message incrementally
+        const reader = res.body?.getReader();
+        if (!reader) throw new Error("No response body");
+
+        const decoder = new TextDecoder();
+        let buffer = "";
+        let accumulated = "";
+
+        // Add empty bot message to start filling
+        setMessages((prev) => [...prev, { role: "model", content: "" }]);
         setLoading(false);
+
+        while (true) {
+          const { done, value } = await reader.read();
+          if (done) break;
+
+          buffer += decoder.decode(value, { stream: true });
+          const lines = buffer.split("\n");
+          buffer = lines.pop() ?? "";
+
+          for (const line of lines) {
+            if (!line.startsWith("data: ")) continue;
+            const payload = line.slice(6).trim();
+            if (payload === "[DONE]") break;
+
+            try {
+              const parsed = JSON.parse(payload);
+              if (parsed.model) {
+                setUsedModel(parsed.model);
+              }
+              if (parsed.token) {
+                accumulated += parsed.token;
+                const snap = accumulated;
+                setMessages((prev) => {
+                  const updated = [...prev];
+                  updated[updated.length - 1] = {
+                    role: "model",
+                    content: snap,
+                  };
+                  return updated;
+                });
+              }
+            } catch {
+              // malformed chunk, skip
+            }
+          }
+        }
+      } catch (err) {
+        setLoading(false);
+        setError(err instanceof Error ? err.message : "Failed to get response");
       }
     },
     [messages, loading]
