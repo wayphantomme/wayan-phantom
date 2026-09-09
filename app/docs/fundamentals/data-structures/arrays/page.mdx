@@ -1,0 +1,133 @@
+export const metadata = {
+  title: "Arrays & Strings | Wayan Phantom",
+  description: "Notes on arrays and strings — the most common data structures in interviews and real code.",
+};
+
+# Arrays & Strings
+
+The bread and butter of every coding interview and most real-world problems. Arrays store elements in contiguous memory, enabling O(1) index access.
+
+---
+
+## TypeScript Basics
+
+```typescript
+// Fixed-size conceptually, but JS arrays are dynamic
+const nums: number[] = [1, 2, 3, 4, 5];
+
+// Common operations
+nums.push(6);          // O(1) amortized — add to end
+nums.pop();            // O(1) — remove from end
+nums.unshift(0);       // O(n) — add to front (shifts everything)
+nums.shift();          // O(n) — remove from front
+nums.splice(2, 1);     // O(n) — remove at index
+
+// Slice (non-mutating)
+const sub = nums.slice(1, 3);  // [2, 3]
+
+// Spread
+const copy = [...nums];
+const merged = [...nums, ...sub];
+```
+
+---
+
+## Two-Pointer Pattern on Arrays
+
+Most array problems can be solved with two pointers moving toward each other or in the same direction.
+
+```typescript
+// Check if array is palindrome
+function isPalindrome(arr: number[]): boolean {
+  let left = 0;
+  let right = arr.length - 1;
+
+  while (left < right) {
+    if (arr[left] !== arr[right]) return false;
+    left++;
+    right--;
+  }
+  return true;
+}
+
+// Remove duplicates from sorted array (in-place)
+function removeDuplicates(nums: number[]): number {
+  let k = 1;
+  for (let i = 1; i < nums.length; i++) {
+    if (nums[i] !== nums[i - 1]) {
+      nums[k++] = nums[i];
+    }
+  }
+  return k;
+}
+```
+
+---
+
+## Prefix Sum
+
+Precompute cumulative sums for O(1) range queries.
+
+```typescript
+function buildPrefix(nums: number[]): number[] {
+  const prefix = [0];
+  for (const n of nums) {
+    prefix.push(prefix[prefix.length - 1] + n);
+  }
+  return prefix;
+}
+
+// Sum from index l to r (inclusive)
+function rangeSum(prefix: number[], l: number, r: number): number {
+  return prefix[r + 1] - prefix[l];
+}
+
+// Usage
+const nums = [1, 2, 3, 4, 5];
+const prefix = buildPrefix(nums);
+console.log(rangeSum(prefix, 1, 3)); // 2+3+4 = 9
+```
+
+---
+
+## String Operations
+
+```typescript
+const s = "hello world";
+
+s.split(" ")           // ["hello", "world"]
+s.includes("world")    // true
+s.indexOf("o")         // 4
+s.slice(0, 5)          // "hello"
+s.replace("world", "wayan")  // "hello wayan"
+s.trim()               // removes leading/trailing whitespace
+s.toUpperCase()        // "HELLO WORLD"
+
+// Reverse a string
+const reversed = s.split("").reverse().join("");
+
+// Check anagram
+function isAnagram(s: string, t: string): boolean {
+  if (s.length !== t.length) return false;
+  const count = new Map<string, number>();
+  for (const c of s) count.set(c, (count.get(c) ?? 0) + 1);
+  for (const c of t) {
+    if (!count.get(c)) return false;
+    count.set(c, count.get(c)! - 1);
+  }
+  return true;
+}
+```
+
+---
+
+## Common Interview Patterns
+
+- **Two sum**: hash map to store seen values
+- **Max subarray**: Kadane's algorithm
+- **Merge intervals**: sort by start, compare end values
+- **Rotate array**: reverse sections
+
+---
+
+*Last updated: September 2026.*

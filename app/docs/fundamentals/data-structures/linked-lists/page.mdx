@@ -1,0 +1,151 @@
+export const metadata = {
+  title: "Linked Lists | Wayan Phantom",
+  description: "Notes on linked lists — structure, traversal, reversal, and common patterns.",
+};
+
+# Linked Lists
+
+A chain of nodes where each node holds a value and a pointer to the next node. O(1) insert/delete at head, O(n) access by index.
+
+---
+
+## Node Structure
+
+```typescript
+class ListNode {
+  val: number;
+  next: ListNode | null;
+  constructor(val: number, next: ListNode | null = null) {
+    this.val = val;
+    this.next = next;
+  }
+}
+
+// Build: 1 -> 2 -> 3 -> null
+const head = new ListNode(1, new ListNode(2, new ListNode(3)));
+```
+
+---
+
+## Traversal
+
+```typescript
+function printList(head: ListNode | null): void {
+  let curr = head;
+  while (curr) {
+    console.log(curr.val);
+    curr = curr.next;
+  }
+}
+
+function toArray(head: ListNode | null): number[] {
+  const result: number[] = [];
+  while (head) {
+    result.push(head.val);
+    head = head.next;
+  }
+  return result;
+}
+```
+
+---
+
+## Reverse a Linked List
+
+```typescript
+function reverseList(head: ListNode | null): ListNode | null {
+  let prev: ListNode | null = null;
+  let curr = head;
+
+  while (curr) {
+    const next = curr.next;
+    curr.next = prev;
+    prev = curr;
+    curr = next;
+  }
+  return prev;
+}
+```
+
+---
+
+## Fast & Slow Pointers
+
+Detect cycles and find midpoints without knowing the length.
+
+```typescript
+// Detect cycle
+function hasCycle(head: ListNode | null): boolean {
+  let slow = head;
+  let fast = head;
+  while (fast && fast.next) {
+    slow = slow!.next;
+    fast = fast.next.next;
+    if (slow === fast) return true;
+  }
+  return false;
+}
+
+// Find middle node
+function middleNode(head: ListNode): ListNode {
+  let slow = head;
+  let fast = head;
+  while (fast.next && fast.next.next) {
+    slow = slow.next!;
+    fast = fast.next.next;
+  }
+  return slow;
+}
+```
+
+---
+
+## Merge Two Sorted Lists
+
+```typescript
+function mergeTwoLists(
+  l1: ListNode | null,
+  l2: ListNode | null
+): ListNode | null {
+  const dummy = new ListNode(0);
+  let curr = dummy;
+
+  while (l1 && l2) {
+    if (l1.val <= l2.val) {
+      curr.next = l1;
+      l1 = l1.next;
+    } else {
+      curr.next = l2;
+      l2 = l2.next;
+    }
+    curr = curr.next;
+  }
+  curr.next = l1 ?? l2;
+  return dummy.next;
+}
+```
+
+---
+
+## Remove Nth Node from End
+
+```typescript
+function removeNthFromEnd(head: ListNode, n: number): ListNode | null {
+  const dummy = new ListNode(0, head);
+  let fast: ListNode | null = dummy;
+  let slow: ListNode | null = dummy;
+
+  for (let i = 0; i <= n; i++) fast = fast!.next;
+
+  while (fast) {
+    fast = fast.next;
+    slow = slow!.next;
+  }
+  slow!.next = slow!.next!.next;
+  return dummy.next;
+}
+```
+
+---
+
+*Last updated: September 2026.*

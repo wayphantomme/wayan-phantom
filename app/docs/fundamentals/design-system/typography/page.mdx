@@ -1,0 +1,118 @@
+export const metadata = {
+  title: "Typography | Wayan Phantom",
+  description: "Notes on typography scale, font loading in Next.js, and text hierarchy.",
+};
+
+# Typography
+
+A type scale creates visual hierarchy. Consistent line heights and weights make text readable at any size.
+
+---
+
+## Type Scale (8pt Grid)
+
+```css
+:root {
+  /* Font families */
+  --font-sans:  var(--font-inter), system-ui, sans-serif;
+  --font-mono:  "Fira Code", "Cascadia Code", ui-monospace, monospace;
+
+  /* Size scale */
+  --text-xs:   0.75rem;    /* 12px */
+  --text-sm:   0.875rem;   /* 14px */
+  --text-base: 1rem;       /* 16px */
+  --text-lg:   1.125rem;   /* 18px */
+  --text-xl:   1.25rem;    /* 20px */
+  --text-2xl:  1.5rem;     /* 24px */
+  --text-3xl:  1.875rem;   /* 30px */
+  --text-4xl:  2.25rem;    /* 36px */
+
+  /* Line heights */
+  --leading-tight:  1.25;
+  --leading-snug:   1.375;
+  --leading-normal: 1.5;
+  --leading-relaxed:1.625;
+  --leading-loose:  2;
+
+  /* Font weights */
+  --weight-normal:   400;
+  --weight-medium:   500;
+  --weight-semibold: 600;
+  --weight-bold:     700;
+  --weight-extrabold:800;
+}
+```
+
+---
+
+## Next.js Font Loading
+
+```typescript
+// app/layout.tsx
+import { Inter, Plus_Jakarta_Sans } from "next/font/google";
+
+const inter = Inter({
+  variable: "--font-inter",
+  subsets: ["latin"],
+  display: "swap",
+});
+
+const plusJakarta = Plus_Jakarta_Sans({
+  variable: "--font-plus-jakarta",
+  subsets: ["latin"],
+  display: "swap",
+});
+
+export default function Layout({ children }) {
+  return (
+    <html className={`${inter.variable} ${plusJakarta.variable}`}>
+      <body>{children}</body>
+    </html>
+  );
+}
+```
+
+`display: "swap"` — shows fallback font immediately, swaps when the custom font loads. Prevents invisible text during loading.
+
+---
+
+## Hierarchy in Practice
+
+| Element | Size | Weight | Color |
+|---------|------|--------|-------|
+| Page title | 2xl–4xl | 800 | fg |
+| Section heading | xl–2xl | 700 | fg |
+| Card title | base–lg | 700 | fg |
+| Body text | sm–base | 400 | fg-muted |
+| Caption / label | xs–sm | 500–600 | fg-subtle |
+| Code | sm | 400 | monospace |
+
+---
+
+## Measure (Line Length)
+
+Optimal reading measure: 60–75 characters per line. In CSS:
+
+```css
+.prose {
+  max-width: 65ch; /* ~65 characters */
+}
+```
+
+Too wide (&gt;80ch) makes it hard to track back to the start of the next line. Too narrow (&lt;45ch) creates too many line breaks.
+
+---
+
+## Letter Spacing
+
+Tighten letter spacing on large headings. Loosen on small uppercase labels.
+
+```css
+.heading-xl  { letter-spacing: -0.03em; }
+.heading-lg  { letter-spacing: -0.02em; }
+.label-caps  { letter-spacing: 0.08em; text-transform: uppercase; }
+```
+
+---
+
+*Last updated: September 2026.*

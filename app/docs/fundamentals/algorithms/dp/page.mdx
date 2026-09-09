@@ -1,0 +1,123 @@
+export const metadata = {
+  title: "Dynamic Programming | Wayan Phantom",
+  description: "Notes on dynamic programming — memoization, tabulation, and classic DP problems.",
+};
+
+# Dynamic Programming
+
+DP breaks a problem into overlapping subproblems and stores results to avoid recomputation. Two approaches: top-down (memoization) and bottom-up (tabulation).
+
+---
+
+## When to Use DP
+
+A problem is good for DP if it has:
+1. **Optimal substructure** — optimal solution contains optimal solutions to subproblems
+2. **Overlapping subproblems** — same subproblems solved multiple times
+
+Classic examples: Fibonacci, coin change, longest common subsequence, knapsack, edit distance.
+
+---
+
+## Top-Down (Memoization)
+
+Recursive + cache. More natural to write, same time complexity.
+
+```typescript
+// Fibonacci — O(n) with memo
+function fib(n: number, memo = new Map<number, number>()): number {
+  if (n <= 1) return n;
+  if (memo.has(n)) return memo.get(n)!;
+  const result = fib(n - 1, memo) + fib(n - 2, memo);
+  memo.set(n, result);
+  return result;
+}
+```
+
+---
+
+## Bottom-Up (Tabulation)
+
+Iterative. No recursion stack. Usually slightly faster in practice.
+
+```typescript
+// Fibonacci — O(n) time, O(1) space
+function fib(n: number): number {
+  if (n <= 1) return n;
+  let prev = 0, curr = 1;
+  for (let i = 2; i <= n; i++) {
+    [prev, curr] = [curr, prev + curr];
+  }
+  return curr;
+}
+```
+
+---
+
+## Coin Change (Minimum Coins)
+
+Classic unbounded knapsack variant.
+
+```typescript
+function coinChange(coins: number[], amount: number): number {
+  const dp = new Array(amount + 1).fill(Infinity);
+  dp[0] = 0;
+
+  for (let i = 1; i <= amount; i++) {
+    for (const coin of coins) {
+      if (coin <= i) {
+        dp[i] = Math.min(dp[i], dp[i - coin] + 1);
+      }
+    }
+  }
+  return dp[amount] === Infinity ? -1 : dp[amount];
+}
+```
+
+---
+
+## Longest Common Subsequence
+
+```typescript
+function lcs(s1: string, s2: string): number {
+  const m = s1.length, n = s2.length;
+  const dp: number[][] = Array.from({ length: m + 1 }, () =>
+    new Array(n + 1).fill(0)
+  );
+
+  for (let i = 1; i <= m; i++) {
+    for (let j = 1; j <= n; j++) {
+      if (s1[i - 1] === s2[j - 1]) dp[i][j] = dp[i - 1][j - 1] + 1;
+      else dp[i][j] = Math.max(dp[i - 1][j], dp[i][j - 1]);
+    }
+  }
+  return dp[m][n];
+}
+```
+
+---
+
+## 0/1 Knapsack
+
+```typescript
+function knapsack(weights: number[], values: number[], capacity: number): number {
+  const n = weights.length;
+  const dp: number[][] = Array.from({ length: n + 1 }, () =>
+    new Array(capacity + 1).fill(0)
+  );
+
+  for (let i = 1; i <= n; i++) {
+    for (let w = 0; w <= capacity; w++) {
+      dp[i][w] = dp[i - 1][w];
+      if (weights[i - 1] <= w) {
+        dp[i][w] = Math.max(dp[i][w], dp[i - 1][w - weights[i - 1]] + values[i - 1]);
+      }
+    }
+  }
+  return dp[n][capacity];
+}
+```
+
+---
+
+*Last updated: September 2026.*

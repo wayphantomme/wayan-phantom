@@ -1,0 +1,136 @@
+export const metadata = {
+  title: "Two Pointers | Wayan Phantom",
+  description: "Notes on the two pointers pattern for sorted arrays and pair problems.",
+};
+
+# Two Pointers
+
+Two indices moving through an array — either toward each other, or both moving in the same direction. Reduces O(n²) nested loops to O(n).
+
+---
+
+## Opposite Ends (Meet in Middle)
+
+Both pointers start at opposite ends and move inward.
+
+```typescript
+// Two Sum II — sorted array
+function twoSumSorted(nums: number[], target: number): [number, number] {
+  let left = 0;
+  let right = nums.length - 1;
+
+  while (left < right) {
+    const sum = nums[left] + nums[right];
+    if (sum === target) return [left, right];
+    if (sum < target) left++;
+    else right--;
+  }
+  throw new Error("No solution");
+}
+
+// Valid palindrome
+function isPalindrome(s: string): boolean {
+  const clean = s.toLowerCase().replace(/[^a-z0-9]/g, "");
+  let left = 0;
+  let right = clean.length - 1;
+
+  while (left < right) {
+    if (clean[left] !== clean[right]) return false;
+    left++;
+    right--;
+  }
+  return true;
+}
+```
+
+---
+
+## Same Direction (Fast & Slow)
+
+Both pointers start at the beginning, moving at different speeds.
+
+```typescript
+// Remove duplicates from sorted array in-place
+function removeDuplicates(nums: number[]): number {
+  let slow = 1;
+  for (let fast = 1; fast < nums.length; fast++) {
+    if (nums[fast] !== nums[fast - 1]) {
+      nums[slow++] = nums[fast];
+    }
+  }
+  return slow;
+}
+
+// Move zeroes to end
+function moveZeroes(nums: number[]): void {
+  let slow = 0;
+  for (let fast = 0; fast < nums.length; fast++) {
+    if (nums[fast] !== 0) {
+      nums[slow++] = nums[fast];
+    }
+  }
+  while (slow < nums.length) nums[slow++] = 0;
+}
+```
+
+---
+
+## Three Sum
+
+Sort first, then fix one element and use two pointers for the rest.
+
+```typescript
+function threeSum(nums: number[]): number[][] {
+  nums.sort((a, b) => a - b);
+  const result: number[][] = [];
+
+  for (let i = 0; i < nums.length - 2; i++) {
+    if (i > 0 && nums[i] === nums[i - 1]) continue; // skip duplicates
+
+    let left = i + 1;
+    let right = nums.length - 1;
+
+    while (left < right) {
+      const sum = nums[i] + nums[left] + nums[right];
+      if (sum === 0) {
+        result.push([nums[i], nums[left], nums[right]]);
+        while (left < right && nums[left] === nums[left + 1]) left++;
+        while (left < right && nums[right] === nums[right - 1]) right--;
+        left++;
+        right--;
+      } else if (sum < 0) {
+        left++;
+      } else {
+        right--;
+      }
+    }
+  }
+  return result;
+}
+```
+
+---
+
+## Container With Most Water
+
+Classic O(n) two pointer problem on an unsorted array.
+
+```typescript
+function maxArea(heights: number[]): number {
+  let left = 0;
+  let right = heights.length - 1;
+  let max = 0;
+
+  while (left < right) {
+    const area = Math.min(heights[left], heights[right]) * (right - left);
+    max = Math.max(max, area);
+    if (heights[left] < heights[right]) left++;
+    else right--;
+  }
+  return max;
+}
+```
+
+---
+
+*Last updated: September 2026.*

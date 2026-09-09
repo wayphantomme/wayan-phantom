@@ -1,0 +1,144 @@
+export const metadata = {
+  title: "Recursion | Wayan Phantom",
+  description: "Notes on recursion — base cases, call stack, backtracking, and common patterns.",
+};
+
+# Recursion
+
+A function that calls itself. Every recursive solution needs a base case (stops recursion) and a recursive case (breaks problem down).
+
+---
+
+## Basic Structure
+
+```typescript
+function recurse(input: SomeType): ReturnType {
+  // Base case — stop condition
+  if (baseCase) return baseValue;
+
+  // Recursive case — smaller subproblem
+  return recurse(smallerInput);
+}
+```
+
+---
+
+## Factorial
+
+```typescript
+function factorial(n: number): number {
+  if (n <= 1) return 1;          // base case
+  return n * factorial(n - 1);   // recursive case
+}
+// factorial(5) = 5 * 4 * 3 * 2 * 1 = 120
+```
+
+---
+
+## Power of Two
+
+```typescript
+function isPowerOfTwo(n: number): boolean {
+  if (n === 1) return true;
+  if (n <= 0 || n % 2 !== 0) return false;
+  return isPowerOfTwo(n / 2);
+}
+```
+
+---
+
+## Generate All Subsets (Backtracking)
+
+Backtracking = recursion + undo. Try a choice, recurse, undo the choice.
+
+```typescript
+function subsets(nums: number[]): number[][] {
+  const result: number[][] = [];
+
+  function backtrack(start: number, current: number[]) {
+    result.push([...current]);
+
+    for (let i = start; i < nums.length; i++) {
+      current.push(nums[i]);        // choose
+      backtrack(i + 1, current);    // explore
+      current.pop();                // undo
+    }
+  }
+
+  backtrack(0, []);
+  return result;
+}
+// subsets([1,2,3]) → [[], [1], [1,2], [1,2,3], [1,3], [2], [2,3], [3]]
+```
+
+---
+
+## Permutations
+
+```typescript
+function permute(nums: number[]): number[][] {
+  const result: number[][] = [];
+
+  function backtrack(current: number[], remaining: number[]) {
+    if (remaining.length === 0) {
+      result.push([...current]);
+      return;
+    }
+    for (let i = 0; i < remaining.length; i++) {
+      current.push(remaining[i]);
+      backtrack(current, [...remaining.slice(0, i), ...remaining.slice(i + 1)]);
+      current.pop();
+    }
+  }
+
+  backtrack([], nums);
+  return result;
+}
+```
+
+---
+
+## Tree DFS (Recursive)
+
+```typescript
+function maxDepth(root: TreeNode | null): number {
+  if (!root) return 0;
+  return 1 + Math.max(maxDepth(root.left), maxDepth(root.right));
+}
+
+function hasPathSum(root: TreeNode | null, target: number): boolean {
+  if (!root) return false;
+  if (!root.left && !root.right) return root.val === target;
+  return hasPathSum(root.left, target - root.val) ||
+         hasPathSum(root.right, target - root.val);
+}
+```
+
+---
+
+## When to Use Iteration Instead
+
+- Deep recursion risks stack overflow (default stack ~10k frames in JS)
+- Use iteration + explicit stack for depth-first traversal on large inputs
+- Tail-call optimization is not guaranteed in JavaScript
+
+```typescript
+// Iterative DFS using explicit stack
+function dfsIterative(root: TreeNode | null): number[] {
+  if (!root) return [];
+  const result: number[] = [];
+  const stack: TreeNode[] = [root];
+
+  while (stack.length) {
+    const node = stack.pop()!;
+    result.push(node.val);
+    if (node.right) stack.push(node.right);
+    if (node.left) stack.push(node.left);
+  }
+  return result;
+}
+```
+
+---
+
+*Last updated: September 2026.*

@@ -1,0 +1,176 @@
+export const metadata = {
+  title: "BFS & DFS | Wayan Phantom",
+  description: "Notes on BFS and DFS — traversal patterns for trees and graphs.",
+};
+
+# BFS & DFS
+
+Two fundamental graph/tree traversal algorithms. BFS explores level by level (queue). DFS explores as deep as possible first (stack or recursion).
+
+---
+
+## BFS — Breadth-First Search
+
+Use for: shortest path, level-order traversal, "minimum steps to reach".
+
+```typescript
+// BFS on a graph
+function bfs(graph: Map<number, number[]>, start: number): number[] {
+  const visited = new Set<number>();
+  const queue: number[] = [start];
+  const order: number[] = [];
+
+  while (queue.length) {
+    const node = queue.shift()!;
+    if (visited.has(node)) continue;
+    visited.add(node);
+    order.push(node);
+
+    for (const neighbor of graph.get(node) ?? []) {
+      if (!visited.has(neighbor)) queue.push(neighbor);
+    }
+  }
+  return order;
+}
+
+// BFS shortest path (unweighted)
+function shortestPath(
+  graph: Map<number, number[]>,
+  start: number,
+  end: number
+): number {
+  const visited = new Set<number>([start]);
+  const queue: [number, number][] = [[start, 0]]; // [node, distance]
+
+  while (queue.length) {
+    const [node, dist] = queue.shift()!;
+    if (node === end) return dist;
+
+    for (const neighbor of graph.get(node) ?? []) {
+      if (!visited.has(neighbor)) {
+        visited.add(neighbor);
+        queue.push([neighbor, dist + 1]);
+      }
+    }
+  }
+  return -1; // no path
+}
+```
+
+---
+
+## DFS — Depth-First Search
+
+Use for: finding all paths, detecting cycles, connected components, topological sort.
+
+```typescript
+// DFS recursive
+function dfs(
+  graph: Map<number, number[]>,
+  node: number,
+  visited = new Set<number>()
+): void {
+  if (visited.has(node)) return;
+  visited.add(node);
+  console.log(node);
+  for (const neighbor of graph.get(node) ?? []) {
+    dfs(graph, neighbor, visited);
+  }
+}
+
+// DFS iterative (explicit stack)
+function dfsIterative(graph: Map<number, number[]>, start: number): number[] {
+  const visited = new Set<number>();
+  const stack: number[] = [start];
+  const order: number[] = [];
+
+  while (stack.length) {
+    const node = stack.pop()!;
+    if (visited.has(node)) continue;
+    visited.add(node);
+    order.push(node);
+    for (const neighbor of graph.get(node) ?? []) {
+      stack.push(neighbor);
+    }
+  }
+  return order;
+}
+```
+
+---
+
+## Number of Islands (Grid BFS/DFS)
+
+Classic 2D grid problem. Treat each cell as a graph node.
+
+```typescript
+function numIslands(grid: string[][]): number {
+  let count = 0;
+  const rows = grid.length;
+  const cols = grid[0].length;
+
+  function dfs(r: number, c: number) {
+    if (r < 0 || r >= rows || c < 0 || c >= cols || grid[r][c] !== "1") return;
+    grid[r][c] = "0"; // mark visited
+    dfs(r + 1, c);
+    dfs(r - 1, c);
+    dfs(r, c + 1);
+    dfs(r, c - 1);
+  }
+
+  for (let r = 0; r < rows; r++) {
+    for (let c = 0; c < cols; c++) {
+      if (grid[r][c] === "1") {
+        dfs(r, c);
+        count++;
+      }
+    }
+  }
+  return count;
+}
+```
+
+---
+
+## Word Ladder (BFS — minimum transformations)
+
+```typescript
+function ladderLength(begin: string, end: string, wordList: string[]): number {
+  const wordSet = new Set(wordList);
+  if (!wordSet.has(end)) return 0;
+
+  const queue: [string, number][] = [[begin, 1]];
+
+  while (queue.length) {
+    const [word, steps] = queue.shift()!;
+
+    for (let i = 0; i < word.length; i++) {
+      for (let c = 97; c <= 122; c++) {
+        const next = word.slice(0, i) + String.fromCharCode(c) + word.slice(i + 1);
+        if (next === end) return steps + 1;
+        if (wordSet.has(next)) {
+          wordSet.delete(next); // remove to avoid revisiting
+          queue.push([next, steps + 1]);
+        }
+      }
+    }
+  }
+  return 0;
+}
+```
+
+---
+
+## BFS vs DFS: When to Choose
+
+| Use BFS | Use DFS |
+|---------|---------|
+| Shortest path | All paths |
+| Level-by-level traversal | Detect cycle |
+| "Minimum steps to..." | Connected components |
+| Spreading problems (infection, fire) | Topological sort |
+| | Backtracking (subsets, permutations) |
+
+---
+
+*Last updated: September 2026.*

@@ -1,0 +1,140 @@
+export const metadata = {
+  title: "Hash Maps & Sets | Wayan Phantom",
+  description: "Notes on hash maps and sets — O(1) lookup, the most useful structure in interview problems.",
+};
+
+# Hash Maps & Sets
+
+The most useful data structure for interview problems. O(1) average time for insert, delete, and lookup. When in doubt, reach for a hash map.
+
+---
+
+## Map vs Object in TypeScript
+
+```typescript
+// Map — preferred for non-string keys, preserves insertion order
+const map = new Map<string, number>();
+map.set("a", 1);
+map.get("a");          // 1
+map.has("b");          // false
+map.delete("a");
+map.size;              // 0
+for (const [k, v] of map) { ... }
+
+// Object — fine for string keys
+const obj: Record<string, number> = {};
+obj["a"] = 1;
+Object.keys(obj);
+Object.entries(obj);
+```
+
+---
+
+## Set
+
+```typescript
+const set = new Set<number>([1, 2, 3]);
+set.add(4);
+set.has(2);            // true
+set.delete(2);
+set.size;              // 3
+[...set];              // convert to array
+
+// Dedup array
+const unique = [...new Set([1, 1, 2, 3, 3])]; // [1, 2, 3]
+```
+
+---
+
+## Frequency Counter Pattern
+
+Count occurrences — solves anagrams, top-K, duplicates.
+
+```typescript
+function topKFrequent(nums: number[], k: number): number[] {
+  const freq = new Map<number, number>();
+  for (const n of nums) freq.set(n, (freq.get(n) ?? 0) + 1);
+
+  return [...freq.entries()]
+    .sort((a, b) => b[1] - a[1])
+    .slice(0, k)
+    .map(([num]) => num);
+}
+```
+
+---
+
+## Two Sum
+
+Classic hash map problem. O(n) instead of O(n²).
+
+```typescript
+function twoSum(nums: number[], target: number): [number, number] {
+  const seen = new Map<number, number>(); // value → index
+
+  for (let i = 0; i < nums.length; i++) {
+    const complement = target - nums[i];
+    if (seen.has(complement)) {
+      return [seen.get(complement)!, i];
+    }
+    seen.set(nums[i], i);
+  }
+  throw new Error("No solution");
+}
+```
+
+---
+
+## Group Anagrams
+
+```typescript
+function groupAnagrams(strs: string[]): string[][] {
+  const map = new Map<string, string[]>();
+
+  for (const s of strs) {
+    const key = s.split("").sort().join(""); // sorted chars as key
+    if (!map.has(key)) map.set(key, []);
+    map.get(key)!.push(s);
+  }
+
+  return [...map.values()];
+}
+```
+
+---
+
+## LRU Cache
+
+Classic design problem. Use a Map (preserves insertion order) + doubly linked list for O(1) operations.
+
+```typescript
+class LRUCache {
+  private capacity: number;
+  private cache: Map<number, number>;
+
+  constructor(capacity: number) {
+    this.capacity = capacity;
+    this.cache = new Map();
+  }
+
+  get(key: number): number {
+    if (!this.cache.has(key)) return -1;
+    const val = this.cache.get(key)!;
+    this.cache.delete(key);
+    this.cache.set(key, val); // move to end (most recent)
+    return val;
+  }
+
+  put(key: number, value: number): void {
+    this.cache.delete(key);
+    this.cache.set(key, value);
+    if (this.cache.size > this.capacity) {
+      this.cache.delete(this.cache.keys().next().value); // remove oldest
+    }
+  }
+}
+```
+
+---
+
+*Last updated: September 2026.*

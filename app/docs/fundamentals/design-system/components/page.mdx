@@ -1,0 +1,163 @@
+export const metadata = {
+  title: "Component Patterns | Wayan Phantom",
+  description: "Notes on building reusable UI components — Button, Card, Input patterns in React.",
+};
+
+# Component Patterns
+
+Building components that are composable, accessible, and consistent with your design tokens.
+
+---
+
+## Button
+
+```tsx
+interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
+  variant?: "primary" | "secondary" | "ghost";
+  size?: "sm" | "md" | "lg";
+  loading?: boolean;
+}
+
+export function Button({
+  variant = "primary",
+  size = "md",
+  loading,
+  children,
+  disabled,
+  ...props
+}: ButtonProps) {
+  const base = "inline-flex items-center justify-center font-semibold rounded-lg transition-all";
+
+  const variants = {
+    primary:   "bg-gray-900 text-white hover:bg-gray-700",
+    secondary: "bg-gray-100 text-gray-900 hover:bg-gray-200",
+    ghost:     "bg-transparent text-gray-600 hover:bg-gray-100",
+  };
+
+  const sizes = {
+    sm: "h-8  px-3  text-sm  gap-1.5",
+    md: "h-10 px-4  text-sm  gap-2",
+    lg: "h-12 px-6  text-base gap-2",
+  };
+
+  return (
+    <button
+      className={`${base} ${variants[variant]} ${sizes[size]}`}
+      disabled={disabled || loading}
+      aria-busy={loading}
+      {...props}
+    >
+      {loading && <Spinner size={size} />}
+      {children}
+    </button>
+  );
+}
+```
+
+---
+
+## Card
+
+```tsx
+interface CardProps {
+  children: React.ReactNode;
+  className?: string;
+  hover?: boolean;
+}
+
+export function Card({ children, className = "", hover }: CardProps) {
+  return (
+    <div
+      className={[
+        "bg-white border border-gray-200 rounded-2xl p-5",
+        hover && "transition-shadow hover:shadow-lg cursor-pointer",
+        className,
+      ]
+        .filter(Boolean)
+        .join(" ")}
+    >
+      {children}
+    </div>
+  );
+}
+```
+
+---
+
+## Input
+
+```tsx
+interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> {
+  label?: string;
+  error?: string;
+  hint?: string;
+}
+
+export function Input({ label, error, hint, id, ...props }: InputProps) {
+  const inputId = id ?? label?.toLowerCase().replace(/\s+/g, "-");
+
+  return (
+    <div className="flex flex-col gap-1.5">
+      {label && (
+        <label htmlFor={inputId} className="text-sm font-medium text-gray-700">
+          {label}
+        </label>
+      )}
+      <input
+        id={inputId}
+        className={[
+          "h-10 px-3 rounded-lg border text-sm transition-colors outline-none",
+          "focus:ring-2 focus:ring-blue-500 focus:border-transparent",
+          error
+            ? "border-red-400 bg-red-50"
+            : "border-gray-200 bg-gray-50 focus:bg-white",
+        ].join(" ")}
+        aria-describedby={error ? `${inputId}-error` : hint ? `${inputId}-hint` : undefined}
+        aria-invalid={!!error}
+        {...props}
+      />
+      {error && (
+        <p id={`${inputId}-error`} className="text-xs text-red-500" role="alert">
+          {error}
+        </p>
+      )}
+      {hint && !error && (
+        <p id={`${inputId}-hint`} className="text-xs text-gray-500">
+          {hint}
+        </p>
+      )}
+    </div>
+  );
+}
+```
+
+---
+
+## Composition over Configuration
+
+Prefer composable components over giant config objects. Instead of:
+
+```tsx
+// Too much config
+<Card title="Hello" subtitle="World" image={...} footer={...} />
+```
+
+Do:
+
+```tsx
+// Composable
+<Card>
+  <CardHeader>
+    <CardTitle>Hello</CardTitle>
+    <CardSubtitle>World</CardSubtitle>
+  </CardHeader>
+  <CardImage src={...} />
+  <CardFooter>{...}</CardFooter>
+</Card>
+```
+
+Composable components are easier to extend, test, and reuse in unexpected contexts.
+
+---
+
+*Last updated: September 2026.*

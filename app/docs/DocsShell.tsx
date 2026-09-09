@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 
 // ─── Nav structure (3 levels: section → subgroup → items) ────────────────────
 
@@ -66,6 +66,52 @@ const NAV_SECTIONS: Section[] = [
       { label: "Gemini Models",   href: "/docs/ai/gemini" },
       { label: "n8n Workflows",   href: "/docs/ai/n8n" },
       { label: "RAG Pipeline",    href: "/docs/ai/rag" },
+    ],
+  },
+  {
+    label: "Fundamentals",
+    href: "/docs/fundamentals",
+    items: [
+      { label: "Overview", href: "/docs/fundamentals" },
+    ],
+    subgroups: [
+      {
+        label: "Data Structures",
+        items: [
+          { label: "Overview",      href: "/docs/fundamentals/data-structures" },
+          { label: "Arrays",        href: "/docs/fundamentals/data-structures/arrays" },
+          { label: "Linked Lists",  href: "/docs/fundamentals/data-structures/linked-lists" },
+          { label: "Trees & Graphs",href: "/docs/fundamentals/data-structures/trees" },
+          { label: "Hash Maps",     href: "/docs/fundamentals/data-structures/hashmaps" },
+        ],
+      },
+      {
+        label: "Algorithms",
+        items: [
+          { label: "Overview",   href: "/docs/fundamentals/algorithms" },
+          { label: "Sorting",    href: "/docs/fundamentals/algorithms/sorting" },
+          { label: "DP",         href: "/docs/fundamentals/algorithms/dp" },
+          { label: "Recursion",  href: "/docs/fundamentals/algorithms/recursion" },
+        ],
+      },
+      {
+        label: "Design System",
+        items: [
+          { label: "Overview",    href: "/docs/fundamentals/design-system" },
+          { label: "Tokens",      href: "/docs/fundamentals/design-system/tokens" },
+          { label: "Typography",  href: "/docs/fundamentals/design-system/typography" },
+          { label: "Components",  href: "/docs/fundamentals/design-system/components" },
+        ],
+      },
+      {
+        label: "Leetcode Patterns",
+        items: [
+          { label: "Overview",        href: "/docs/fundamentals/leetcode" },
+          { label: "Sliding Window",  href: "/docs/fundamentals/leetcode/sliding-window" },
+          { label: "Two Pointers",    href: "/docs/fundamentals/leetcode/two-pointers" },
+          { label: "BFS & DFS",       href: "/docs/fundamentals/leetcode/bfs-dfs" },
+        ],
+      },
     ],
   },
   {
@@ -361,6 +407,24 @@ const BREADCRUMB_MAP: Record<string, string[]> = {
   "/docs/chains/frameworks":               ["Chains & Ecosystems", "Frameworks", "Overview"],
   "/docs/chains/frameworks/orbit":         ["Chains & Ecosystems", "Frameworks", "Arbitrum Orbit"],
   "/docs/chains/frameworks/substrate":     ["Chains & Ecosystems", "Frameworks", "Substrate"],
+  "/docs/fundamentals":                            ["Fundamentals", "Overview"],
+  "/docs/fundamentals/data-structures":            ["Fundamentals", "Data Structures", "Overview"],
+  "/docs/fundamentals/data-structures/arrays":     ["Fundamentals", "Data Structures", "Arrays"],
+  "/docs/fundamentals/data-structures/linked-lists":["Fundamentals", "Data Structures", "Linked Lists"],
+  "/docs/fundamentals/data-structures/trees":      ["Fundamentals", "Data Structures", "Trees & Graphs"],
+  "/docs/fundamentals/data-structures/hashmaps":   ["Fundamentals", "Data Structures", "Hash Maps"],
+  "/docs/fundamentals/algorithms":                 ["Fundamentals", "Algorithms", "Overview"],
+  "/docs/fundamentals/algorithms/sorting":         ["Fundamentals", "Algorithms", "Sorting"],
+  "/docs/fundamentals/algorithms/dp":              ["Fundamentals", "Algorithms", "Dynamic Programming"],
+  "/docs/fundamentals/algorithms/recursion":       ["Fundamentals", "Algorithms", "Recursion"],
+  "/docs/fundamentals/design-system":              ["Fundamentals", "Design System", "Overview"],
+  "/docs/fundamentals/design-system/tokens":       ["Fundamentals", "Design System", "Tokens"],
+  "/docs/fundamentals/design-system/typography":   ["Fundamentals", "Design System", "Typography"],
+  "/docs/fundamentals/design-system/components":   ["Fundamentals", "Design System", "Components"],
+  "/docs/fundamentals/leetcode":                   ["Fundamentals", "Leetcode Patterns", "Overview"],
+  "/docs/fundamentals/leetcode/sliding-window":    ["Fundamentals", "Leetcode Patterns", "Sliding Window"],
+  "/docs/fundamentals/leetcode/two-pointers":      ["Fundamentals", "Leetcode Patterns", "Two Pointers"],
+  "/docs/fundamentals/leetcode/bfs-dfs":           ["Fundamentals", "Leetcode Patterns", "BFS & DFS"],
 };
 
 // ─── Sidebar ─────────────────────────────────────────────────────────────────
@@ -501,6 +565,100 @@ function Breadcrumb() {
   );
 }
 
+// ─── Search index + component ────────────────────────────────────────────────
+
+const SEARCH_INDEX = Object.entries(BREADCRUMB_MAP).map(([href, crumbs]) => ({
+  href,
+  title: crumbs[crumbs.length - 1],
+  section: crumbs[0],
+}));
+
+function Search() {
+  const [query, setQuery] = useState("");
+  const [open, setOpen] = useState(false);
+  const inputRef = useRef<HTMLInputElement>(null);
+  const wrapRef = useRef<HTMLDivElement>(null);
+
+  const results = query.length >= 1
+    ? SEARCH_INDEX.filter(p =>
+        p.title.toLowerCase().includes(query.toLowerCase()) ||
+        p.section.toLowerCase().includes(query.toLowerCase())
+      ).slice(0, 8)
+    : [];
+
+  useEffect(() => {
+    const handler = (e: KeyboardEvent) => {
+      if ((e.metaKey || e.ctrlKey) && e.key === "k") {
+        e.preventDefault();
+        setOpen(true);
+        setTimeout(() => inputRef.current?.focus(), 50);
+      }
+      if (e.key === "Escape") { setOpen(false); setQuery(""); }
+    };
+    window.addEventListener("keydown", handler);
+    return () => window.removeEventListener("keydown", handler);
+  }, []);
+
+  useEffect(() => {
+    const handler = (e: MouseEvent) => {
+      if (wrapRef.current && !wrapRef.current.contains(e.target as Node)) {
+        setOpen(false); setQuery("");
+      }
+    };
+    document.addEventListener("mousedown", handler);
+    return () => document.removeEventListener("mousedown", handler);
+  }, []);
+
+  return (
+    <div ref={wrapRef} className="docs-search-wrap">
+      {!open ? (
+        <button
+          className="docs-search-btn"
+          onClick={() => { setOpen(true); setTimeout(() => inputRef.current?.focus(), 50); }}
+          aria-label="Search documentation"
+        >
+          <svg width="13" height="13" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+            <circle cx="11" cy="11" r="8" />
+            <path strokeLinecap="round" d="M21 21l-4.35-4.35" />
+          </svg>
+          <span className="docs-search-placeholder">Search...</span>
+          <kbd className="docs-search-kbd">⌘K</kbd>
+        </button>
+      ) : (
+        <div className="docs-search-active">
+          <svg width="13" height="13" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24" style={{ flexShrink: 0, color: "#94a3b8" }}>
+            <circle cx="11" cy="11" r="8" /><path strokeLinecap="round" d="M21 21l-4.35-4.35" />
+          </svg>
+          <input
+            ref={inputRef}
+            value={query}
+            onChange={e => setQuery(e.target.value)}
+            placeholder="Search documentation..."
+            className="docs-search-input"
+          />
+          {(results.length > 0 || query.length > 0) && (
+            <div className="docs-search-dropdown">
+              {results.length > 0 ? results.map(r => (
+                <Link
+                  key={r.href}
+                  href={r.href}
+                  className="docs-search-result"
+                  onClick={() => { setOpen(false); setQuery(""); }}
+                >
+                  <span className="docs-search-result-title">{r.title}</span>
+                  <span className="docs-search-result-section">{r.section}</span>
+                </Link>
+              )) : (
+                <p className="docs-search-empty">No results for &ldquo;{query}&rdquo;</p>
+              )}
+            </div>
+          )}
+        </div>
+      )}
+    </div>
+  );
+}
+
 // ─── Topbar ───────────────────────────────────────────────────────────────────
 
 function Topbar() {
@@ -513,24 +671,9 @@ function Topbar() {
         </Link>
         <span className="docs-topbar-badge">Docs</span>
       </div>
-      <div className="docs-topbar-center">
-        <button className="docs-search-btn" aria-label="Search documentation">
-          <svg width="14" height="14" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-            <circle cx="11" cy="11" r="8" />
-            <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-4.35-4.35" />
-          </svg>
-          <span className="docs-search-placeholder">Search documentation...</span>
-          <kbd className="docs-search-kbd">⌘K</kbd>
-        </button>
-      </div>
       <div className="docs-topbar-right">
-        <a
-          href="https://github.com/wayphantomme"
-          target="_blank"
-          rel="noopener noreferrer"
-          className="docs-topbar-gh"
-          aria-label="GitHub"
-        >
+        <Search />
+        <a href="https://github.com/wayphantomme" target="_blank" rel="noopener noreferrer" className="docs-topbar-gh" aria-label="GitHub">
           <svg width="22" height="22" fill="currentColor" viewBox="0 0 24 24">
             <path fillRule="evenodd" d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.53 1.032 1.53 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z" clipRule="evenodd" />
           </svg>

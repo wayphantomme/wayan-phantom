@@ -1,0 +1,33 @@
+export const metadata = {
+  title: "Data Structures | Wayan Phantom",
+  description: "Overview of core data structures — when to use each one.",
+};
+
+# Data Structures
+
+A quick reference for choosing the right data structure.
+
+---
+
+## Complexity Cheat Sheet
+
+| Structure | Access | Search | Insert | Delete | Use When |
+|-----------|--------|--------|--------|--------|----------|
+| Array | O(1) | O(n) | O(n) | O(n) | Fixed size, index access |
+| Dynamic Array | O(1) | O(n) | O(1) amortized | O(n) | Most general lists |
+| Linked List | O(n) | O(n) | O(1) | O(1) | Frequent insert/delete at head |
+| Hash Map | O(1) avg | O(1) avg | O(1) avg | O(1) avg | Fast key lookup |
+| Binary Search Tree | O(log n) | O(log n) | O(log n) | O(log n) | Sorted data, range queries |
+| Heap | O(1) top | O(n) | O(log n) | O(log n) | Priority queue, top-K problems |
+| Stack | O(n) | O(n) | O(1) | O(1) | LIFO, undo, call stack |
+| Queue | O(n) | O(n) | O(1) | O(1) | FIFO, BFS |
+
+---
+
+## The Golden Rule
+
+Use the simplest structure that fits. An array beats a linked list for 95% of cases because of cache locality. A hash map beats a sorted array for lookup-heavy workloads.
+
+---
+
+*Last updated: September 2026.*

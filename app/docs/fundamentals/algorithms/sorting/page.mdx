@@ -1,0 +1,114 @@
+export const metadata = {
+  title: "Sorting Algorithms | Wayan Phantom",
+  description: "Notes on sorting algorithms — merge sort, quick sort, and when to use what.",
+};
+
+# Sorting Algorithms
+
+In practice: use the built-in sort. But knowing how sorting works helps you understand time complexity, stability, and when custom comparators matter.
+
+---
+
+## Complexity Comparison
+
+| Algorithm | Best | Average | Worst | Space | Stable |
+|-----------|------|---------|-------|-------|--------|
+| Bubble Sort | O(n) | O(n²) | O(n²) | O(1) | Yes |
+| Selection Sort | O(n²) | O(n²) | O(n²) | O(1) | No |
+| Insertion Sort | O(n) | O(n²) | O(n²) | O(1) | Yes |
+| Merge Sort | O(n log n) | O(n log n) | O(n log n) | O(n) | Yes |
+| Quick Sort | O(n log n) | O(n log n) | O(n²) | O(log n) | No |
+| Heap Sort | O(n log n) | O(n log n) | O(n log n) | O(1) | No |
+
+**Use merge sort** when stability matters (preserves relative order of equal elements). **Use quicksort** for in-place, cache-friendly sorting. JavaScript's built-in uses Timsort (merge + insertion).
+
+---
+
+## Merge Sort
+
+```typescript
+function mergeSort(arr: number[]): number[] {
+  if (arr.length <= 1) return arr;
+
+  const mid = Math.floor(arr.length / 2);
+  const left = mergeSort(arr.slice(0, mid));
+  const right = mergeSort(arr.slice(mid));
+
+  return merge(left, right);
+}
+
+function merge(left: number[], right: number[]): number[] {
+  const result: number[] = [];
+  let i = 0, j = 0;
+
+  while (i < left.length && j < right.length) {
+    if (left[i] <= right[j]) result.push(left[i++]);
+    else result.push(right[j++]);
+  }
+  return [...result, ...left.slice(i), ...right.slice(j)];
+}
+```
+
+---
+
+## Quick Sort
+
+```typescript
+function quickSort(arr: number[], low = 0, high = arr.length - 1): void {
+  if (low >= high) return;
+  const pivot = partition(arr, low, high);
+  quickSort(arr, low, pivot - 1);
+  quickSort(arr, pivot + 1, high);
+}
+
+function partition(arr: number[], low: number, high: number): number {
+  const pivot = arr[high];
+  let i = low - 1;
+
+  for (let j = low; j < high; j++) {
+    if (arr[j] <= pivot) {
+      i++;
+      [arr[i], arr[j]] = [arr[j], arr[i]];
+    }
+  }
+  [arr[i + 1], arr[high]] = [arr[high], arr[i + 1]];
+  return i + 1;
+}
+```
+
+---
+
+## Custom Sort with Comparator
+
+```typescript
+// Sort by length, then alphabetically
+const words = ["banana", "apple", "fig", "cherry"];
+words.sort((a, b) => a.length - b.length || a.localeCompare(b));
+// ["fig", "apple", "banana", "cherry"]
+
+// Sort objects by field
+const people = [{ name: "Wayan", age: 25 }, { name: "Alice", age: 30 }];
+people.sort((a, b) => a.age - b.age);
+```
+
+---
+
+## Counting Sort (for small integer range)
+
+O(n + k) where k is the range. Much faster than comparison sorts for the right input.
+
+```typescript
+function countingSort(arr: number[], max: number): number[] {
+  const count = new Array(max + 1).fill(0);
+  for (const n of arr) count[n]++;
+  const result: number[] = [];
+  for (let i = 0; i <= max; i++) {
+    while (count[i]-- > 0) result.push(i);
+  }
+  return result;
+}
+```
+
+---
+
+*Last updated: September 2026.*

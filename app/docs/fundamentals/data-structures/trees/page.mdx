@@ -1,0 +1,137 @@
+export const metadata = {
+  title: "Trees & Graphs | Wayan Phantom",
+  description: "Notes on trees and graphs — traversals, BST, BFS, DFS.",
+};
+
+# Trees & Graphs
+
+Trees are hierarchical structures. Graphs are generalizations of trees — nodes with edges, possibly cyclic.
+
+---
+
+## Binary Tree Node
+
+```typescript
+class TreeNode {
+  val: number;
+  left: TreeNode | null;
+  right: TreeNode | null;
+  constructor(val: number) {
+    this.val = val;
+    this.left = null;
+    this.right = null;
+  }
+}
+```
+
+---
+
+## Tree Traversals
+
+```typescript
+// Inorder: left → root → right (gives sorted output for BST)
+function inorder(root: TreeNode | null): number[] {
+  if (!root) return [];
+  return [...inorder(root.left), root.val, ...inorder(root.right)];
+}
+
+// Preorder: root → left → right
+function preorder(root: TreeNode | null): number[] {
+  if (!root) return [];
+  return [root.val, ...preorder(root.left), ...preorder(root.right)];
+}
+
+// Level order (BFS)
+function levelOrder(root: TreeNode | null): number[][] {
+  if (!root) return [];
+  const result: number[][] = [];
+  const queue: TreeNode[] = [root];
+
+  while (queue.length) {
+    const level: number[] = [];
+    const size = queue.length;
+    for (let i = 0; i < size; i++) {
+      const node = queue.shift()!;
+      level.push(node.val);
+      if (node.left) queue.push(node.left);
+      if (node.right) queue.push(node.right);
+    }
+    result.push(level);
+  }
+  return result;
+}
+```
+
+---
+
+## Binary Search Tree (BST)
+
+Left child < node < right child. Inorder traversal gives sorted order.
+
+```typescript
+function searchBST(root: TreeNode | null, val: number): TreeNode | null {
+  if (!root) return null;
+  if (root.val === val) return root;
+  return val < root.val
+    ? searchBST(root.left, val)
+    : searchBST(root.right, val);
+}
+
+function insertBST(root: TreeNode | null, val: number): TreeNode {
+  if (!root) return new TreeNode(val);
+  if (val < root.val) root.left = insertBST(root.left, val);
+  else root.right = insertBST(root.right, val);
+  return root;
+}
+```
+
+---
+
+## Graph: DFS and BFS
+
+```typescript
+type Graph = Map<number, number[]>;
+
+// DFS — recursive
+function dfs(graph: Graph, node: number, visited = new Set<number>()): void {
+  if (visited.has(node)) return;
+  visited.add(node);
+  console.log(node);
+  for (const neighbor of graph.get(node) ?? []) {
+    dfs(graph, neighbor, visited);
+  }
+}
+
+// BFS — iterative
+function bfs(graph: Graph, start: number): number[] {
+  const visited = new Set<number>();
+  const queue = [start];
+  const order: number[] = [];
+
+  while (queue.length) {
+    const node = queue.shift()!;
+    if (visited.has(node)) continue;
+    visited.add(node);
+    order.push(node);
+    for (const neighbor of graph.get(node) ?? []) {
+      queue.push(neighbor);
+    }
+  }
+  return order;
+}
+```
+
+---
+
+## Max Depth of Binary Tree
+
+```typescript
+function maxDepth(root: TreeNode | null): number {
+  if (!root) return 0;
+  return 1 + Math.max(maxDepth(root.left), maxDepth(root.right));
+}
+```
+
+---
+
+*Last updated: September 2026.*

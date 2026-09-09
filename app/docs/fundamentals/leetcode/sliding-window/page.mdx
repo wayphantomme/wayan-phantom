@@ -1,0 +1,149 @@
+export const metadata = {
+  title: "Sliding Window | Wayan Phantom",
+  description: "Notes on the sliding window pattern for subarray and substring problems.",
+};
+
+# Sliding Window
+
+Use when you need to find a subarray or substring that satisfies a constraint. Avoids the O(n²) brute force by maintaining a window that expands and contracts in one pass.
+
+---
+
+## Fixed Size Window
+
+Window size is constant. Slide it one step at a time.
+
+```typescript
+// Maximum sum of subarray of size k
+function maxSumSubarray(nums: number[], k: number): number {
+  let windowSum = nums.slice(0, k).reduce((a, b) => a + b, 0);
+  let maxSum = windowSum;
+
+  for (let i = k; i < nums.length; i++) {
+    windowSum += nums[i] - nums[i - k]; // add new, remove old
+    maxSum = Math.max(maxSum, windowSum);
+  }
+  return maxSum;
+}
+```
+
+---
+
+## Variable Size Window
+
+Window expands when valid, shrinks when constraint is violated.
+
+```typescript
+// Longest subarray with sum <= target
+function longestSubarrayWithSum(nums: number[], target: number): number {
+  let left = 0;
+  let sum = 0;
+  let maxLen = 0;
+
+  for (let right = 0; right < nums.length; right++) {
+    sum += nums[right];
+
+    while (sum > target) {
+      sum -= nums[left];
+      left++;
+    }
+
+    maxLen = Math.max(maxLen, right - left + 1);
+  }
+  return maxLen;
+}
+```
+
+---
+
+## Longest Substring Without Repeating Characters
+
+Classic sliding window with a Set to track characters in window.
+
+```typescript
+function lengthOfLongestSubstring(s: string): number {
+  const seen = new Set<string>();
+  let left = 0;
+  let maxLen = 0;
+
+  for (let right = 0; right < s.length; right++) {
+    while (seen.has(s[right])) {
+      seen.delete(s[left]);
+      left++;
+    }
+    seen.add(s[right]);
+    maxLen = Math.max(maxLen, right - left + 1);
+  }
+  return maxLen;
+}
+```
+
+---
+
+## Minimum Window Substring
+
+Find the smallest substring that contains all characters of a target string.
+
+```typescript
+function minWindow(s: string, t: string): string {
+  const need = new Map<string, number>();
+  for (const c of t) need.set(c, (need.get(c) ?? 0) + 1);
+
+  let have = 0;
+  const required = need.size;
+  const window = new Map<string, number>();
+  let left = 0;
+  let minLen = Infinity;
+  let result = "";
+
+  for (let right = 0; right < s.length; right++) {
+    const c = s[right];
+    window.set(c, (window.get(c) ?? 0) + 1);
+
+    if (need.has(c) && window.get(c) === need.get(c)) have++;
+
+    while (have === required) {
+      if (right - left + 1 < minLen) {
+        minLen = right - left + 1;
+        result = s.slice(left, right + 1);
+      }
+      const leftChar = s[left];
+      window.set(leftChar, window.get(leftChar)! - 1);
+      if (need.has(leftChar) && window.get(leftChar)! < need.get(leftChar)!) {
+        have--;
+      }
+      left++;
+    }
+  }
+  return result;
+}
+```
+
+---
+
+## Template
+
+```typescript
+function slidingWindow(input: any[], constraint: any): any {
+  let left = 0;
+  let result = initialValue;
+  // state variables for the window
+
+  for (let right = 0; right < input.length; right++) {
+    // expand window: add input[right] to state
+
+    while (/* constraint violated */) {
+      // shrink window: remove input[left] from state
+      left++;
+    }
+
+    // update result with current valid window
+    result = Math.max(result, right - left + 1);
+  }
+  return result;
+}
+```
+
+---
+
+*Last updated: September 2026.*
