@@ -1,0 +1,304 @@
+export const metadata = {
+  title: "Social / Creator Economy | Industry Domains | Wayan Phantom",
+  description: "Technical implementation patterns for social platforms and creator economies — feed algorithm, follow graph, monetization models, and content moderation.",
+};
+
+# Social / Creator Economy
+
+Social platforms are deceptively complex. A feed looks simple but requires a graph database, a real-time pub/sub system, and a ranking algorithm working together. Creator monetization adds payment rails and subscription logic on top.
+
+---
+
+## Core Data Model
+
+```typescript
+interface User {
+  id:           string;
+  username:     string;      // unique handle
+  displayName:  string;
+  bio:          string;
+  avatarUrl:    string;
+  isCreator:    boolean;
+  isVerified:   boolean;
+  followersCount: number;    // denormalized for performance
+  followingCount: number;
+  createdAt:    Date;
+}
+
+interface Post {
+  id:           string;
+  authorId:     string;
+  type:         "text" | "image" | "video" | "article" | "poll";
+  content:      string;
+  mediaUrls:    string[];
+  visibility:   "public" | "followers" | "subscribers" | "private";
+  status:       "published" | "draft" | "archived" | "removed";
+  likesCount:   number;      // denormalized
+  commentsCount: number;
+  sharesCount:  number;
+  tags:         string[];
+  publishedAt:  Date;
+  createdAt:    Date;
+}
+
+interface Follow {
+  followerId:  string;
+  followingId: string;
+  createdAt:   Date;
+  // Notifications preference
+  notifyOnPost: boolean;
+}
+```
+
+---
+
+## Feed Algorithm
+
+A feed isn't just chronological. It's a ranked list based on relevance, recency, and engagement.
+
+```typescript
+interface FeedItem {
+  postId:     string;
+  score:      number;
+  reason:     "following" | "recommended" | "trending" | "sponsored";
+}
+
+// Score a post for a specific user's feed
+function scorePost(
+  post: Post,
+  author: User,
+  userRelationship: {
+    isFollowing:   boolean;
+    interactedWith: boolean;  // liked/commented recently
+    mutualFollows: number;
+  },
+  now: Date
+): number {
+  let score = 0;
+
+  // Recency — exponential decay over 48 hours
+  const ageHours = (now.getTime() - post.publishedAt.getTime()) / (1000 * 60 * 60);
+  const recencyScore = Math.exp(-ageHours / 24);   // half-life of 24 hours
+  score += recencyScore * 40;
+
+  // Engagement — normalized by follower count
+  const engagementRate = author.followersCount > 0
+    ? (post.likesCount + post.commentsCount * 2 + post.sharesCount * 3) / author.followersCount
+    : 0;
+  score += Math.min(engagementRate * 100, 30);  // cap at 30
+
+  // Relationship signals
+  if (userRelationship.isFollowing)    score += 15;
+  if (userRelationship.interactedWith) score += 10;
+  score += Math.min(userRelationship.mutualFollows * 2, 10);
+
+  // Creator boost
+  if (author.isVerified) score += 5;
+
+  return score;
+}
+
+// Build feed for a user
+async function buildFeed(userId: string, page: number, limit = 20): Promise<FeedItem[]> {
+  const following = await db.follow.findMany({
+    where:  { followerId: userId },
+    select: { followingId: true },
+  });
+  const followingIds = following.map(f => f.followingId);
+
+  // Get recent posts from followed users + recommended
+  const [followingPosts, recommended] = await Promise.all([
+    db.post.findMany({
+      where:   { authorId: { in: followingIds }, status: "published" },
+      orderBy: { publishedAt: "desc" },
+      take:    100,
+    }),
+    getRecommendedPosts(userId, 50),
+  ]);
+
+  const now   = new Date();
+  const items = [...followingPosts, ...recommended].map(post => ({
+    postId: post.id,
+    score:  scorePost(post, post.author, getRelationship(userId, post.authorId), now),
+    reason: followingIds.includes(post.authorId) ? "following" : "recommended" as const,
+  }));
+
+  // Sort by score, deduplicate
+  const seen = new Set<string>();
+  return items
+    .sort((a, b) => b.score - a.score)
+    .filter(item => !seen.has(item.postId) && seen.add(item.postId))
+    .slice((page - 1) * limit, page * limit);
+}
+```
+
+---
+
+## Real-Time Notifications
+
+```typescript
+interface Notification {
+  id:         string;
+  userId:     string;       // recipient
+  type:       "like" | "comment" | "follow" | "mention" | "reply" | "new_post" | "subscription";
+  actorId:    string;       // who triggered it
+  postId:     string | null;
+  read:       boolean;
+  createdAt:  Date;
+}
+
+// Emit notification when someone likes a post
+async function onPostLiked(postId: string, likerId: string) {
+  const post = await db.post.findUniqueOrThrow({ where: { id: postId } });
+  if (post.authorId === likerId) return;  // don't notify self-likes
+
+  const notification = await db.notification.create({
+    data: { userId: post.authorId, type: "like", actorId: likerId, postId },
+  });
+
+  // Push to WebSocket / SSE if user is online
+  await pubsub.publish(`notifications:${post.authorId}`, notification);
+
+  // Increment like count (denormalized)
+  await db.post.update({ where: { id: postId }, data: { likesCount: { increment: 1 } } });
+}
+```
+
+---
+
+## Creator Monetization
+
+```typescript
+type SubscriptionTier = "free" | "supporter" | "member" | "superfan";
+
+interface CreatorSubscription {
+  id:         string;
+  creatorId:  string;
+  subscriberId: string;
+  tier:       SubscriptionTier;
+  price:      bigint;        // monthly in cents
+  currency:   string;
+  status:     "active" | "cancelled" | "past_due";
+  renewsAt:   Date;
+  cancelledAt: Date | null;
+  stripeSubscriptionId: string;
+}
+
+// Tier-based content access
+const TIER_ACCESS: Record<SubscriptionTier, string[]> = {
+  free:       ["public"],
+  supporter:  ["public", "followers"],
+  member:     ["public", "followers", "subscribers"],
+  superfan:   ["public", "followers", "subscribers", "exclusive"],
+};
+
+async function canViewPost(userId: string, post: Post): Promise<boolean> {
+  if (post.visibility === "public") return true;
+
+  const sub = await db.creatorSubscription.findUnique({
+    where:  { creatorId_subscriberId: { creatorId: post.authorId, subscriberId: userId } },
+  });
+
+  const tier = sub?.status === "active" ? sub.tier : "free";
+  return TIER_ACCESS[tier].includes(post.visibility);
+}
+
+// Creator earnings summary
+async function getCreatorEarnings(creatorId: string, month: string) {
+  const subs = await db.creatorSubscription.findMany({
+    where: { creatorId, status: "active" },
+  });
+
+  const gross = subs.reduce((sum, s) => sum + s.price, 0n);
+  const platformFee = gross * 10n / 100n;  // 10% platform cut
+  const net = gross - platformFee;
+
+  return { gross, platformFee, net, subscriberCount: subs.length };
+}
+```
+
+---
+
+## Content Moderation
+
+```typescript
+type ModerationStatus = "pending" | "approved" | "flagged" | "removed" | "appealed";
+
+interface ModerationFlag {
+  id:         string;
+  contentId:  string;
+  contentType: "post" | "comment" | "profile";
+  reporterId: string;
+  reason:     "spam" | "harassment" | "misinformation" | "adult" | "violence" | "copyright" | "other";
+  detail:     string;
+  status:     ModerationStatus;
+  reviewerId: string | null;
+  decision:   string | null;
+  createdAt:  Date;
+  reviewedAt: Date | null;
+}
+
+// Auto-moderation — flag content before human review
+async function autoModerate(postId: string, content: string): Promise<void> {
+  const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
+
+  const result = await model.generateContent(`
+    Analyze this content for policy violations.
+    Return JSON: { "safe": boolean, "reason": string | null, "severity": "low" | "medium" | "high" | null }
+    Content: ${content}
+  `);
+
+  const verdict = JSON.parse(result.response.text());
+
+  if (!verdict.safe) {
+    if (verdict.severity === "high") {
+      // Auto-remove high severity content immediately
+      await db.post.update({ where: { id: postId }, data: { status: "removed" } });
+    } else {
+      // Queue for human review
+      await db.moderationFlag.create({
+        data: {
+          contentId:   postId,
+          contentType: "post",
+          reporterId:  "system",
+          reason:      "other",
+          detail:      verdict.reason ?? "Auto-flagged",
+          status:      "pending",
+        },
+      });
+    }
+  }
+}
+```
+
+---
+
+## Trending Algorithm
+
+```typescript
+// Trending score: engagement velocity over the last 2 hours
+async function getTrending(limit = 10): Promise<Post[]> {
+  const twoHoursAgo = new Date(Date.now() - 2 * 60 * 60 * 1000);
+
+  // Count recent interactions per post
+  const trending = await db.$queryRaw<{ postId: string; score: number }[]>`
+    SELECT
+      "postId",
+      COUNT(*) * 1 +
+      SUM(CASE WHEN type = 'share' THEN 2 ELSE 0 END) +
+      SUM(CASE WHEN type = 'comment' THEN 1.5 ELSE 0 END) AS score
+    FROM "Interaction"
+    WHERE "createdAt" > ${twoHoursAgo}
+    GROUP BY "postId"
+    ORDER BY score DESC
+    LIMIT ${limit}
+  `;
+
+  const postIds = trending.map(t => t.postId);
+  return db.post.findMany({ where: { id: { in: postIds }, status: "published" } });
+}
+```
+
+---
+
+*Last updated: September 2026.*

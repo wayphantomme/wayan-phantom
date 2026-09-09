@@ -1,0 +1,277 @@
+export const metadata = {
+  title: "Legal Tech | Industry Domains | Wayan Phantom",
+  description: "Technical implementation patterns for legal tech — document versioning, e-signature flow, contract lifecycle management, and access control.",
+};
+
+# Legal Tech
+
+Legal software has two core requirements that shape everything: documents must be immutable once signed, and every action must be attributable to a specific person at a specific time. The tech patterns that satisfy these are surprisingly similar to blockchain.
+
+---
+
+## Document Versioning
+
+Legal documents go through many drafts before signing. Every version must be preserved — you can never truly delete a version.
+
+```typescript
+interface Document {
+  id:          string;
+  title:       string;
+  type:        "contract" | "nda" | "agreement" | "amendment" | "addendum";
+  status:      "draft" | "review" | "pending_signature" | "executed" | "expired" | "terminated";
+  ownerId:     string;
+  matterId:    string;       // legal matter / case this belongs to
+  createdAt:   Date;
+  updatedAt:   Date;
+  currentVersionId: string;
+}
+
+interface DocumentVersion {
+  id:          string;
+  documentId:  string;
+  versionNumber: number;     // monotonically increasing
+  content:     string;       // raw text or HTML
+  contentHash: string;       // SHA-256 of content — tamper detection
+  fileUrl:     string;       // stored PDF in object storage
+  authorId:    string;
+  changeNote:  string;
+  createdAt:   Date;
+}
+
+// Create a new version — never modify an existing one
+async function createDocumentVersion(
+  documentId: string,
+  content: string,
+  authorId: string,
+  changeNote: string
+) {
+  const latest = await db.documentVersion.findFirst({
+    where:   { documentId },
+    orderBy: { versionNumber: "desc" },
+  });
+
+  const contentHash = crypto.createHash("sha256").update(content).digest("hex");
+  const fileUrl     = await uploadToPDF(content, documentId);
+
+  const version = await db.documentVersion.create({
+    data: {
+      documentId,
+      versionNumber: (latest?.versionNumber ?? 0) + 1,
+      content,
+      contentHash,
+      fileUrl,
+      authorId,
+      changeNote,
+    },
+  });
+
+  await db.document.update({
+    where: { id: documentId },
+    data:  { currentVersionId: version.id, updatedAt: new Date() },
+  });
+
+  return version;
+}
+
+// Verify a document hasn't been tampered with
+async function verifyDocumentIntegrity(versionId: string): Promise<boolean> {
+  const version = await db.documentVersion.findUniqueOrThrow({ where: { id: versionId } });
+  const actual  = crypto.createHash("sha256").update(version.content).digest("hex");
+  return actual === version.contentHash;
+}
+```
+
+---
+
+## E-Signature Flow
+
+The signing process: invite signers → each signer authenticates → signs → all parties get the final executed document.
+
+```typescript
+type SignerStatus = "pending" | "viewed" | "signed" | "declined";
+
+interface Signer {
+  id:         string;
+  documentId: string;
+  name:       string;
+  email:      string;
+  role:       string;       // "client", "counterparty", "witness"
+  order:      number;       // signing order (1 must sign before 2)
+  status:     SignerStatus;
+  token:      string;       // secure one-time token for signing link
+  viewedAt:   Date | null;
+  signedAt:   Date | null;
+  ipAddress:  string | null;
+  userAgent:  string | null;
+  signatureData: string | null;  // base64 encoded signature image
+}
+
+// Generate a secure signing link
+async function createSigningLink(documentId: string, signerEmail: string): Promise<string> {
+  const token = crypto.randomBytes(32).toString("hex");
+
+  await db.signer.update({
+    where: { documentId_email: { documentId, email: signerEmail } },
+    data:  { token },
+  });
+
+  return `https://yourapp.com/sign/${token}`;
+}
+
+// Record a signature
+async function recordSignature(
+  token: string,
+  signatureData: string,
+  ipAddress: string,
+  userAgent: string
+) {
+  const signer = await db.signer.findUniqueOrThrow({ where: { token } });
+
+  if (signer.status === "signed") throw new Error("Already signed");
+  if (signer.status === "declined") throw new Error("Signer declined");
+
+  await db.signer.update({
+    where: { token },
+    data: {
+      status:        "signed",
+      signedAt:      new Date(),
+      ipAddress,
+      userAgent,
+      signatureData,
+      token:         "",    // invalidate token after use
+    },
+  });
+
+  // Check if all signers have signed
+  const remaining = await db.signer.count({
+    where: { documentId: signer.documentId, status: { not: "signed" } },
+  });
+
+  if (remaining === 0) {
+    await finalizeDocument(signer.documentId);
+  }
+}
+
+// Finalize — lock the document and notify all parties
+async function finalizeDocument(documentId: string) {
+  await db.document.update({
+    where: { id: documentId },
+    data:  { status: "executed" },
+  });
+
+  // Generate final executed PDF with all signatures embedded
+  await generateExecutedPDF(documentId);
+  await notifyAllSigners(documentId);
+}
+```
+
+---
+
+## Contract Lifecycle
+
+```typescript
+type ContractStatus =
+  | "draft"
+  | "internal_review"
+  | "sent_for_review"
+  | "negotiation"
+  | "pending_signature"
+  | "executed"
+  | "active"
+  | "expiring_soon"
+  | "expired"
+  | "terminated"
+  | "renewed";
+
+const LIFECYCLE_TRANSITIONS: Record<ContractStatus, ContractStatus[]> = {
+  draft:              ["internal_review", "terminated"],
+  internal_review:    ["sent_for_review", "draft"],
+  sent_for_review:    ["negotiation", "internal_review"],
+  negotiation:        ["pending_signature", "sent_for_review", "terminated"],
+  pending_signature:  ["executed", "negotiation"],
+  executed:           ["active"],
+  active:             ["expiring_soon", "terminated"],
+  expiring_soon:      ["expired", "renewed", "terminated"],
+  expired:            ["renewed"],
+  terminated:         [],
+  renewed:            ["active"],
+};
+
+interface Contract {
+  id:            string;
+  documentId:    string;
+  title:         string;
+  status:        ContractStatus;
+  parties:       string[];       // party names
+  value:         bigint | null;  // contract value in cents
+  currency:      string;
+  startDate:     Date | null;
+  endDate:       Date | null;
+  autoRenew:     boolean;
+  renewalNoticeDays: number;     // notify X days before expiry
+  tags:          string[];
+  createdAt:     Date;
+}
+
+// Scheduled job — check for contracts expiring soon
+async function checkExpiringContracts() {
+  const warningDate = new Date();
+  warningDate.setDate(warningDate.getDate() + 30);
+
+  const expiring = await db.contract.findMany({
+    where: {
+      status:  "active",
+      endDate: { lte: warningDate, gt: new Date() },
+    },
+  });
+
+  for (const contract of expiring) {
+    await db.contract.update({ where: { id: contract.id }, data: { status: "expiring_soon" } });
+    await sendExpiryNotification(contract);
+  }
+}
+```
+
+---
+
+## Matter & Case Management
+
+```typescript
+interface Matter {
+  id:          string;
+  title:       string;
+  type:        "litigation" | "corporate" | "real_estate" | "ip" | "employment";
+  status:      "open" | "active" | "on_hold" | "closed";
+  clientId:    string;
+  assignedTo:  string[];    // lawyer IDs
+  openedAt:    Date;
+  closedAt:    Date | null;
+  billableHours: number;
+  documents:   string[];    // document IDs
+  notes:       string;
+}
+```
+
+---
+
+## Audit Trail
+
+Every view, edit, and signature event is logged — the legal equivalent of a chain of custody.
+
+```typescript
+interface LegalAuditLog {
+  id:         string;
+  timestamp:  Date;
+  actorId:    string;
+  actorEmail: string;
+  action:     "viewed" | "edited" | "commented" | "shared" | "signed" | "declined" | "downloaded";
+  documentId: string;
+  versionId:  string | null;
+  ipAddress:  string;
+  detail:     string;
+}
+```
+
+---
+
+*Last updated: September 2026.*

@@ -1,0 +1,331 @@
+export const metadata = {
+  title: "AI Products | Industry Domains | Wayan Phantom",
+  description: "Technical implementation patterns for AI products — agent memory, domain-specific RAG, evaluation pipeline, and chatbot architecture.",
+};
+
+# AI Products
+
+Building AI-powered products is less about the model and more about the surrounding system: how you feed it context, how you store what it knows, and how you know when it's wrong.
+
+---
+
+## Chatbot Architecture
+
+The minimal production chatbot: streaming responses, conversation history, system prompt per domain.
+
+```typescript
+// app/api/chat/route.ts
+import { GoogleGenerativeAI } from "@google/generative-ai";
+
+const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY!);
+
+export async function POST(req: NextRequest) {
+  const { messages, sessionId, domain } = await req.json();
+
+  // Load conversation history from DB
+  const history = await db.message.findMany({
+    where:   { sessionId },
+    orderBy: { createdAt: "asc" },
+    take:    20,   // keep last 20 turns in context
+  });
+
+  const model = genAI.getGenerativeModel({
+    model:          "gemini-2.0-flash",
+    systemInstruction: getSystemPrompt(domain),
+  });
+
+  const chat = model.startChat({
+    history: history.map(m => ({
+      role:  m.role as "user" | "model",
+      parts: [{ text: m.content }],
+    })),
+  });
+
+  const result = await chat.sendMessageStream(messages.at(-1).content);
+
+  // Persist user message
+  await db.message.create({
+    data: { sessionId, role: "user", content: messages.at(-1).content },
+  });
+
+  // Stream response and accumulate for persistence
+  let fullResponse = "";
+  const stream = new ReadableStream({
+    async start(controller) {
+      for await (const chunk of result.stream) {
+        const text = chunk.text();
+        fullResponse += text;
+        controller.enqueue(new TextEncoder().encode(text));
+      }
+      controller.close();
+
+      // Persist model response after stream ends
+      await db.message.create({
+        data: { sessionId, role: "model", content: fullResponse },
+      });
+    },
+  });
+
+  return new Response(stream, {
+    headers: { "Content-Type": "text/plain; charset=utf-8" },
+  });
+}
+
+function getSystemPrompt(domain: string): string {
+  const prompts: Record<string, string> = {
+    healthcare: "You are a medical information assistant. Provide accurate health information but always recommend consulting a licensed physician for medical decisions.",
+    legal:      "You are a legal information assistant. Explain legal concepts clearly but always recommend consulting a licensed attorney for legal advice.",
+    finance:    "You are a financial information assistant. Explain financial concepts clearly but always recommend consulting a licensed financial advisor.",
+    default:    "You are a helpful assistant.",
+  };
+  return prompts[domain] ?? prompts.default;
+}
+```
+
+---
+
+## Agent Memory
+
+Agents need memory beyond the context window. Three layers: in-context (current conversation), short-term (recent sessions), long-term (facts about the user).
+
+```typescript
+interface Memory {
+  id:         string;
+  agentId:    string;
+  userId:     string;
+  type:       "fact" | "preference" | "goal" | "context";
+  content:    string;      // "User prefers TypeScript over JavaScript"
+  source:     string;      // which conversation this was extracted from
+  importance: number;      // 1-5, used for retrieval ranking
+  embedding:  number[];    // vector for semantic search
+  createdAt:  Date;
+  lastUsedAt: Date;
+  expiresAt:  Date | null;
+}
+
+// Extract and store memories from a conversation turn
+async function extractMemories(
+  userId: string,
+  agentId: string,
+  conversation: string
+): Promise<void> {
+  // Use LLM to extract key facts from the conversation
+  const extraction = await genAI.getGenerativeModel({ model: "gemini-2.0-flash" })
+    .generateContent(`
+      Extract key facts, preferences, and goals from this conversation.
+      Return as JSON array: [{ type, content, importance }]
+      Conversation: ${conversation}
+    `);
+
+  const memories = JSON.parse(extraction.response.text());
+
+  for (const mem of memories) {
+    const embedding = await embedText(mem.content);
+    await db.memory.upsert({
+      where:  { userId_content: { userId, content: mem.content } },
+      create: { ...mem, userId, agentId, embedding, source: "conversation" },
+      update: { lastUsedAt: new Date(), importance: mem.importance },
+    });
+  }
+}
+
+// Retrieve relevant memories for a new query
+async function retrieveMemories(
+  userId: string,
+  query: string,
+  limit = 5
+): Promise<Memory[]> {
+  const queryEmbedding = await embedText(query);
+
+  // Vector similarity search (using pgvector)
+  return db.$queryRaw`
+    SELECT * FROM "Memory"
+    WHERE "userId" = ${userId}
+    ORDER BY embedding <=> ${queryEmbedding}::vector
+    LIMIT ${limit}
+  `;
+}
+```
+
+---
+
+## Domain-Specific RAG
+
+Retrieval-Augmented Generation: inject relevant documents into the prompt so the model answers from your data, not just its training.
+
+```typescript
+interface Document {
+  id:        string;
+  content:   string;
+  source:    string;    // URL, filename, etc.
+  domain:    string;    // "healthcare", "legal", etc.
+  embedding: number[];
+  createdAt: Date;
+}
+
+// Ingest pipeline — chunk, embed, store
+async function ingestDocument(content: string, source: string, domain: string) {
+  // 1. Chunk into overlapping segments
+  const chunks = chunkText(content, { size: 512, overlap: 64 });
+
+  // 2. Embed each chunk
+  const embeddings = await Promise.all(chunks.map(embedText));
+
+  // 3. Store with embeddings
+  await db.document.createMany({
+    data: chunks.map((chunk, i) => ({
+      content:   chunk,
+      source,
+      domain,
+      embedding: embeddings[i],
+    })),
+  });
+}
+
+function chunkText(text: string, opts: { size: number; overlap: number }): string[] {
+  const words  = text.split(" ");
+  const chunks: string[] = [];
+
+  for (let i = 0; i < words.length; i += opts.size - opts.overlap) {
+    chunks.push(words.slice(i, i + opts.size).join(" "));
+    if (i + opts.size >= words.length) break;
+  }
+  return chunks;
+}
+
+// Query pipeline — retrieve → augment → generate
+async function ragQuery(query: string, domain: string): Promise<string> {
+  // 1. Embed the query
+  const queryEmbedding = await embedText(query);
+
+  // 2. Find most relevant chunks
+  const docs = await db.$queryRaw<Document[]>`
+    SELECT content, source
+    FROM "Document"
+    WHERE domain = ${domain}
+    ORDER BY embedding <=> ${queryEmbedding}::vector
+    LIMIT 5
+  `;
+
+  // 3. Build augmented prompt
+  const context = docs.map(d => `[${d.source}]\n${d.content}`).join("\n\n---\n\n");
+
+  const prompt = `
+    Answer the question using only the context provided below.
+    If the answer is not in the context, say "I don't have that information."
+
+    Context:
+    ${context}
+
+    Question: ${query}
+  `;
+
+  // 4. Generate
+  const model  = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
+  const result = await model.generateContent(prompt);
+  return result.response.text();
+}
+```
+
+---
+
+## Evaluation Pipeline
+
+You can't improve what you don't measure. Evaluate responses automatically.
+
+```typescript
+interface EvalCase {
+  id:             string;
+  query:          string;
+  expectedAnswer: string;
+  domain:         string;
+}
+
+interface EvalResult {
+  caseId:         string;
+  actualAnswer:   string;
+  scores: {
+    relevance:    number;   // 0-1: does the answer address the question?
+    accuracy:     number;   // 0-1: is the answer factually correct?
+    conciseness:  number;   // 0-1: is the answer appropriately concise?
+  };
+  overall:        number;
+  runAt:          Date;
+}
+
+// LLM-as-judge evaluation
+async function evaluateResponse(
+  query: string,
+  expected: string,
+  actual: string
+): Promise<EvalResult["scores"]> {
+  const judge = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
+
+  const result = await judge.generateContent(`
+    Score this AI response on three dimensions (0.0 to 1.0 each).
+    Return only JSON: { "relevance": 0.0, "accuracy": 0.0, "conciseness": 0.0 }
+
+    Question: ${query}
+    Expected answer: ${expected}
+    Actual answer: ${actual}
+  `);
+
+  return JSON.parse(result.response.text());
+}
+
+// Run full eval suite
+async function runEvalSuite(domain: string) {
+  const cases  = await db.evalCase.findMany({ where: { domain } });
+  const results: EvalResult[] = [];
+
+  for (const c of cases) {
+    const actual = await ragQuery(c.query, domain);
+    const scores = await evaluateResponse(c.query, c.expectedAnswer, actual);
+    const overall = (scores.relevance + scores.accuracy + scores.conciseness) / 3;
+
+    results.push({ caseId: c.id, actualAnswer: actual, scores, overall, runAt: new Date() });
+  }
+
+  const avgScore = results.reduce((s, r) => s + r.overall, 0) / results.length;
+  console.log(`Eval complete. Avg score: ${(avgScore * 100).toFixed(1)}%`);
+  return results;
+}
+```
+
+---
+
+## Rate Limiting & Cost Control
+
+```typescript
+// Track token usage per user to control costs
+interface UsageRecord {
+  userId:       string;
+  date:         string;      // "YYYY-MM-DD"
+  inputTokens:  number;
+  outputTokens: number;
+  requests:     number;
+}
+
+const DAILY_LIMITS = {
+  free:    { requests: 20,  tokens: 10_000 },
+  pro:     { requests: 200, tokens: 100_000 },
+  enterprise: { requests: Infinity, tokens: Infinity },
+};
+
+async function checkRateLimit(userId: string, tier: keyof typeof DAILY_LIMITS) {
+  const today  = new Date().toISOString().split("T")[0];
+  const usage  = await db.usageRecord.findUnique({ where: { userId_date: { userId, date: today } } });
+  const limits = DAILY_LIMITS[tier];
+
+  if (usage && usage.requests >= limits.requests) {
+    throw new Error("Daily request limit reached");
+  }
+  if (usage && (usage.inputTokens + usage.outputTokens) >= limits.tokens) {
+    throw new Error("Daily token limit reached");
+  }
+}
+```
+
+---
+
+*Last updated: September 2026.*

@@ -1,0 +1,259 @@
+export const metadata = {
+  title: "Logistics | Industry Domains | Wayan Phantom",
+  description: "Technical implementation patterns for logistics — shipment event sourcing, real-time tracking, route optimization, and delivery state machines.",
+};
+
+# Logistics
+
+Logistics software tracks physical objects moving through space and time. The key insight is that a shipment's history is more important than its current state — you need to know not just where it is, but everything that happened to it.
+
+---
+
+## Event Sourcing for Shipments
+
+Instead of storing just the current state, store every event that happened. The current state is always derived from the event history.
+
+```typescript
+// Every physical event is appended — never updated
+type ShipmentEventType =
+  | "created"
+  | "picked_up"
+  | "arrived_at_facility"
+  | "departed_facility"
+  | "out_for_delivery"
+  | "delivered"
+  | "delivery_attempted"
+  | "returned_to_sender"
+  | "lost"
+  | "damaged";
+
+interface ShipmentEvent {
+  id:          string;
+  shipmentId:  string;
+  type:        ShipmentEventType;
+  timestamp:   Date;
+  location:    GeoPoint | null;
+  facilityId:  string | null;
+  description: string;
+  operatorId:  string;          // who scanned / logged this event
+  metadata:    Record<string, unknown>;
+}
+
+interface GeoPoint {
+  lat: number;
+  lng: number;
+}
+
+// Derive current status from event history
+function deriveShipmentStatus(events: ShipmentEvent[]): ShipmentEventType {
+  if (events.length === 0) return "created";
+  return events.sort((a, b) => b.timestamp.getTime() - a.timestamp.getTime())[0].type;
+}
+
+// Get full tracking history (what the user sees)
+function getTrackingHistory(events: ShipmentEvent[]) {
+  return events
+    .sort((a, b) => a.timestamp.getTime() - b.timestamp.getTime())
+    .map(e => ({
+      status:    e.type,
+      timestamp: e.timestamp,
+      location:  e.facilityId ?? "In Transit",
+      message:   e.description,
+    }));
+}
+```
+
+---
+
+## Core Data Model
+
+```typescript
+interface Shipment {
+  id:              string;
+  trackingNumber:  string;       // public-facing (e.g. "JNE-1234567890")
+  senderId:        string;
+  recipientId:     string;
+  origin:          Address;
+  destination:     Address;
+  weight:          number;       // grams
+  dimensions:      { l: number; w: number; h: number };  // cm
+  serviceType:     "standard" | "express" | "overnight" | "freight";
+  status:          ShipmentEventType;
+  estimatedDelivery: Date;
+  actualDelivery:  Date | null;
+  courierId:       string | null;
+  cost:            bigint;
+  createdAt:       Date;
+}
+
+interface Address {
+  name:       string;
+  street:     string;
+  city:       string;
+  province:   string;
+  postalCode: string;
+  country:    string;
+  lat:        number | null;
+  lng:        number | null;
+  phone:      string;
+}
+
+interface Courier {
+  id:       string;
+  name:     string;
+  phone:    string;
+  vehicleId: string;
+  currentLat: number | null;
+  currentLng: number | null;
+  status:   "available" | "on_delivery" | "off_duty";
+}
+```
+
+---
+
+## Real-Time Tracking
+
+Couriers report their GPS position periodically. Clients subscribe to shipment updates via WebSocket or SSE.
+
+```typescript
+// Courier app sends location updates
+// POST /api/courier/location
+export async function POST(req: NextRequest) {
+  const { courierId, lat, lng } = await req.json();
+
+  await db.courier.update({
+    where: { id: courierId },
+    data:  { currentLat: lat, currentLng: lng },
+  });
+
+  // Find active shipments assigned to this courier
+  const shipments = await db.shipment.findMany({
+    where: { courierId, status: "out_for_delivery" },
+  });
+
+  // Broadcast to clients watching these shipments
+  for (const shipment of shipments) {
+    await pubsub.publish(`shipment:${shipment.id}`, { lat, lng, timestamp: new Date() });
+  }
+
+  return NextResponse.json({ ok: true });
+}
+
+// Client subscribes via Server-Sent Events
+// GET /api/track/[trackingNumber]
+export async function GET(_req: NextRequest, { params }: { params: { trackingNumber: string } }) {
+  const shipment = await db.shipment.findUniqueOrThrow({
+    where: { trackingNumber: params.trackingNumber },
+  });
+
+  const stream = new ReadableStream({
+    start(controller) {
+      const send = (data: unknown) => {
+        controller.enqueue(`data: ${JSON.stringify(data)}\n\n`);
+      };
+
+      const unsub = pubsub.subscribe(`shipment:${shipment.id}`, send);
+
+      // Clean up on disconnect
+      return () => unsub();
+    },
+  });
+
+  return new Response(stream, {
+    headers: {
+      "Content-Type":  "text/event-stream",
+      "Cache-Control": "no-cache",
+      "Connection":    "keep-alive",
+    },
+  });
+}
+```
+
+---
+
+## Route Optimization
+
+Assign delivery stops to minimize total distance for each courier.
+
+```typescript
+interface DeliveryStop {
+  shipmentId: string;
+  address:    Address;
+  lat:        number;
+  lng:        number;
+  priority:   "normal" | "high";  // time-sensitive deliveries first
+  timeWindow: { from: Date; to: Date } | null;
+}
+
+// Nearest-neighbor greedy algorithm (simple, good enough for small routes)
+function optimizeRoute(depot: GeoPoint, stops: DeliveryStop[]): DeliveryStop[] {
+  const remaining = [...stops];
+  const route: DeliveryStop[] = [];
+  let current = depot;
+
+  while (remaining.length > 0) {
+    // Find the closest unvisited stop
+    let nearestIdx = 0;
+    let nearestDist = Infinity;
+
+    for (let i = 0; i < remaining.length; i++) {
+      const dist = haversineDistance(current, { lat: remaining[i].lat, lng: remaining[i].lng });
+      if (dist < nearestDist) {
+        nearestDist = dist;
+        nearestIdx = i;
+      }
+    }
+
+    const next = remaining.splice(nearestIdx, 1)[0];
+    route.push(next);
+    current = { lat: next.lat, lng: next.lng };
+  }
+
+  return route;
+}
+
+// Haversine distance in km
+function haversineDistance(a: GeoPoint, b: GeoPoint): number {
+  const R = 6371;
+  const dLat = ((b.lat - a.lat) * Math.PI) / 180;
+  const dLng = ((b.lng - a.lng) * Math.PI) / 180;
+  const h =
+    Math.sin(dLat / 2) ** 2 +
+    Math.cos((a.lat * Math.PI) / 180) *
+    Math.cos((b.lat * Math.PI) / 180) *
+    Math.sin(dLng / 2) ** 2;
+  return R * 2 * Math.asin(Math.sqrt(h));
+}
+```
+
+---
+
+## Delivery Zones & Pricing
+
+```typescript
+interface DeliveryZone {
+  id:       string;
+  name:     string;
+  polygon:  GeoPoint[];     // zone boundary
+  baseRate: bigint;         // base price in cents
+  perKgRate: bigint;
+  maxDays:  number;
+}
+
+function calculateShippingCost(
+  origin: GeoPoint,
+  destination: GeoPoint,
+  weightGrams: number,
+  zones: DeliveryZone[]
+): bigint {
+  const zone = zones.find(z => isPointInPolygon(destination, z.polygon));
+  if (!zone) throw new Error("Destination outside service area");
+
+  const weightKg = weightGrams / 1000;
+  return zone.baseRate + zone.perKgRate * BigInt(Math.ceil(weightKg));
+}
+```
+
+---
+
+*Last updated: September 2026.*

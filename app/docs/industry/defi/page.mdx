@@ -1,0 +1,276 @@
+export const metadata = {
+  title: "DeFi Protocol | Industry Domains | Wayan Phantom",
+  description: "Technical implementation patterns for DeFi protocols — AMM math, liquidity pools, liquidation engine, oracle integration, and protocol security.",
+};
+
+# DeFi Protocol
+
+DeFi protocol design is where financial math meets smart contract security. The patterns here go deeper than using existing protocols — this is about building them.
+
+---
+
+## AMM: Constant Product Formula
+
+The foundation of Uniswap v2 and most AMMs. The invariant `x * y = k` must hold before and after every swap.
+
+```solidity
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.20;
+
+import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
+import "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
+
+/**
+ * @title SimpleAMM
+ * @dev Constant product AMM (x * y = k)
+ */
+contract SimpleAMM is ERC20, ReentrancyGuard {
+    IERC20 public immutable tokenA;
+    IERC20 public immutable tokenB;
+
+    uint256 public reserveA;
+    uint256 public reserveB;
+
+    uint256 public constant FEE_BPS = 30; // 0.3% fee
+
+    event Swap(address indexed user, address tokenIn, uint256 amountIn, uint256 amountOut);
+    event LiquidityAdded(address indexed provider, uint256 amountA, uint256 amountB, uint256 lpTokens);
+    event LiquidityRemoved(address indexed provider, uint256 amountA, uint256 amountB, uint256 lpTokens);
+
+    constructor(address _tokenA, address _tokenB)
+        ERC20("LP Token", "LP")
+    {
+        tokenA = IERC20(_tokenA);
+        tokenB = IERC20(_tokenB);
+    }
+
+    // Calculate output amount using constant product formula
+    // amountOut = (amountIn * (10000 - fee) * reserveOut)
+    //             / (reserveIn * 10000 + amountIn * (10000 - fee))
+    function getAmountOut(
+        uint256 amountIn,
+        uint256 reserveIn,
+        uint256 reserveOut
+    ) public pure returns (uint256) {
+        require(amountIn > 0,    "Zero input");
+        require(reserveIn > 0 && reserveOut > 0, "Empty reserves");
+
+        uint256 amountInWithFee = amountIn * (10000 - FEE_BPS);
+        uint256 numerator       = amountInWithFee * reserveOut;
+        uint256 denominator     = reserveIn * 10000 + amountInWithFee;
+        return numerator / denominator;
+    }
+
+    // Swap tokenA → tokenB
+    function swapAforB(uint256 amountIn, uint256 minAmountOut)
+        external nonReentrant returns (uint256 amountOut)
+    {
+        amountOut = getAmountOut(amountIn, reserveA, reserveB);
+        require(amountOut >= minAmountOut, "Slippage exceeded");
+
+        tokenA.transferFrom(msg.sender, address(this), amountIn);
+        tokenB.transfer(msg.sender, amountOut);
+
+        reserveA += amountIn;
+        reserveB -= amountOut;
+
+        emit Swap(msg.sender, address(tokenA), amountIn, amountOut);
+    }
+
+    // Add liquidity — receive LP tokens
+    function addLiquidity(uint256 amountA, uint256 amountB)
+        external nonReentrant returns (uint256 lpTokens)
+    {
+        tokenA.transferFrom(msg.sender, address(this), amountA);
+        tokenB.transferFrom(msg.sender, address(this), amountB);
+
+        if (totalSupply() == 0) {
+            lpTokens = sqrt(amountA * amountB);
+        } else {
+            lpTokens = min(
+                amountA * totalSupply() / reserveA,
+                amountB * totalSupply() / reserveB
+            );
+        }
+
+        require(lpTokens > 0, "Insufficient liquidity minted");
+        _mint(msg.sender, lpTokens);
+
+        reserveA += amountA;
+        reserveB += amountB;
+
+        emit LiquidityAdded(msg.sender, amountA, amountB, lpTokens);
+    }
+
+    // Remove liquidity — burn LP tokens, receive tokens back
+    function removeLiquidity(uint256 lpTokens)
+        external nonReentrant returns (uint256 amountA, uint256 amountB)
+    {
+        require(lpTokens > 0, "Zero LP tokens");
+        uint256 supply = totalSupply();
+
+        amountA = lpTokens * reserveA / supply;
+        amountB = lpTokens * reserveB / supply;
+
+        _burn(msg.sender, lpTokens);
+        reserveA -= amountA;
+        reserveB -= amountB;
+
+        tokenA.transfer(msg.sender, amountA);
+        tokenB.transfer(msg.sender, amountB);
+
+        emit LiquidityRemoved(msg.sender, amountA, amountB, lpTokens);
+    }
+
+    function sqrt(uint256 y) internal pure returns (uint256 z) {
+        if (y > 3) { z = y; uint256 x = y / 2 + 1; while (x < z) { z = x; x = (y / x + x) / 2; } }
+        else if (y != 0) z = 1;
+    }
+
+    function min(uint256 a, uint256 b) internal pure returns (uint256) {
+        return a < b ? a : b;
+    }
+}
+```
+
+---
+
+## Lending Protocol & Liquidation
+
+Collateralized lending: borrowers deposit collateral, borrow against it. If collateral value drops below the liquidation threshold, anyone can liquidate the position.
+
+```solidity
+contract LendingProtocol is ReentrancyGuard, Ownable {
+    struct Position {
+        uint256 collateral;       // collateral amount (e.g. ETH)
+        uint256 debt;             // borrowed amount (e.g. USDC)
+        uint256 lastInterestBlock;
+    }
+
+    mapping(address => Position) public positions;
+
+    uint256 public constant LTV_RATIO         = 75;   // max 75% LTV
+    uint256 public constant LIQUIDATION_THRESHOLD = 80; // liquidate at 80% LTV
+    uint256 public constant LIQUIDATION_BONUS  = 105;  // liquidator gets 5% bonus
+    uint256 public constant INTEREST_RATE_BPS  = 500;  // 5% annual, simplified
+
+    IOracle public oracle;  // price feed
+
+    // Health factor = (collateral_value * liquidation_threshold) / debt_value
+    // If health factor < 100, position is liquidatable
+    function healthFactor(address user) public view returns (uint256) {
+        Position memory pos = positions[user];
+        if (pos.debt == 0) return type(uint256).max;
+
+        uint256 collateralValue = pos.collateral * oracle.getPrice(COLLATERAL_TOKEN);
+        return (collateralValue * LIQUIDATION_THRESHOLD) / (pos.debt * 100);
+    }
+
+    function liquidate(address borrower) external nonReentrant {
+        require(healthFactor(borrower) < 100, "Position is healthy");
+
+        Position storage pos = positions[borrower];
+        uint256 debtToRepay  = pos.debt;
+
+        // Liquidator repays the debt
+        USDC.transferFrom(msg.sender, address(this), debtToRepay);
+
+        // Liquidator receives collateral + bonus
+        uint256 collateralToSeize = (debtToRepay * LIQUIDATION_BONUS) /
+            oracle.getPrice(COLLATERAL_TOKEN) / 100;
+
+        pos.debt       = 0;
+        pos.collateral -= collateralToSeize;
+
+        ETH_TOKEN.transfer(msg.sender, collateralToSeize);
+    }
+}
+```
+
+---
+
+## Oracle Integration
+
+DeFi protocols need real-world price data on-chain. Chainlink is the most widely used oracle network.
+
+```solidity
+import "@chainlink/contracts/src/v0.8/interfaces/AggregatorV3Interface.sol";
+
+contract PriceFeed {
+    AggregatorV3Interface internal ethUsdFeed;
+
+    constructor() {
+        // ETH/USD on Ethereum mainnet
+        ethUsdFeed = AggregatorV3Interface(0x5f4eC3Df9cbd43714FE2740f5E3616155c5b8419);
+    }
+
+    function getETHPrice() public view returns (uint256) {
+        (
+            /* uint80 roundId */,
+            int256 price,
+            /* uint256 startedAt */,
+            uint256 updatedAt,
+            /* uint80 answeredInRound */
+        ) = ethUsdFeed.latestRoundData();
+
+        // Reject stale prices (older than 1 hour)
+        require(block.timestamp - updatedAt < 3600, "Stale price feed");
+        require(price > 0, "Invalid price");
+
+        return uint256(price); // 8 decimals
+    }
+}
+```
+
+---
+
+## Price Impact & Slippage
+
+```typescript
+// Frontend — calculate price impact before confirming a swap
+function calculatePriceImpact(
+  amountIn: bigint,
+  reserveIn: bigint,
+  reserveOut: bigint
+): number {
+  // Spot price before swap
+  const spotPrice = Number(reserveOut) / Number(reserveIn);
+
+  // Amount out using constant product
+  const amountInWithFee = amountIn * 9970n;
+  const numerator       = amountInWithFee * reserveOut;
+  const denominator     = reserveIn * 10000n + amountInWithFee;
+  const amountOut       = numerator / denominator;
+
+  // Execution price
+  const executionPrice = Number(amountOut) / Number(amountIn);
+
+  return ((spotPrice - executionPrice) / spotPrice) * 100;
+}
+
+// Warn users when price impact > 1%, block > 15%
+function getSwapWarning(priceImpact: number): "none" | "warning" | "danger" {
+  if (priceImpact > 15) return "danger";
+  if (priceImpact > 1)  return "warning";
+  return "none";
+}
+```
+
+---
+
+## Protocol Security Checklist
+
+| Risk | Mitigation |
+|---|---|
+| Reentrancy | `nonReentrant` modifier on all state-changing functions |
+| Price manipulation | Use TWAPs (time-weighted average price) not spot prices |
+| Flash loan attacks | Validate state at start and end of transaction |
+| Integer overflow | Solidity 0.8+ built-in checks |
+| Oracle failure | Check `updatedAt` timestamp, reject stale feeds |
+| Admin key compromise | Timelock on governance actions (48h minimum) |
+| Front-running | Commit-reveal schemes, slippage protection |
+
+---
+
+*Last updated: September 2026.*

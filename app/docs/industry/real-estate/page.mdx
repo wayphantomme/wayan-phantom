@@ -1,0 +1,293 @@
+export const metadata = {
+  title: "Real Estate | Industry Domains | Wayan Phantom",
+  description: "Technical implementation patterns for real estate tech — property listing schema, escrow flow, document management, and tokenized property (RWA).",
+};
+
+# Real Estate
+
+Real estate platforms combine marketplace mechanics (listings, search, scheduling) with high-stakes transaction flows (offers, escrow, closing). The complexity is in the transaction pipeline, not the listing.
+
+---
+
+## Property Listing Schema
+
+```typescript
+type PropertyType = "house" | "apartment" | "condo" | "land" | "commercial" | "villa";
+type ListingStatus = "draft" | "active" | "pending" | "under_contract" | "sold" | "withdrawn";
+type TransactionType = "sale" | "rent";
+
+interface Property {
+  id:            string;
+  agentId:       string;
+  ownerId:       string;
+  type:          PropertyType;
+  transactionType: TransactionType;
+  status:        ListingStatus;
+
+  // Location
+  address:       string;
+  city:          string;
+  province:      string;
+  postalCode:    string;
+  country:       string;
+  lat:           number;
+  lng:           number;
+
+  // Specs
+  price:         bigint;         // in cents (sale price or monthly rent)
+  currency:      string;
+  bedrooms:      number;
+  bathrooms:     number;
+  buildingArea:  number;         // m²
+  landArea:      number;         // m²
+  floors:        number;
+  yearBuilt:     number | null;
+  furnishing:    "unfurnished" | "semi" | "furnished";
+
+  // Media
+  images:        string[];       // URLs
+  virtualTourUrl: string | null;
+  floorPlanUrl:  string | null;
+
+  // Metadata
+  amenities:     string[];       // ["pool", "gym", "parking", "security"]
+  description:   string;
+  highlights:    string[];
+  certificate:   string | null;  // "SHM", "HGB", "SHGB" (Indonesia land certificates)
+  publishedAt:   Date | null;
+  createdAt:     Date;
+  updatedAt:     Date;
+}
+```
+
+---
+
+## Search & Filter
+
+Property search needs geospatial queries and multiple filter dimensions.
+
+```typescript
+interface PropertySearchParams {
+  type?:           PropertyType[];
+  transactionType?: TransactionType;
+  city?:           string;
+  radius?:         { lat: number; lng: number; km: number };  // geo radius
+  priceMin?:       bigint;
+  priceMax?:       bigint;
+  bedroomsMin?:    number;
+  bathroomsMin?:   number;
+  areaMin?:        number;
+  amenities?:      string[];
+  furnishing?:     string[];
+  sortBy?:         "price_asc" | "price_desc" | "newest" | "area_desc";
+  page:            number;
+  limit:           number;
+}
+
+// Prisma query builder
+async function searchProperties(params: PropertySearchParams) {
+  const where: Prisma.PropertyWhereInput = {
+    status:          "active",
+    transactionType: params.transactionType,
+    type:            params.type ? { in: params.type } : undefined,
+    city:            params.city ? { contains: params.city, mode: "insensitive" } : undefined,
+    price:           {
+      gte: params.priceMin,
+      lte: params.priceMax,
+    },
+    bedrooms:  params.bedroomsMin  ? { gte: params.bedroomsMin }  : undefined,
+    bathrooms: params.bathroomsMin ? { gte: params.bathroomsMin } : undefined,
+    buildingArea: params.areaMin   ? { gte: params.areaMin }      : undefined,
+    amenities: params.amenities    ? { hasEvery: params.amenities } : undefined,
+  };
+
+  const orderBy: Prisma.PropertyOrderByWithRelationInput =
+    params.sortBy === "price_asc"  ? { price: "asc" }  :
+    params.sortBy === "price_desc" ? { price: "desc" } :
+    params.sortBy === "area_desc"  ? { buildingArea: "desc" } :
+    { publishedAt: "desc" };
+
+  const [items, total] = await Promise.all([
+    db.property.findMany({
+      where,
+      orderBy,
+      skip:  (params.page - 1) * params.limit,
+      take:  params.limit,
+    }),
+    db.property.count({ where }),
+  ]);
+
+  return { items, total, pages: Math.ceil(total / params.limit) };
+}
+```
+
+---
+
+## Transaction & Offer Flow
+
+```
+buyer views listing
+  → submits offer
+  → seller accepts / counter-offers / rejects
+  → offer accepted → escrow opened
+  → due diligence period (inspection, docs)
+  → escrow funded
+  → closing → ownership transferred
+```
+
+```typescript
+type OfferStatus = "submitted" | "countered" | "accepted" | "rejected" | "withdrawn" | "expired";
+
+interface Offer {
+  id:            string;
+  propertyId:    string;
+  buyerId:       string;
+  agentId:       string | null;
+  amount:        bigint;
+  currency:      string;
+  downPayment:   bigint;
+  contingencies: string[];   // ["financing", "inspection", "appraisal"]
+  closingDate:   Date;
+  message:       string;
+  status:        OfferStatus;
+  expiresAt:     Date;
+  counterAmount: bigint | null;
+  createdAt:     Date;
+}
+
+type EscrowStatus =
+  | "opened"
+  | "documents_pending"
+  | "inspection"
+  | "funded"
+  | "closing"
+  | "closed"
+  | "cancelled";
+
+interface Escrow {
+  id:            string;
+  offerId:       string;
+  propertyId:    string;
+  buyerId:       string;
+  sellerId:      string;
+  escrowAgent:   string;
+  amount:        bigint;
+  status:        EscrowStatus;
+  depositedAt:   Date | null;
+  closingDate:   Date;
+  closedAt:      Date | null;
+  documents:     string[];
+}
+```
+
+---
+
+## Tokenized Property (RWA)
+
+Real estate is one of the most active areas for Real World Asset tokenization. A property can be fractionally owned via ERC-20 or ERC-1400 tokens.
+
+```solidity
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.20;
+
+import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
+import "@openzeppelin/contracts/access/Ownable.sol";
+
+/**
+ * @title PropertyToken
+ * @dev Represents fractional ownership of a real estate property.
+ *      Each token = 1/totalSupply share of the property.
+ */
+contract PropertyToken is ERC20, Ownable {
+    string  public propertyId;       // off-chain property record ID
+    string  public propertyAddress;  // human-readable address
+    uint256 public propertyValueUSD; // appraised value in USD cents
+    bool    public transfersLocked;  // locked during due diligence
+
+    event DividendDistributed(uint256 amount, uint256 perToken);
+    event TransferLockUpdated(bool locked);
+
+    constructor(
+        string memory _propertyId,
+        string memory _propertyAddress,
+        uint256 _valueUSD,
+        uint256 _totalShares
+    ) ERC20("Property Token", "PROP") Ownable(msg.sender) {
+        propertyId       = _propertyId;
+        propertyAddress  = _propertyAddress;
+        propertyValueUSD = _valueUSD;
+        _mint(msg.sender, _totalShares);
+    }
+
+    // Distribute rental income to all token holders
+    function distributeDividend() external payable onlyOwner {
+        require(msg.value > 0, "No ETH sent");
+        uint256 perToken = msg.value / totalSupply();
+        emit DividendDistributed(msg.value, perToken);
+        // holders claim via separate claim contract (pull pattern)
+    }
+
+    function setTransferLock(bool _locked) external onlyOwner {
+        transfersLocked = _locked;
+        emit TransferLockUpdated(_locked);
+    }
+
+    function _update(address from, address to, uint256 value) internal override {
+        if (transfersLocked && from != address(0) && to != address(0)) {
+            revert("Transfers currently locked");
+        }
+        super._update(from, to, value);
+    }
+}
+```
+
+---
+
+## Viewing Scheduler
+
+```typescript
+interface ViewingSlot {
+  id:         string;
+  propertyId: string;
+  agentId:    string;
+  startTime:  Date;
+  endTime:    Date;
+  type:       "in_person" | "virtual";
+  maxBookings: number;
+  bookings:   Booking[];
+}
+
+interface Booking {
+  id:        string;
+  slotId:    string;
+  userId:    string;
+  status:    "confirmed" | "cancelled" | "completed";
+  notes:     string;
+  createdAt: Date;
+}
+
+// Book a viewing slot
+async function bookViewing(slotId: string, userId: string, notes: string) {
+  return db.$transaction(async (tx) => {
+    const slot = await tx.viewingSlot.findUniqueOrThrow({
+      where:   { id: slotId },
+      include: { bookings: { where: { status: "confirmed" } } },
+    });
+
+    if (slot.bookings.length >= slot.maxBookings) {
+      throw new Error("Slot is fully booked");
+    }
+
+    const booking = await tx.booking.create({
+      data: { slotId, userId, status: "confirmed", notes },
+    });
+
+    await sendViewingConfirmation(booking, slot);
+    return booking;
+  });
+}
+```
+
+---
+
+*Last updated: September 2026.*

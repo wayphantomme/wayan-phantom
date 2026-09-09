@@ -1,0 +1,452 @@
+export const metadata = {
+  title: "Solidity Fundamentals | Wayan Phantom",
+  description: "A complete Solidity fundamentals reference — contract structure, data types, functions, visibility, events, modifiers, inheritance, interfaces, libraries, and global variables.",
+};
+
+# Solidity Fundamentals
+
+A practical reference for writing smart contracts in Solidity 0.8.20+.
+
+---
+
+## Remix IDE
+
+[Remix IDE](https://remix.ethereum.org/) is a browser-based development environment for writing, compiling, testing, and deploying Solidity smart contracts — no installation needed.
+
+---
+
+## Contract Structure
+
+Every Solidity file follows the same three-part structure.
+
+| Part | Description |
+|---|---|
+| **License Identifier** | Declares the code license (e.g. `// SPDX-License-Identifier: MIT`). |
+| **Pragma Version** | Sets the compiler version (e.g. `pragma solidity ^0.8.0;`). |
+| **Contract Body** | Where the main logic lives. |
+
+```solidity
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.20;
+
+contract HelloWorld {
+    // your code here
+}
+```
+
+---
+
+## Data Types
+
+Solidity is statically typed — every variable needs an explicit type.
+
+### Value Types
+
+| Type | Description |
+|---|---|
+| `uint` | Unsigned integer — positive only (`uint8` to `uint256`). |
+| `int` | Signed integer — positive and negative. |
+| `bool` | `true` or `false`. |
+| `address` | Stores a wallet or contract address (20 bytes). |
+| `bytes` | Raw bytes (`bytes4` to `bytes32`). |
+| `string` | UTF-8 text. |
+
+### Time Units
+
+Solidity has built-in time units that compile down to their value in seconds.
+
+| Unit | Value |
+|---|---|
+| `seconds` | 1 |
+| `minutes` | 60 |
+| `hours` | 3,600 |
+| `days` | 86,400 |
+| `weeks` | 604,800 |
+
+```solidity
+uint256 public constant LOCK_PERIOD = 7 days; // compiles to 604800
+```
+
+---
+
+## Reference Types: Mapping, Array & Struct
+
+Reference types store a reference to a data location rather than the value directly.
+
+### Array
+
+A collection of elements of the same type. Can be fixed-size or dynamic.
+
+| Method | Description |
+|---|---|
+| `push()` | Append an element. |
+| `pop()` | Remove the last element. |
+| `.length` | Get the current size. |
+
+```solidity
+uint256[] public scores;
+
+function add(uint256 score) external {
+    scores.push(score);
+}
+
+function removeLast() external {
+    scores.pop();
+}
+```
+
+### Mapping
+
+A key-value data structure (like a dictionary or hash table). Very efficient for blockchain lookups — no looping needed.
+
+```solidity
+mapping(address => uint256) public balances;
+
+function deposit() external payable {
+    balances[msg.sender] += msg.value;
+}
+```
+
+### Struct
+
+Lets you define a custom type by grouping multiple base types — useful for representing objects like users, products, or game characters.
+
+```solidity
+struct Participant {
+    string  name;
+    uint256 age;
+    address wallet;
+    bool    registered;
+}
+
+Participant public student;
+
+function register(string memory _name) public {
+    // Object-style
+    student = Participant(_name, 30, msg.sender, true);
+
+    // Named-style (more readable)
+    student = Participant({
+        name:       "budi",
+        age:        18,
+        wallet:     msg.sender,
+        registered: true
+    });
+
+    // Field-by-field
+    student.name = "budi";
+    student.age  = 18;
+}
+```
+
+---
+
+## Functions
+
+### Declaration Order
+
+```
+function <name>(<params>) <visibility> <mutability> <modifiers> returns (<type>)
+```
+
+### Return Values
+
+Solidity supports single, multiple, and named returns.
+
+```solidity
+// Single return
+function getNumber() public pure returns (uint256) {
+    return 123;
+}
+
+// Multiple returns
+function getInfo() public pure returns (string memory, uint256) {
+    return ("Budi", 25);
+}
+
+// Named returns — values are assigned directly, no explicit return needed
+function getInfoNamed() public pure returns (string memory name, uint256 age) {
+    name = "Budi";
+    age  = 25;
+}
+```
+
+### Constructor
+
+Runs exactly once when the contract is deployed. Typically used to set the initial owner.
+
+```solidity
+address public owner;
+
+constructor() {
+    owner = msg.sender; // deployer becomes owner
+}
+```
+
+---
+
+## Visibility & Mutability
+
+### Visibility (who can call the function?)
+
+| Keyword | Access |
+|---|---|
+| `public` | Anyone — inside or outside the contract. |
+| `private` | Only the contract itself. |
+| `internal` | The contract and any contract that inherits it. |
+| `external` | Only callers from outside the contract. |
+
+### Mutability (does the function touch state?)
+
+| Keyword | Behavior |
+|---|---|
+| `view` | Reads from the blockchain, never writes. |
+| `pure` | Neither reads nor writes state — math-only functions. |
+| `payable` | Can receive ETH along with the call. |
+
+---
+
+## Events, Modifiers & Custom Errors
+
+### Event
+
+The way a contract communicates with the outside world (frontends, subgraphs). Emitted data is stored in transaction logs.
+
+```solidity
+event Transfer(address indexed from, address indexed to, uint256 amount);
+
+function transfer(address to, uint256 amount) external {
+    balances[msg.sender] -= amount;
+    balances[to]         += amount;
+    emit Transfer(msg.sender, to, amount);
+}
+```
+
+### Modifier
+
+A code snippet that runs before (or after) a function executes. The `_` symbol tells Solidity where to continue with the main function body.
+
+```solidity
+modifier onlyOwner() {
+    require(msg.sender == owner, "Not the owner");
+    _; // continue to the function body
+}
+
+function mint(address to, uint256 amount) external onlyOwner {
+    _mint(to, amount);
+}
+```
+
+### Custom Error
+
+More gas-efficient than `require` with string messages, and produces more descriptive reverts.
+
+```solidity
+error ZeroAmount();
+error NotOwner(address caller);
+
+modifier onlyOwner() {
+    if (msg.sender != owner) revert NotOwner(msg.sender);
+    _;
+}
+
+function mint(uint256 amount) public onlyOwner {
+    if (amount == 0) revert ZeroAmount();
+    // mint logic
+}
+```
+
+---
+
+## Data Locations: Storage, Memory & Calldata
+
+| | **Storage** | **Memory** | **Calldata** |
+|---|---|---|---|
+| **Description** | Permanently stored on the blockchain. | Temporary — exists only during function execution. | Read-only function arguments from an external caller. |
+| **Lifetime** | Permanent | Temporary | Temporary |
+| **Gas Cost** | Expensive | Cheap | Cheapest |
+
+---
+
+## Constant & Immutable
+
+### `constant`
+
+Value is hardcoded at compile time and can never change.
+
+```solidity
+uint256 public constant MAX_SUPPLY   = 1000;
+address public constant BURN_ADDRESS = 0x000000000000000000000000000000000000dEaD;
+```
+
+### `immutable`
+
+Value is set once inside the constructor at deploy time and locked forever after.
+
+```solidity
+address public immutable OWNER;
+
+constructor() {
+    OWNER = msg.sender; // locked at deploy
+}
+```
+
+---
+
+## Inheritance, Interface & Library
+
+### Inheritance
+
+Solidity supports inheritance with the `is` keyword. Reuse code from parent contracts without rewriting it.
+
+- `virtual` — marks a function in the parent as overridable.
+- `override` — marks a function in the child as replacing the parent's version.
+
+```solidity
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.20;
+
+contract Vehicle {
+    string public kind = "General";
+
+    function horn() public pure virtual returns (string memory) {
+        return "Beep!";
+    }
+}
+
+contract Car is Vehicle {
+    function horn() public pure override returns (string memory) {
+        return "Telolet!";
+    }
+}
+```
+
+### Interface
+
+A contract with no logic — only function signatures. Used to interact with already-deployed contracts (like someone else's token).
+
+Rules:
+- No state variables.
+- All functions must be `external`.
+- No constructor.
+
+```solidity
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.20;
+
+interface ICar {
+    function horn() external view returns (string memory);
+}
+
+// Contract that implements the interface
+contract Car is ICar {
+    function horn() public pure returns (string memory) {
+        return "Telolet!";
+    }
+}
+
+// Contract that calls another deployed contract via the interface
+contract TollGate {
+    ICar private car;
+
+    constructor(address _car) {
+        car = ICar(_car);
+    }
+
+    function checkSound() public view returns (string memory) {
+        return car.horn(); // calls the external contract
+    }
+}
+```
+
+### Library
+
+A collection of helper functions that other contracts can use. Libraries can't hold state or Ether — they exist purely to keep code clean and gas-efficient.
+
+```solidity
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.20;
+
+library MathHelper {
+    // internal so the code is inlined into the calling contract (saves gas)
+    function squared(uint256 _n) internal pure returns (uint256) {
+        return _n * _n;
+    }
+}
+
+// Method 1 — attach library to a type with `using ... for`
+contract Calculator {
+    using MathHelper for uint256;
+
+    uint256 public value = 5;
+
+    function computeSquare() public view returns (uint256) {
+        return value.squared(); // uint256 gets the squared() method
+    }
+}
+
+// Method 2 — call the library directly
+contract Calculator2 {
+    uint256 public value = 5;
+
+    function computeSquare() public view returns (uint256) {
+        return MathHelper.squared(value);
+    }
+}
+```
+
+---
+
+## Global Variables
+
+Global variables are available everywhere in a contract. They expose information about the blockchain, the current transaction, and the message being processed.
+
+### Transaction & Message (`msg`)
+
+The most frequently used globals — essential for security logic and payment handling.
+
+| Name | Type | Description |
+|---|---|---|
+| `msg.sender` | `address` | Address currently calling the function — a user wallet or another contract. |
+| `msg.value` | `uint256` | Amount of **Wei** (ETH) sent with the call. Always `0` on non-payable functions. |
+| `msg.data` | `bytes` | Full calldata payload of the current call. |
+| `msg.sig` | `bytes4` | First 4 bytes of calldata — the function selector. |
+
+### Block Information (`block`)
+
+Used to read current network state. Very useful for time-based logic and block-order logic.
+
+| Name | Type | Description |
+|---|---|---|
+| `block.timestamp` | `uint256` | Current time as Unix epoch (seconds) when the block is processed. |
+| `block.number` | `uint256` | Sequential number of the current block. |
+| `block.prevrandao` | `uint256` | Random value from the beacon chain (replaced `block.difficulty` after The Merge). |
+| `block.coinbase` | `address` | Address of the miner/validator processing this block. |
+| `block.chainid` | `uint256` | Network ID — `1` for Ethereum Mainnet, `11155111` for Sepolia, `42161` for Arbitrum. |
+
+### Transaction Origin (`tx`)
+
+Holds data about the original sender at the start of the call chain.
+
+| Name | Type | Description |
+|---|---|---|
+| `tx.origin` | `address` | The original wallet address that initiated the transaction (not an intermediate contract). |
+| `tx.gasprice` | `uint256` | Gas price of the current transaction. |
+
+> **Security note on `tx.origin`:** Never use `tx.origin` for authorization. A malicious contract can trick a user into calling it, and `tx.origin` will still return the user's address while `msg.sender` returns the attacker's contract. Always use `msg.sender` for access control.
+
+```solidity
+// DANGEROUS — phishing attack possible
+function withdraw() external {
+    require(tx.origin == owner, "Not owner"); // attacker can bypass this
+}
+
+// SAFE
+function withdraw() external {
+    require(msg.sender == owner, "Not owner");
+}
+```
+
+---
+
+*Last updated: September 2026.*

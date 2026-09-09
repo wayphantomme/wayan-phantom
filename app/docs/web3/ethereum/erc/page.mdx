@@ -1,0 +1,127 @@
+export const metadata = {
+  title: "ERC Standards & Tooling | Wayan Phantom",
+  description: "ERC token standards, OpenZeppelin, block explorer interaction, IPFS off-chain storage, and gas optimization tips.",
+};
+
+# ERC Standards & Tooling
+
+---
+
+## Ethereum Request for Comment (ERC)
+
+ERC (Ethereum Request for Comments) is a set of technical standards for building smart contracts on Ethereum so they remain interoperable with each other.
+
+Each standard defines the functions, events, and behaviors a contract must implement — so wallets, apps, and protocols can recognize and interact with it without any custom integration work. Think of ERC as a "shared language" that lets contracts understand each other.
+
+| Standard | Type | Description |
+|---|---|---|
+| ERC-20 | Fungible Token | Every unit is identical and interchangeable (like currencies). |
+| ERC-721 | Non-Fungible Token | Every token is unique (NFTs). |
+| ERC-1155 | Semi-Fungible Token | A single contract handles both fungible and non-fungible tokens. |
+
+### Practical Guides
+
+- [ERC-20 — ethereum.org](https://ethereum.org/en/developers/docs/standards/tokens/erc-20/)
+- [ERC-721 — ethereum.org](https://ethereum.org/en/developers/docs/standards/tokens/erc-721/)
+
+---
+
+## Introduction to OpenZeppelin
+
+[OpenZeppelin](https://www.openzeppelin.com/) is a library of battle-tested, audited Solidity components for building secure smart contracts on Ethereum.
+
+The goal is simple: you don't need to write everything from scratch. Instead, import a module that's already been reviewed and widely used — reducing the surface area for bugs and exploits.
+
+Conceptually, OpenZeppelin is a security framework for Solidity. Rather than implementing your own token logic, access control, or upgrade system (all of which are easy to get wrong), you pull in a proven module.
+
+```solidity
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.20;
+
+import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
+import "@openzeppelin/contracts/access/Ownable.sol";
+
+contract MyToken is ERC20, Ownable {
+    constructor(uint256 initialSupply)
+        ERC20("MyToken", "MTK")
+        Ownable(msg.sender)
+    {
+        _mint(msg.sender, initialSupply * 10 ** decimals());
+    }
+}
+```
+
+### OpenZeppelin Wizard
+
+[wizard.openzeppelin.com](https://wizard.openzeppelin.com/) is a browser tool that generates ready-to-deploy Solidity code for ERC-20, ERC-721, ERC-1155, and more. Configure the options you need, copy the output, drop it into Remix or Hardhat.
+
+---
+
+## Interacting with a Smart Contract from a Block Explorer
+
+Once a contract is deployed and verified, you can call its functions directly from Etherscan (or any EVM block explorer) without a frontend.
+
+1. Go to the contract's address on the block explorer.
+2. Click the **Contract** tab, then **Connect to Web3** to connect your wallet.
+3. Under **Read Contract** — call view/pure functions to fetch data (no gas).
+4. Under **Write Contract** — call state-changing functions (requires a connected wallet and gas).
+
+---
+
+## Off-Chain Storage
+
+Blockchain is not designed to store large data. Writing megabytes of raw data on-chain is prohibitively expensive. The standard pattern is:
+
+- Store the **actual data** (image, video, metadata JSON) in off-chain storage.
+- Store only a **reference** (a URL or content hash) on-chain inside the smart contract.
+
+### IPFS
+
+[IPFS](https://ipfs.tech/) (InterPlanetary File System) is the most popular off-chain storage option for Web3 because files are stored in a distributed network rather than on a single server, are cheaper than on-chain storage, and remain accessible via a content hash recorded on the blockchain.
+
+**How it works:** Files are spread across many nodes. Each file is given a unique content hash (CID). When a file is requested, the network finds which node holds it and serves it back.
+
+Unlike a blockchain, IPFS does not perform cryptographic verification of transactions — it only guarantees content-addressable retrieval.
+
+**Getting started:**
+
+1. Download [IPFS Desktop](https://docs.ipfs.tech/install/ipfs-desktop/#windows).
+2. After installation, go to the **Files** section and upload your file.
+3. To access a stored file:
+   - Click the three-dot menu on the file → **Copy CID** → open `https://ipfs.io/ipfs/<CID>` in your browser.
+   - Or click the three-dot menu → **Inspect** → **View on local gateway**.
+
+---
+
+## Gas Optimization Tips
+
+Writing gas-efficient Solidity saves real money at scale. A good starting reference:
+
+[Solidity Gas Efficiency Tips — Cyfrin](https://www.cyfrin.io/blog/solidity-gas-efficiency-tips-tackle-rising-fees-base-other-l2)
+
+Quick wins:
+
+- Use `calldata` instead of `memory` for read-only external function params.
+- Use `uint256` over smaller uint types (EVM pads them anyway).
+- Pack multiple small variables into a single storage slot.
+- Use `immutable` and `constant` wherever the value never changes.
+- Use custom errors instead of `require` with string messages.
+- Avoid unbounded loops over dynamic arrays.
+- Cache `storage` reads in a `memory` variable inside loops.
+
+```solidity
+// Expensive — reads storage on every iteration
+for (uint i = 0; i < users.length; i++) {
+    emit Log(users[i]);
+}
+
+// Cheaper — cache length in memory first
+uint256 len = users.length;
+for (uint i = 0; i < len; i++) {
+    emit Log(users[i]);
+}
+```
+
+---
+
+*Last updated: September 2026.*

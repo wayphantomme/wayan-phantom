@@ -1,0 +1,95 @@
+export const metadata = {
+  title: "Build Your Own Chain | Wayan Phantom",
+  description: "How to build and deploy your own blockchain — from picking a framework to going live. Covers Arbitrum Orbit, OP Stack, Substrate, Hyperledger, and Quorum.",
+};
+
+# Build Your Own Chain
+
+So you want to run your own blockchain rather than just deploy contracts on someone else's. This covers the full picture: why you'd do it, how to pick the right stack, and what the deployment process looks like.
+
+---
+
+## Why Build Your Own Chain?
+
+Most projects don't need their own chain. But some do:
+
+- **Gas control** — set your own gas token or eliminate gas fees entirely for users.
+- **Throughput** — a dedicated chain has no competition for blockspace.
+- **Custom rules** — modify the EVM, add precompiles, change consensus, or build something non-EVM entirely.
+- **Privacy** — permissioned chains can restrict who reads and writes data.
+- **Compliance** — enterprise requirements (KYC, data residency) that public chains can't meet.
+
+If none of those apply, just deploy on Arbitrum or Base.
+
+---
+
+## Two Categories
+
+### Public App-Chain (Rollup)
+
+You deploy a rollup that settles to an existing public chain (Ethereum or an L2). You get Ethereum's security, your own blockspace, and full EVM compatibility.
+
+Best for: DeFi protocols, games, exchanges, or any app that needs dedicated throughput but still wants public trust and liquidity.
+
+| Framework | Settles To | Type |
+|---|---|---|
+| Arbitrum Orbit | Arbitrum One / Nova | Optimistic rollup L3 |
+| OP Stack | Ethereum L1 | Optimistic rollup L2 |
+| Substrate (parachain) | Polkadot relay chain | Custom runtime |
+
+### Private / Permissioned Chain
+
+You run a chain where participants are known and access is controlled. No public token required. Much faster finality.
+
+Best for: enterprise consortiums, supply chain, banking, healthcare, CBDCs — anywhere multiple organizations need a shared ledger without trusting a single operator.
+
+| Framework | Consensus | Best For |
+|---|---|---|
+| Hyperledger Fabric | PBFT / Raft | Enterprise, modular chaincode |
+| Quorum (GoQuorum) | IBFT / Raft | Finance, private Ethereum-based chains |
+
+---
+
+## Choosing a Framework
+
+```
+Need EVM + public trust?
+  ├─ Want to stay in Arbitrum ecosystem? → Arbitrum Orbit
+  ├─ Want to join the Superchain?        → OP Stack
+  └─ Want Polkadot interop?              → Substrate (parachain)
+
+Need permissioned / enterprise?
+  ├─ Modular, non-EVM, complex org?      → Hyperledger Fabric
+  └─ Ethereum-based, finance?            → Quorum
+```
+
+---
+
+## High-Level Deployment Path
+
+Regardless of the framework, the process follows a similar arc:
+
+1. **Design** — pick consensus, gas token, EVM vs non-EVM, block time.
+2. **Configure** — set genesis block, chain ID, initial validators, bridge config.
+3. **Run locally** — spin up local nodes, test your config.
+4. **Testnet** — deploy to the target testnet (Arbitrum Sepolia, Ethereum Sepolia, etc.).
+5. **Audit** — security review of any custom contracts or runtime modules.
+6. **Mainnet** — deploy sequencer/nodes, fund the bridge, go live.
+
+The pages below cover each framework in detail.
+
+---
+
+## What's Covered
+
+| Page | Framework | Type |
+|---|---|---|
+| [Arbitrum Orbit](/docs/chains/build/orbit) | Arbitrum Orbit | Public rollup L3 |
+| [OP Stack](/docs/chains/build/op-stack) | OP Stack | Public rollup L2 |
+| [Substrate](/docs/chains/build/substrate) | Substrate | Custom / Polkadot parachain |
+| [Hyperledger Fabric](/docs/chains/build/hyperledger) | Hyperledger | Private / enterprise |
+| [Quorum](/docs/chains/build/quorum) | GoQuorum | Private / finance |
+
+---
+
+*Last updated: September 2026.*

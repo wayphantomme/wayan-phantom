@@ -1,0 +1,250 @@
+export const metadata = {
+  title: "EdTech | Industry Domains | Wayan Phantom",
+  description: "Technical implementation patterns for EdTech — LMS data model, progress tracking, quiz engine, and certificate generation.",
+};
+
+# EdTech
+
+EdTech platforms look simple from the outside — videos and quizzes — but the data model underneath needs to track individual learner progress across a tree of content, enforce prerequisites, and issue verifiable credentials.
+
+---
+
+## LMS Data Model
+
+```typescript
+// Course — top level container
+interface Course {
+  id:          string;
+  title:       string;
+  slug:        string;
+  description: string;
+  instructorId: string;
+  price:       bigint;          // 0 for free
+  currency:    string;
+  thumbnail:   string;
+  level:       "beginner" | "intermediate" | "advanced";
+  status:      "draft" | "published" | "archived";
+  totalDuration: number;        // seconds
+  createdAt:   Date;
+}
+
+// Section — groups lessons inside a course
+interface Section {
+  id:       string;
+  courseId: string;
+  title:    string;
+  order:    number;
+}
+
+// Lesson — smallest unit of content
+interface Lesson {
+  id:          string;
+  sectionId:   string;
+  courseId:    string;
+  title:       string;
+  type:        "video" | "article" | "quiz" | "assignment";
+  content:     string;          // video URL, article MDX, or quiz ID
+  duration:    number;          // seconds (for video)
+  order:       number;
+  isFree:      boolean;         // preview without enrollment
+  prerequisiteId: string | null;
+}
+
+// Enrollment — user joins a course
+interface Enrollment {
+  id:           string;
+  userId:       string;
+  courseId:     string;
+  enrolledAt:   Date;
+  completedAt:  Date | null;
+  progress:     number;         // 0-100 percentage
+  lastAccessedAt: Date;
+  expiresAt:    Date | null;    // for time-limited access
+}
+```
+
+---
+
+## Progress Tracking
+
+Track which lessons a user has completed and derive overall course progress.
+
+```typescript
+interface LessonProgress {
+  id:           string;
+  userId:       string;
+  lessonId:     string;
+  courseId:     string;
+  status:       "not_started" | "in_progress" | "completed";
+  watchedSeconds: number;       // for video lessons
+  completedAt:  Date | null;
+  attempts:     number;         // for quizzes
+}
+
+// Mark lesson as complete and recalculate course progress
+async function completeLesson(userId: string, lessonId: string) {
+  const lesson = await db.lesson.findUniqueOrThrow({ where: { id: lessonId } });
+
+  await db.lessonProgress.upsert({
+    where:  { userId_lessonId: { userId, lessonId } },
+    create: { userId, lessonId, courseId: lesson.courseId, status: "completed", completedAt: new Date(), watchedSeconds: 0, attempts: 1 },
+    update: { status: "completed", completedAt: new Date() },
+  });
+
+  // Recalculate overall course progress
+  const [totalLessons, completedLessons] = await Promise.all([
+    db.lesson.count({ where: { courseId: lesson.courseId } }),
+    db.lessonProgress.count({
+      where: { userId, courseId: lesson.courseId, status: "completed" },
+    }),
+  ]);
+
+  const progress = Math.round((completedLessons / totalLessons) * 100);
+
+  await db.enrollment.update({
+    where:  { userId_courseId: { userId, courseId: lesson.courseId } },
+    data:   {
+      progress,
+      completedAt: progress === 100 ? new Date() : null,
+      lastAccessedAt: new Date(),
+    },
+  });
+
+  // Issue certificate if course is now complete
+  if (progress === 100) {
+    await issueCertificate(userId, lesson.courseId);
+  }
+}
+```
+
+---
+
+## Quiz Engine
+
+```typescript
+interface Quiz {
+  id:          string;
+  lessonId:    string;
+  title:       string;
+  passingScore: number;        // e.g. 70 = 70%
+  maxAttempts: number | null;  // null = unlimited
+  timeLimit:   number | null;  // seconds, null = no limit
+  questions:   Question[];
+}
+
+interface Question {
+  id:       string;
+  quizId:   string;
+  text:     string;
+  type:     "single" | "multiple" | "true_false";
+  options:  Option[];
+  points:   number;
+  order:    number;
+}
+
+interface Option {
+  id:        string;
+  text:      string;
+  isCorrect: boolean;
+}
+
+interface QuizAttempt {
+  id:        string;
+  userId:    string;
+  quizId:    string;
+  answers:   Record<string, string[]>;  // questionId → selected optionIds
+  score:     number;                    // 0-100
+  passed:    boolean;
+  startedAt: Date;
+  submittedAt: Date;
+}
+
+// Grade a quiz submission
+function gradeQuiz(quiz: Quiz, answers: Record<string, string[]>): number {
+  let earned = 0;
+  let total  = 0;
+
+  for (const question of quiz.questions) {
+    total += question.points;
+    const selected = new Set(answers[question.id] ?? []);
+    const correct  = new Set(question.options.filter(o => o.isCorrect).map(o => o.id));
+
+    // All correct options selected, no incorrect ones
+    const isCorrect =
+      [...correct].every(id => selected.has(id)) &&
+      [...selected].every(id => correct.has(id));
+
+    if (isCorrect) earned += question.points;
+  }
+
+  return total === 0 ? 0 : Math.round((earned / total) * 100);
+}
+```
+
+---
+
+## Certificate Generation
+
+```typescript
+interface Certificate {
+  id:          string;
+  userId:      string;
+  courseId:    string;
+  issuedAt:    Date;
+  expiresAt:   Date | null;
+  verifyUrl:   string;         // public verification link
+  pdfUrl:      string;
+}
+
+// Issue certificate and generate PDF
+async function issueCertificate(userId: string, courseId: string) {
+  const [user, course] = await Promise.all([
+    db.user.findUniqueOrThrow({ where: { id: userId } }),
+    db.course.findUniqueOrThrow({ where: { id: courseId } }),
+  ]);
+
+  // Check not already issued
+  const existing = await db.certificate.findUnique({
+    where: { userId_courseId: { userId, courseId } },
+  });
+  if (existing) return existing;
+
+  const certId   = crypto.randomUUID();
+  const verifyUrl = `https://yourapp.com/verify/${certId}`;
+
+  // Generate PDF (using a template + puppeteer or a PDF API)
+  const pdfUrl = await generateCertificatePDF({
+    recipientName: `${user.firstName} ${user.lastName}`,
+    courseName:    course.title,
+    issuedAt:      new Date(),
+    verifyUrl,
+  });
+
+  return db.certificate.create({
+    data: { id: certId, userId, courseId, issuedAt: new Date(), verifyUrl, pdfUrl },
+  });
+}
+```
+
+---
+
+## Prerequisite Enforcement
+
+```typescript
+// Check if user can access a lesson based on prerequisites
+async function canAccessLesson(userId: string, lessonId: string): Promise<boolean> {
+  const lesson = await db.lesson.findUniqueOrThrow({ where: { id: lessonId } });
+
+  if (!lesson.prerequisiteId) return true;
+
+  const prereqProgress = await db.lessonProgress.findUnique({
+    where: { userId_lessonId: { userId, lessonId: lesson.prerequisiteId } },
+  });
+
+  return prereqProgress?.status === "completed";
+}
+```
+
+---
+
+*Last updated: September 2026.*

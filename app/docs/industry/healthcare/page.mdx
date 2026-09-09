@@ -1,0 +1,255 @@
+export const metadata = {
+  title: "Healthcare | Industry Domains | Wayan Phantom",
+  description: "Technical implementation patterns for healthcare software — EMR data model, FHIR resources, audit trail, and HIPAA-compliant storage.",
+};
+
+# Healthcare
+
+Healthcare software has stricter requirements than most domains: immutable records, fine-grained access control, regulatory compliance, and interoperability between systems that were never designed to talk to each other.
+
+---
+
+## Core Concepts
+
+| Concept | What It Means Technically |
+|---|---|
+| **EMR / EHR** | Electronic Medical/Health Record — structured patient data stored in a database |
+| **FHIR** | HL7 FHIR — REST-based standard for exchanging healthcare data between systems |
+| **HIPAA** | US regulation requiring patient data to be encrypted, access-controlled, and audited |
+| **HL7 v2** | Older message-based standard still widely used in hospital systems |
+| **ICD-10** | International disease classification codes used for diagnosis records |
+
+---
+
+## EMR Data Model
+
+The core of any healthcare app. Patients, encounters, observations, and medications are the primary resources.
+
+```typescript
+// Patient — the root entity
+interface Patient {
+  id:          string;          // internal UUID
+  fhirId:      string;          // FHIR resource ID
+  mrn:         string;          // Medical Record Number (unique per facility)
+  firstName:   string;
+  lastName:    string;
+  dob:         Date;            // date of birth
+  gender:      "male" | "female" | "other" | "unknown";
+  phone:       string;
+  email:       string;
+  address:     Address;
+  insuranceId: string;
+  createdAt:   Date;
+  updatedAt:   Date;
+}
+
+// Encounter — a clinical visit or interaction
+interface Encounter {
+  id:          string;
+  patientId:   string;
+  providerId:  string;
+  type:        "outpatient" | "inpatient" | "emergency" | "telehealth";
+  status:      "planned" | "in-progress" | "finished" | "cancelled";
+  startedAt:   Date;
+  endedAt:     Date | null;
+  chiefComplaint: string;
+  notes:       string;
+}
+
+// Observation — a measurement or finding (vitals, lab results)
+interface Observation {
+  id:          string;
+  encounterId: string;
+  patientId:   string;
+  code:        string;          // LOINC code (e.g. "8480-6" = systolic BP)
+  display:     string;          // "Systolic Blood Pressure"
+  value:       number;
+  unit:        string;          // "mmHg"
+  recordedAt:  Date;
+  recordedBy:  string;          // providerId
+}
+
+// Medication order
+interface MedicationOrder {
+  id:          string;
+  patientId:   string;
+  encounterId: string;
+  prescriberId: string;
+  medicationCode: string;       // RxNorm code
+  medicationName: string;
+  dosage:      string;          // "500mg"
+  frequency:   string;          // "twice daily"
+  startDate:   Date;
+  endDate:     Date | null;
+  status:      "active" | "completed" | "cancelled";
+}
+```
+
+---
+
+## FHIR Integration
+
+FHIR (Fast Healthcare Interoperability Resources) defines standard REST endpoints and JSON/XML schemas for healthcare data. Any FHIR-compliant system can exchange data without custom integration.
+
+```typescript
+// FHIR Patient resource shape
+interface FHIRPatient {
+  resourceType: "Patient";
+  id:           string;
+  identifier: [{
+    system: "urn:oid:2.16.840.1.113883.4.1"; // SSN OID
+    value:  string;
+  }];
+  name: [{
+    family: string;
+    given:  string[];
+    use:    "official";
+  }];
+  birthDate: string;  // "YYYY-MM-DD"
+  gender:    "male" | "female" | "other" | "unknown";
+  telecom: [{
+    system: "phone" | "email";
+    value:  string;
+  }];
+}
+
+// Fetch patient from a FHIR server
+async function getFHIRPatient(id: string): Promise<FHIRPatient> {
+  const res = await fetch(`${FHIR_BASE_URL}/Patient/${id}`, {
+    headers: {
+      Authorization: `Bearer ${await getFHIRToken()}`,
+      Accept: "application/fhir+json",
+    },
+  });
+  if (!res.ok) throw new Error(`FHIR error: ${res.status}`);
+  return res.json();
+}
+
+// Search FHIR observations (lab results, vitals)
+async function getPatientObservations(patientId: string, loincCode: string) {
+  const params = new URLSearchParams({
+    patient:  patientId,
+    code:     loincCode,
+    _sort:    "-date",
+    _count:   "10",
+  });
+  const res = await fetch(`${FHIR_BASE_URL}/Observation?${params}`, {
+    headers: { Authorization: `Bearer ${await getFHIRToken()}` },
+  });
+  return res.json(); // FHIR Bundle
+}
+```
+
+---
+
+## Audit Trail
+
+Every access to patient data must be logged — who viewed or modified what, when, and from where. This is non-negotiable for HIPAA compliance.
+
+```typescript
+// Audit log entry — append-only, never update or delete
+interface AuditLog {
+  id:         string;
+  timestamp:  Date;
+  userId:     string;
+  userRole:   string;
+  action:     "view" | "create" | "update" | "delete" | "export" | "print";
+  resource:   "patient" | "encounter" | "observation" | "medication";
+  resourceId: string;
+  patientId:  string;
+  ipAddress:  string;
+  userAgent:  string;
+  reason:     string | null;    // e.g. "treatment", "billing", "emergency"
+  outcome:    "success" | "failure";
+}
+
+// Middleware — log every patient data access automatically
+export async function auditMiddleware(
+  req: NextRequest,
+  resourceType: string,
+  resourceId: string,
+  patientId: string,
+  action: AuditLog["action"]
+) {
+  await db.auditLog.create({
+    data: {
+      userId:     req.headers.get("x-user-id")!,
+      userRole:   req.headers.get("x-user-role")!,
+      action,
+      resource:   resourceType,
+      resourceId,
+      patientId,
+      ipAddress:  req.headers.get("x-forwarded-for") ?? "unknown",
+      userAgent:  req.headers.get("user-agent") ?? "unknown",
+      outcome:    "success",
+    },
+  });
+}
+```
+
+Key rule: **audit logs are append-only**. No UPDATE or DELETE ever touches this table. Use a separate database user with only INSERT permissions on the audit table.
+
+---
+
+## HIPAA-Compliant Storage Patterns
+
+| Requirement | Implementation |
+|---|---|
+| Encryption at rest | Database encryption (Postgres TDE, or field-level with `pgcrypto`) |
+| Encryption in transit | TLS 1.2+ on all connections, no HTTP |
+| Access control | Role-based — doctors see their patients, admins see all, patients see their own |
+| Audit logging | Every read/write logged with user, timestamp, IP |
+| Data minimization | Only store what's needed; pseudonymize for analytics |
+| Breach notification | Automated alerting if unusual access patterns detected |
+
+```typescript
+// Field-level encryption for sensitive fields
+import crypto from "crypto";
+
+const ENCRYPTION_KEY = Buffer.from(process.env.FIELD_ENCRYPTION_KEY!, "hex");
+const IV_LENGTH = 16;
+
+function encrypt(text: string): string {
+  const iv = crypto.randomBytes(IV_LENGTH);
+  const cipher = crypto.createCipheriv("aes-256-cbc", ENCRYPTION_KEY, iv);
+  const encrypted = Buffer.concat([cipher.update(text), cipher.final()]);
+  return `${iv.toString("hex")}:${encrypted.toString("hex")}`;
+}
+
+function decrypt(text: string): string {
+  const [ivHex, encryptedHex] = text.split(":");
+  const iv = Buffer.from(ivHex, "hex");
+  const encrypted = Buffer.from(encryptedHex, "hex");
+  const decipher = crypto.createDecipheriv("aes-256-cbc", ENCRYPTION_KEY, iv);
+  return Buffer.concat([decipher.update(encrypted), decipher.final()]).toString();
+}
+
+// Encrypt SSN, insurance ID before storing
+const encryptedSSN = encrypt(patient.ssn);
+await db.patient.create({ data: { ...patient, ssn: encryptedSSN } });
+```
+
+---
+
+## Role-Based Access Control
+
+```typescript
+type HealthcareRole = "patient" | "nurse" | "doctor" | "admin" | "billing";
+
+const ACCESS_MATRIX: Record<HealthcareRole, string[]> = {
+  patient:  ["own_records"],
+  nurse:    ["assigned_patients", "vitals", "medications"],
+  doctor:   ["assigned_patients", "full_chart", "prescribe", "diagnose"],
+  admin:    ["all_patients", "audit_logs", "user_management"],
+  billing:  ["demographics", "insurance", "encounter_codes"],
+};
+
+function canAccess(role: HealthcareRole, resource: string): boolean {
+  return ACCESS_MATRIX[role].includes(resource) ||
+         ACCESS_MATRIX[role].includes("all_patients");
+}
+```
+
+---
+
+*Last updated: September 2026.*

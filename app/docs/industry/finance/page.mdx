@@ -1,0 +1,236 @@
+export const metadata = {
+  title: "Finance | Industry Domains | Wayan Phantom",
+  description: "Technical implementation patterns for fintech — double-entry ledger, transaction state machine, KYC/AML flow, and payment processing.",
+};
+
+# Finance
+
+Financial software has two non-negotiable properties: every cent must be accounted for, and the record of what happened must never change. Everything else follows from those two rules.
+
+---
+
+## Double-Entry Ledger
+
+Every financial transaction has two sides — a debit and a credit that sum to zero. This is 500-year-old bookkeeping, and it's still the correct data model for any system handling money.
+
+```typescript
+// Account — any party that holds a balance
+interface Account {
+  id:       string;
+  name:     string;
+  type:     "asset" | "liability" | "equity" | "revenue" | "expense";
+  currency: string;   // "USD", "IDR", "ETH"
+  balance:  bigint;   // stored in smallest unit (cents, wei)
+}
+
+// Journal entry — the atomic unit of the ledger
+interface JournalEntry {
+  id:          string;
+  createdAt:   Date;
+  description: string;
+  referenceId: string;   // order ID, payment ID, etc.
+  lines:       EntryLine[];
+}
+
+interface EntryLine {
+  accountId: string;
+  type:      "debit" | "credit";
+  amount:    bigint;     // always positive
+}
+
+// Invariant: sum of debits === sum of credits
+function validateEntry(entry: JournalEntry): boolean {
+  const debits  = entry.lines.filter(l => l.type === "debit").reduce((s, l) => s + l.amount, 0n);
+  const credits = entry.lines.filter(l => l.type === "credit").reduce((s, l) => s + l.amount, 0n);
+  return debits === credits;
+}
+
+// Record a payment: customer pays $100 for an order
+async function recordPayment(orderId: string, amount: bigint, customerId: string) {
+  const entry: JournalEntry = {
+    id:          crypto.randomUUID(),
+    createdAt:   new Date(),
+    description: `Payment for order ${orderId}`,
+    referenceId: orderId,
+    lines: [
+      { accountId: "cash",                   type: "debit",  amount },  // cash goes up
+      { accountId: `revenue-${customerId}`,  type: "credit", amount },  // revenue goes up
+    ],
+  };
+
+  if (!validateEntry(entry)) throw new Error("Unbalanced journal entry");
+
+  await db.$transaction([
+    db.journalEntry.create({ data: entry }),
+    db.account.update({ where: { id: "cash" },    data: { balance: { increment: amount } } }),
+    db.account.update({ where: { id: `revenue-${customerId}` }, data: { balance: { increment: amount } } }),
+  ]);
+}
+```
+
+Never use `float` or `double` for money. Store amounts as integers in the smallest unit (cents for USD, paise for INR) and only format for display.
+
+---
+
+## Transaction State Machine
+
+A payment is not just a row insert. It moves through states and each transition has side effects.
+
+```
+created → pending → processing → completed
+                 ↘              ↘
+                  failed         refunded
+```
+
+```typescript
+type TxStatus = "created" | "pending" | "processing" | "completed" | "failed" | "refunded";
+
+interface Transaction {
+  id:            string;
+  userId:        string;
+  amount:        bigint;
+  currency:      string;
+  status:        TxStatus;
+  gatewayId:     string | null;   // payment provider's ID
+  gatewayStatus: string | null;
+  failureReason: string | null;
+  createdAt:     Date;
+  updatedAt:     Date;
+}
+
+const VALID_TRANSITIONS: Record<TxStatus, TxStatus[]> = {
+  created:    ["pending", "failed"],
+  pending:    ["processing", "failed"],
+  processing: ["completed", "failed"],
+  completed:  ["refunded"],
+  failed:     [],
+  refunded:   [],
+};
+
+async function transitionTx(id: string, newStatus: TxStatus, reason?: string) {
+  const tx = await db.transaction.findUniqueOrThrow({ where: { id } });
+
+  if (!VALID_TRANSITIONS[tx.status].includes(newStatus)) {
+    throw new Error(`Invalid transition: ${tx.status} → ${newStatus}`);
+  }
+
+  await db.transaction.update({
+    where: { id },
+    data:  { status: newStatus, failureReason: reason ?? null, updatedAt: new Date() },
+  });
+}
+```
+
+---
+
+## Payment Webhook Handling
+
+Payment gateways (Stripe, Midtrans, Xendit) send webhooks when payment status changes. You must verify the signature and handle idempotency.
+
+```typescript
+// Next.js Route Handler — POST /api/webhooks/stripe
+import Stripe from "stripe";
+
+const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!);
+
+export async function POST(req: NextRequest) {
+  const body      = await req.text();
+  const signature = req.headers.get("stripe-signature")!;
+
+  let event: Stripe.Event;
+  try {
+    event = stripe.webhooks.constructEvent(body, signature, process.env.STRIPE_WEBHOOK_SECRET!);
+  } catch {
+    return NextResponse.json({ error: "Invalid signature" }, { status: 400 });
+  }
+
+  // Idempotency — skip if already processed
+  const existing = await db.webhookEvent.findUnique({ where: { stripeEventId: event.id } });
+  if (existing) return NextResponse.json({ received: true });
+
+  await db.webhookEvent.create({ data: { stripeEventId: event.id, type: event.type } });
+
+  switch (event.type) {
+    case "payment_intent.succeeded":
+      const pi = event.data.object as Stripe.PaymentIntent;
+      await transitionTx(pi.metadata.txId, "completed");
+      break;
+    case "payment_intent.payment_failed":
+      const failed = event.data.object as Stripe.PaymentIntent;
+      await transitionTx(failed.metadata.txId, "failed", failed.last_payment_error?.message);
+      break;
+  }
+
+  return NextResponse.json({ received: true });
+}
+```
+
+---
+
+## KYC / AML Flow
+
+Know Your Customer (KYC) and Anti-Money Laundering (AML) are regulatory requirements for financial products. The typical flow:
+
+```
+User signs up
+  → submit identity docs (ID card, passport)
+  → third-party verification (Onfido, Sumsub, Persona)
+  → verification result webhook
+  → update user KYC status
+  → unlock financial features
+```
+
+```typescript
+type KYCStatus = "not_started" | "pending" | "approved" | "rejected" | "expired";
+
+interface KYCRecord {
+  id:           string;
+  userId:       string;
+  status:       KYCStatus;
+  provider:     string;       // "onfido" | "sumsub"
+  checkId:      string;       // provider's reference ID
+  level:        "basic" | "enhanced";
+  submittedAt:  Date;
+  reviewedAt:   Date | null;
+  rejectionReason: string | null;
+  expiresAt:    Date | null;   // KYC can expire and require renewal
+}
+
+// Gate financial features behind KYC
+function requireKYC(user: { kycStatus: KYCStatus }, level: "basic" | "enhanced") {
+  if (user.kycStatus !== "approved") {
+    throw new Error("KYC verification required to access this feature");
+  }
+}
+```
+
+---
+
+## Currency & Precision
+
+```typescript
+// Store as integer cents, format for display
+function formatCurrency(amountCents: bigint, currency: string, locale = "en-US"): string {
+  const amount = Number(amountCents) / 100;
+  return new Intl.NumberFormat(locale, { style: "currency", currency }).format(amount);
+}
+
+// formatCurrency(10050n, "USD") → "$100.50"
+// formatCurrency(150000n, "IDR") → "Rp 1,500.00"
+
+// Convert between currencies using a rate snapshot
+interface ExchangeRate {
+  from:      string;
+  to:        string;
+  rate:      number;   // multiply from * rate = to
+  fetchedAt: Date;
+}
+
+function convert(amount: bigint, rate: ExchangeRate): bigint {
+  return BigInt(Math.round(Number(amount) * rate.rate));
+}
+```
+
+---
+
+*Last updated: September 2026.*

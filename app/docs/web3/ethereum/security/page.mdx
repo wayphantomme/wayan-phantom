@@ -1,0 +1,179 @@
+export const metadata = {
+  title: "Smart Contract Security | Wayan Phantom",
+  description: "Common smart contract vulnerabilities and how to prevent them: reentrancy, access control, overflow, DoS, and timestamp manipulation.",
+};
+
+# Smart Contract Security
+
+The most common vulnerabilities in Solidity contracts and how to defend against each one.
+
+---
+
+## Reentrancy
+
+Reentrancy is a vulnerability where an attacker calls a contract repeatedly before its state has been updated. The contract still thinks the attacker has a balance — so they can drain funds in a loop.
+
+**Vulnerable:**
+
+```solidity
+function withdraw() external {
+    uint amount = balance[msg.sender];
+    (bool ok,) = msg.sender.call{value: amount}(""); // attacker re-enters here
+    require(ok);
+    balance[msg.sender] = 0; // never reached during the attack
+}
+```
+
+When `withdraw` is called, funds are transferred before the balance is zeroed. An attacker contract can call `withdraw` again from inside its `receive()` function, draining the vault repeatedly.
+
+> **Case example:** [The DAO Hack (BTCC)](https://www.btcc.com/en-US/square/Cryptopolitan/1415190)
+
+**Fix — update state before transferring funds (Checks-Effects-Interactions pattern):**
+
+```solidity
+function withdraw() external {
+    uint amount = balance[msg.sender];
+    balance[msg.sender] = 0; // state updated first
+    (bool ok,) = msg.sender.call{value: amount}("");
+    require(ok);
+}
+```
+
+Or use OpenZeppelin's `ReentrancyGuard`:
+
+```solidity
+import "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
+
+contract Vault is ReentrancyGuard {
+    function withdraw() external nonReentrant {
+        // safe
+    }
+}
+```
+
+---
+
+## Access Control
+
+Occurs when sensitive functions are left unprotected — anyone can call them. Like leaving an admin button unlocked for all users.
+
+**Vulnerable:**
+
+```solidity
+function mint(address to, uint256 amount) external {
+    balances[to] += amount; // no restriction — anyone can mint
+}
+```
+
+> **Case example:** [Parity Wallet Multisig Hack (OpenZeppelin)](https://www.openzeppelin.com/news/on-the-parity-wallet-multisig-hack-405a8c12e8f7)
+
+**Fix — add an ownership check:**
+
+```solidity
+modifier onlyOwner() {
+    require(msg.sender == owner, "Not owner");
+    _;
+}
+
+function mint(address to, uint256 amount) external onlyOwner {
+    balances[to] += amount;
+}
+```
+
+For more granular roles, use OpenZeppelin's `AccessControl`:
+
+```solidity
+import "@openzeppelin/contracts/access/AccessControl.sol";
+
+contract Protocol is AccessControl {
+    bytes32 public constant MINTER_ROLE = keccak256("MINTER_ROLE");
+
+    function mint(address to, uint256 amount) external onlyRole(MINTER_ROLE) {
+        balances[to] += amount;
+    }
+}
+```
+
+---
+
+## Overflow / Underflow
+
+Integer arithmetic wraps around its bounds. Subtracting 1 from a `uint` that holds 0 silently becomes an enormous number, which can corrupt balances.
+
+> **Case example:** [BeautyChain (BEC) overflow exploit](https://medium.com/secbit-media/a-disastrous-vulnerability-found-in-smart-contracts-of-beautychain-bec-dbf24ddbc30e)
+
+**Fix — use Solidity 0.8.0 or later:**
+
+```solidity
+pragma solidity ^0.8.20; // overflow/underflow checks are built in
+```
+
+Arithmetic in Solidity 0.8+ reverts automatically on overflow or underflow. No extra library needed. If you need the old wrapping behavior deliberately, use `unchecked {}`.
+
+---
+
+## Denial of Service (Gas Exhaustion)
+
+If a contract tries to serve too many operations in a single transaction, the gas cost exceeds the block limit and the whole function fails — making funds permanently inaccessible.
+
+**Vulnerable:**
+
+```solidity
+function distributeRewards() external {
+    for (uint i = 0; i < users.length; i++) {
+        payable(users[i]).transfer(1 ether); // fails when users list grows too large
+    }
+}
+```
+
+When the `users` array is long enough, the loop hits the gas limit and the entire transaction reverts.
+
+> **Case example:** [Smart contract mistake locks $34M of ETH for NFT project (The Block)](https://www.theblock.co/linked/143198/smart-contract-mistake-locks-up-34-million-of-eth-for-nft-project)
+
+**Fix — pull pattern (users claim their own funds):**
+
+```solidity
+mapping(address => uint256) public rewards;
+
+function claim() external {
+    uint256 amount = rewards[msg.sender];
+    rewards[msg.sender] = 0;
+    payable(msg.sender).transfer(amount);
+}
+```
+
+Instead of the contract pushing funds to everyone in one transaction, each user pulls their own share. No loop, no gas limit risk.
+
+---
+
+## Timestamp Manipulation
+
+Contracts that rely on `block.timestamp` for critical logic (randomness, time-locked conditions) are vulnerable. Validators can shift the timestamp by a few seconds, which can be enough to manipulate outcomes like winning a lottery or meeting an expiry check.
+
+**Vulnerable:**
+
+```solidity
+if (block.timestamp % 2 == 0) {
+    winner = msg.sender; // validator can time submission to match this
+}
+```
+
+> **Case example:** [SmartBillions hack — $120,000](https://medium.com/@SmartBillions/smartbillions-hackathon-smart-contract-hacked-with-120-000-b62a66b34268)
+
+**Fix:**
+
+- Never use `block.timestamp` as a random number source or in logic that needs precision below ~15 seconds.
+- For randomness, use [Chainlink VRF](https://docs.chain.link/vrf) — it provides verifiable, tamper-proof random numbers.
+- For time-locks, `block.timestamp` is fine when the tolerance is measured in hours or days, not seconds.
+
+```solidity
+// Acceptable — tolerance is hours, not seconds
+require(block.timestamp >= unlockTime, "Still locked");
+
+// Dangerous — tolerance is a single timestamp modulo
+if (block.timestamp % 2 == 0) { ... }
+```
+
+---
+
+*Last updated: September 2026.*

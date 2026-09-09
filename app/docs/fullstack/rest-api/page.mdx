@@ -1,0 +1,238 @@
+export const metadata = {
+  title: "REST API & HTTP | Wayan Phantom",
+  description: "HTTP methods, status codes, headers, authentication, and REST API design patterns used in fullstack development.",
+};
+
+# REST API & HTTP
+
+The foundation of how clients and servers communicate. Every Next.js Route Handler, every fetch call, and every third-party API integration relies on these concepts.
+
+---
+
+## HTTP Methods
+
+Each method signals the **intent** of a request. The server decides what to actually do, but following conventions makes APIs predictable.
+
+| Method | Intent | Has Body | Idempotent |
+|---|---|---|---|
+| `GET` | Read / fetch data | No | Yes |
+| `POST` | Create a new resource | Yes | No |
+| `PUT` | Replace a resource entirely | Yes | Yes |
+| `PATCH` | Partially update a resource | Yes | No |
+| `DELETE` | Remove a resource | No | Yes |
+
+**Idempotent** means calling it multiple times produces the same result. `DELETE /users/1` twice still results in the user being deleted — no extra side effects.
+
+```typescript
+// Next.js Route Handler — app/api/users/route.ts
+import { NextRequest, NextResponse } from "next/server";
+
+// GET /api/users
+export async function GET() {
+  const users = await db.user.findMany();
+  return NextResponse.json(users);
+}
+
+// POST /api/users
+export async function POST(req: NextRequest) {
+  const body = await req.json();
+  const user = await db.user.create({ data: body });
+  return NextResponse.json(user, { status: 201 });
+}
+
+// app/api/users/[id]/route.ts
+// PATCH /api/users/:id
+export async function PATCH(req: NextRequest, { params }: { params: { id: string } }) {
+  const body = await req.json();
+  const user = await db.user.update({ where: { id: params.id }, data: body });
+  return NextResponse.json(user);
+}
+
+// DELETE /api/users/:id
+export async function DELETE(_req: NextRequest, { params }: { params: { id: string } }) {
+  await db.user.delete({ where: { id: params.id } });
+  return new NextResponse(null, { status: 204 });
+}
+```
+
+---
+
+## HTTP Status Codes
+
+The three-digit code tells the client what happened — before it even reads the response body.
+
+### 2xx — Success
+
+| Code | Name | When to use |
+|---|---|---|
+| `200` | OK | Successful GET, PUT, PATCH |
+| `201` | Created | Resource successfully created (POST) |
+| `204` | No Content | Success but nothing to return (DELETE) |
+
+### 3xx — Redirection
+
+| Code | Name | When to use |
+|---|---|---|
+| `301` | Moved Permanently | URL has changed permanently |
+| `302` | Found | Temporary redirect |
+| `304` | Not Modified | Cached version is still valid |
+
+### 4xx — Client Error
+
+| Code | Name | When to use |
+|---|---|---|
+| `400` | Bad Request | Invalid input, malformed body |
+| `401` | Unauthorized | Not authenticated (no/invalid token) |
+| `403` | Forbidden | Authenticated but no permission |
+| `404` | Not Found | Resource doesn't exist |
+| `409` | Conflict | Duplicate resource (e.g. email already taken) |
+| `422` | Unprocessable Entity | Validation failed |
+| `429` | Too Many Requests | Rate limit hit |
+
+### 5xx — Server Error
+
+| Code | Name | When to use |
+|---|---|---|
+| `500` | Internal Server Error | Unhandled exception on the server |
+| `502` | Bad Gateway | Upstream server returned invalid response |
+| `503` | Service Unavailable | Server down or overloaded |
+
+---
+
+## Headers
+
+Headers carry metadata about the request or response.
+
+### Common Request Headers
+
+| Header | Purpose | Example |
+|---|---|---|
+| `Content-Type` | Format of the request body | `application/json` |
+| `Authorization` | Auth credentials | `Bearer <token>` |
+| `Accept` | Expected response format | `application/json` |
+| `X-Request-ID` | Trace ID for debugging | `uuid-v4` |
+
+### Common Response Headers
+
+| Header | Purpose | Example |
+|---|---|---|
+| `Content-Type` | Format of the response body | `application/json` |
+| `Cache-Control` | Caching rules | `no-store`, `max-age=3600` |
+| `X-RateLimit-Remaining` | Requests left in window | `42` |
+
+```typescript
+// Setting headers in a Next.js response
+return NextResponse.json(data, {
+  status: 200,
+  headers: {
+    "Cache-Control": "public, max-age=60, stale-while-revalidate=300",
+    "X-Request-ID": crypto.randomUUID(),
+  },
+});
+```
+
+---
+
+## Authentication Patterns
+
+### Bearer Token (JWT)
+
+The most common pattern for APIs. The client sends a token in the `Authorization` header.
+
+```typescript
+// Client — fetch with auth token
+const res = await fetch("/api/protected", {
+  headers: {
+    Authorization: `Bearer ${token}`,
+  },
+});
+
+// Server — validate the token
+export async function GET(req: NextRequest) {
+  const auth = req.headers.get("Authorization");
+  if (!auth?.startsWith("Bearer ")) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+  const token = auth.slice(7);
+  // verify token...
+}
+```
+
+### API Key
+
+Common for server-to-server or third-party integrations.
+
+```typescript
+const res = await fetch("https://api.example.com/data", {
+  headers: {
+    "X-API-Key": process.env.API_KEY!,
+  },
+});
+```
+
+---
+
+## CORS
+
+CORS (Cross-Origin Resource Sharing) controls which origins can call your API from a browser.
+
+```typescript
+// Middleware or route handler — add CORS headers
+export async function OPTIONS() {
+  return new NextResponse(null, {
+    status: 204,
+    headers: {
+      "Access-Control-Allow-Origin": "https://yourdomain.com",
+      "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, OPTIONS",
+      "Access-Control-Allow-Headers": "Content-Type, Authorization",
+    },
+  });
+}
+```
+
+For Next.js apps calling their own Route Handlers, CORS is not needed — same origin. It only matters for external clients.
+
+---
+
+## REST URL Design
+
+Good URL design makes an API intuitive and predictable.
+
+```
+# Resources are nouns, not verbs
+GET    /api/users          → list all users
+POST   /api/users          → create a user
+GET    /api/users/:id      → get one user
+PATCH  /api/users/:id      → update a user
+DELETE /api/users/:id      → delete a user
+
+# Nested resources
+GET    /api/users/:id/posts     → posts by a user
+POST   /api/users/:id/posts     → create a post for a user
+
+# Filtering / sorting via query params, not path
+GET    /api/users?role=admin&sort=createdAt&order=desc
+```
+
+```typescript
+// Pagination pattern
+export async function GET(req: NextRequest) {
+  const { searchParams } = new URL(req.url);
+  const page  = Number(searchParams.get("page")  ?? 1);
+  const limit = Number(searchParams.get("limit") ?? 20);
+
+  const [items, total] = await Promise.all([
+    db.user.findMany({ skip: (page - 1) * limit, take: limit }),
+    db.user.count(),
+  ]);
+
+  return NextResponse.json({
+    data: items,
+    pagination: { page, limit, total, pages: Math.ceil(total / limit) },
+  });
+}
+```
+
+---
+
+*Last updated: September 2026.*

@@ -1,0 +1,276 @@
+export const metadata = {
+  title: "E-commerce | Industry Domains | Wayan Phantom",
+  description: "Technical implementation patterns for e-commerce — cart, order state machine, inventory management, payment webhooks, and fulfillment pipeline.",
+};
+
+# E-commerce
+
+E-commerce has deceptively complex state management underneath a simple shopping experience. Cart, checkout, payment, fulfillment — each is a state machine, and they interact with each other.
+
+---
+
+## Core Data Model
+
+```typescript
+interface Product {
+  id:          string;
+  name:        string;
+  slug:        string;
+  description: string;
+  price:       bigint;       // in cents
+  currency:    string;
+  images:      string[];
+  status:      "active" | "draft" | "archived";
+  categoryId:  string;
+  createdAt:   Date;
+}
+
+interface ProductVariant {
+  id:        string;
+  productId: string;
+  sku:       string;         // unique stock keeping unit
+  name:      string;         // "Red / XL"
+  price:     bigint | null;  // override product price if set
+  attributes: Record<string, string>;  // { color: "red", size: "XL" }
+  stock:     number;
+}
+
+interface CartItem {
+  variantId: string;
+  quantity:  number;
+  price:     bigint;         // snapshot price at time of adding
+}
+
+interface Cart {
+  id:        string;
+  userId:    string | null;  // null for guest cart
+  sessionId: string;
+  items:     CartItem[];
+  couponCode: string | null;
+  updatedAt: Date;
+}
+```
+
+---
+
+## Order State Machine
+
+An order is never just a single status. It moves through a lifecycle with strict rules about which transitions are valid.
+
+```
+cart → pending_payment → paid → processing → shipped → delivered
+                     ↘                    ↘
+                      cancelled            refund_requested → refunded
+```
+
+```typescript
+type OrderStatus =
+  | "pending_payment"
+  | "paid"
+  | "processing"
+  | "shipped"
+  | "delivered"
+  | "cancelled"
+  | "refund_requested"
+  | "refunded";
+
+interface Order {
+  id:             string;
+  userId:         string;
+  status:         OrderStatus;
+  items:          OrderItem[];
+  subtotal:       bigint;
+  discount:       bigint;
+  shipping:       bigint;
+  tax:            bigint;
+  total:          bigint;
+  shippingAddress: Address;
+  paymentId:      string | null;
+  trackingNumber: string | null;
+  notes:          string | null;
+  createdAt:      Date;
+  updatedAt:      Date;
+}
+
+interface OrderItem {
+  id:        string;
+  orderId:   string;
+  variantId: string;
+  sku:       string;
+  name:      string;         // snapshot at purchase time
+  price:     bigint;         // snapshot at purchase time
+  quantity:  number;
+}
+
+const VALID_TRANSITIONS: Record<OrderStatus, OrderStatus[]> = {
+  pending_payment:  ["paid", "cancelled"],
+  paid:             ["processing", "cancelled"],
+  processing:       ["shipped", "cancelled"],
+  shipped:          ["delivered"],
+  delivered:        ["refund_requested"],
+  cancelled:        [],
+  refund_requested: ["refunded", "delivered"],
+  refunded:         [],
+};
+
+async function updateOrderStatus(orderId: string, newStatus: OrderStatus) {
+  const order = await db.order.findUniqueOrThrow({ where: { id: orderId } });
+  if (!VALID_TRANSITIONS[order.status].includes(newStatus)) {
+    throw new Error(`Cannot transition order from ${order.status} to ${newStatus}`);
+  }
+  return db.order.update({ where: { id: orderId }, data: { status: newStatus } });
+}
+```
+
+---
+
+## Inventory Management
+
+Stock must be reserved at checkout, not just decremented at payment — otherwise you oversell.
+
+```typescript
+// Reserve stock when order is created (not when paid)
+async function reserveStock(items: OrderItem[]): Promise<void> {
+  await db.$transaction(async (tx) => {
+    for (const item of items) {
+      const variant = await tx.productVariant.findUniqueOrThrow({
+        where: { id: item.variantId },
+      });
+
+      if (variant.stock < item.quantity) {
+        throw new Error(`Insufficient stock for SKU ${item.sku}`);
+      }
+
+      await tx.productVariant.update({
+        where: { id: item.variantId },
+        data:  { stock: { decrement: item.quantity } },
+      });
+    }
+  });
+}
+
+// Release reservation if payment fails or order cancelled
+async function releaseStock(items: OrderItem[]): Promise<void> {
+  await db.$transaction(
+    items.map(item =>
+      db.productVariant.update({
+        where: { id: item.variantId },
+        data:  { stock: { increment: item.quantity } },
+      })
+    )
+  );
+}
+```
+
+---
+
+## Checkout Flow
+
+```typescript
+// POST /api/checkout
+export async function POST(req: NextRequest) {
+  const { cartId, shippingAddress, paymentMethod } = await req.json();
+  const userId = getUserId(req);
+
+  // 1. Load and validate cart
+  const cart = await db.cart.findUniqueOrThrow({
+    where: { id: cartId },
+    include: { items: { include: { variant: true } } },
+  });
+
+  // 2. Calculate totals
+  const subtotal = cart.items.reduce((sum, i) => sum + i.price * BigInt(i.quantity), 0n);
+  const shipping  = calculateShipping(shippingAddress, cart.items);
+  const tax       = calculateTax(subtotal, shippingAddress);
+  const total     = subtotal + shipping + tax;
+
+  // 3. Reserve stock (throws if any item is out of stock)
+  await reserveStock(cart.items);
+
+  // 4. Create order in pending_payment state
+  const order = await db.order.create({
+    data: {
+      userId,
+      status:   "pending_payment",
+      items:    { create: cart.items.map(toOrderItem) },
+      subtotal, shipping, tax,
+      discount: 0n,
+      total,
+      shippingAddress,
+    },
+  });
+
+  // 5. Create payment intent
+  const paymentIntent = await stripe.paymentIntents.create({
+    amount:   Number(total),
+    currency: "usd",
+    metadata: { orderId: order.id },
+  });
+
+  // 6. Clear cart
+  await db.cart.delete({ where: { id: cartId } });
+
+  return NextResponse.json({ orderId: order.id, clientSecret: paymentIntent.client_secret });
+}
+```
+
+---
+
+## Coupon / Discount Engine
+
+```typescript
+interface Coupon {
+  code:        string;
+  type:        "percentage" | "fixed";
+  value:       number;       // 20 = 20% or $20
+  minOrder:    bigint | null;
+  maxUses:     number | null;
+  usedCount:   number;
+  expiresAt:   Date | null;
+  productIds:  string[];     // empty = applies to all
+}
+
+function applyCoupon(subtotal: bigint, coupon: Coupon): bigint {
+  if (coupon.minOrder && subtotal < coupon.minOrder) return 0n;
+
+  if (coupon.type === "percentage") {
+    return subtotal * BigInt(coupon.value) / 100n;
+  }
+  // fixed — but don't discount more than the subtotal
+  return BigInt(Math.min(coupon.value * 100, Number(subtotal)));
+}
+```
+
+---
+
+## Fulfillment & Shipping
+
+```typescript
+// After payment confirmed — trigger fulfillment
+async function onPaymentConfirmed(orderId: string) {
+  await updateOrderStatus(orderId, "paid");
+
+  // Notify warehouse / 3PL
+  await sendToWarehouse(orderId);
+
+  // Send confirmation email
+  const order = await db.order.findUniqueOrThrow({
+    where: { id: orderId },
+    include: { user: true, items: true },
+  });
+  await sendOrderConfirmationEmail(order);
+}
+
+// Webhook from shipping provider — update tracking
+async function onShipmentCreated(orderId: string, trackingNumber: string) {
+  await db.order.update({
+    where: { id: orderId },
+    data:  { status: "shipped", trackingNumber },
+  });
+  await sendShippingNotificationEmail(orderId, trackingNumber);
+}
+```
+
+---
+
+*Last updated: September 2026.*
