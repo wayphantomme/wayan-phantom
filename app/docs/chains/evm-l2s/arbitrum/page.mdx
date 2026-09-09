@@ -1,0 +1,105 @@
+export const metadata = {
+  title: "Arbitrum | Wayan Phantom",
+  description: "Notes on Arbitrum — Ethereum's largest L2. Nitro, One, Nova, and Orbit.",
+};
+
+# Arbitrum
+
+Ethereum's largest L2 by TVL. Built by Offchain Labs using the Nitro stack — an optimistic rollup with fraud proofs.
+
+---
+
+## Products
+
+| Product | What It Is |
+|---------|-----------|
+| Arbitrum One | Main L2, EVM-compatible, general purpose DeFi |
+| Arbitrum Nova | Ultra-cheap chain for gaming and social (AnyTrust) |
+| Arbitrum Orbit | Framework to launch your own L3 on top of Arbitrum |
+| Stylus | Run Rust/C++ smart contracts alongside Solidity |
+
+---
+
+## How Arbitrum Works
+
+Arbitrum uses **optimistic execution** — transactions are assumed valid and executed immediately. A 7-day challenge window allows anyone to submit a fraud proof if a transaction was invalid.
+
+```
+User sends tx
+  → Sequencer orders and executes
+  → Batch posted to Ethereum L1
+  → 7-day challenge window
+  → If no fraud proof: finalized on L1
+```
+
+The 7-day delay only applies when withdrawing back to mainnet. Most users stay on L2 or bridge through fast bridges (Across, Hop) that don't wait.
+
+---
+
+## Connect and Deploy
+
+```javascript
+// hardhat.config.js
+require("dotenv").config();
+
+module.exports = {
+  solidity: "0.8.20",
+  networks: {
+    arbitrumOne: {
+      url: "https://arb1.arbitrum.io/rpc",
+      accounts: [process.env.PRIVATE_KEY],
+      chainId: 42161,
+    },
+    arbitrumSepolia: {
+      url: "https://sepolia-rollup.arbitrum.io/rpc",
+      accounts: [process.env.PRIVATE_KEY],
+      chainId: 421614,
+    },
+  },
+  etherscan: {
+    apiKey: {
+      arbitrumOne: process.env.ARBISCAN_API_KEY,
+    },
+  },
+};
+```
+
+```bash
+npx hardhat run scripts/deploy.js --network arbitrumOne
+npx hardhat verify --network arbitrumOne CONTRACT_ADDRESS
+```
+
+---
+
+## Key Info
+
+| Item | Value |
+|------|-------|
+| Chain ID | 42161 |
+| RPC | https://arb1.arbitrum.io/rpc |
+| Block Explorer | arbiscan.io |
+| Native Token | ETH |
+| Block Time | ~250ms |
+| Finality | ~15 min (on L1) |
+| Testnet | Arbitrum Sepolia (421614) |
+
+---
+
+## Arbitrum Orbit (L3s)
+
+Orbit lets you deploy your own L3 chain that settles on Arbitrum One or Nova. Customize gas token, governance, throughput.
+
+```bash
+# Scaffold an Orbit chain
+git clone https://github.com/OffchainLabs/orbit-setup-script
+cd orbit-setup-script
+npm install
+# Configure your chain in config.json
+npm run deploy
+```
+
+Use cases: app-specific chains (a DEX with its own chain), gaming, high-frequency trading.
+
+---
+
+*Last updated: September 2026.*

@@ -1,0 +1,107 @@
+export const metadata = {
+  title: "OP Stack | Wayan Phantom",
+  description: "Notes on the OP Stack — Optimism's open-source framework for deploying Ethereum L2s.",
+};
+
+# OP Stack
+
+The open-source framework behind Optimism, Base, Zora, Mode, and the broader Superchain. Build your own L2 in weeks.
+
+---
+
+## What It Is
+
+OP Stack is a modular, open-source codebase maintained by the Optimism Collective. It defines how to build an optimistic rollup that settles on Ethereum.
+
+Any team can fork it, configure it, and launch a chain — without permission from Optimism. The result is a network of chains called the **Superchain** that share bridges and messaging protocols.
+
+---
+
+## Superchain Members (September 2026)
+
+| Chain | Who Built It | Focus |
+|-------|-------------|-------|
+| Optimism (OP Mainnet) | Optimism Collective | General purpose, public goods |
+| Base | Coinbase | Consumer apps, crypto-native |
+| Zora | Zora Network | NFT minting and collecting |
+| Mode | Mode Network | DeFi |
+| Fraxtal | Frax Finance | Stablecoin ecosystem |
+| Metal L2 | Metal Pay | Payments |
+
+---
+
+## Architecture
+
+```
+OP Stack chain
+├── Execution Layer    → EVM (same as Ethereum)
+├── Sequencer          → Orders transactions, posts batches
+├── Batcher            → Compresses and posts L2 data to L1
+├── Proposer           → Posts state roots to L1
+└── Fault Proof System → Allows anyone to challenge invalid states
+```
+
+Key config choices when deploying:
+- **Data Availability**: Post to Ethereum (expensive, most secure) or use alt-DA (cheap, less secure)
+- **Gas token**: ETH or custom token
+- **Admin keys**: Who controls upgrades
+- **Permissioned sequencer or open**: Can anyone sequence, or just you?
+
+---
+
+## Deploy Your Own OP Stack Chain
+
+```bash
+# Clone the starter kit
+git clone https://github.com/ethereum-optimism/optimism
+cd optimism
+
+# Install dependencies
+pnpm install
+
+# Configure your chain
+cp .env.example .env
+# Edit .env with your L1 RPC, deployer key, chain ID, etc.
+
+# Deploy L1 contracts
+cd packages/contracts-bedrock
+forge script scripts/deploy/Deploy.s.sol --broadcast --rpc-url $L1_RPC_URL
+```
+
+Requires: Ethereum node access, funded deployer wallet, server to run the sequencer.
+
+---
+
+## Cross-Chain Messaging (Superchain)
+
+Chains in the Superchain can pass messages natively without third-party bridges.
+
+```solidity
+// Send message from Base to Optimism
+ICrossDomainMessenger messenger = ICrossDomainMessenger(
+    0x4200000000000000000000000000000000000007
+);
+
+messenger.sendMessage(
+    targetOnOptimism,
+    abi.encodeWithSignature("doSomething(uint256)", 42),
+    200_000 // gas on destination
+);
+```
+
+---
+
+## OP Stack vs Arbitrum Orbit
+
+| Factor | OP Stack | Arbitrum Orbit |
+|--------|----------|----------------|
+| Type | Optimistic rollup | Optimistic rollup |
+| Open source | Yes | Yes |
+| Superchain | Yes | No |
+| L3 support | Developing | Yes (Orbit chains settle on Arbitrum) |
+| ZK upgrade path | Yes (ZK Superchain roadmap) | Limited |
+| Used by | Base, Zora, Mode | Robinhood Chain, XAI |
+
+---
+
+*Last updated: September 2026.*

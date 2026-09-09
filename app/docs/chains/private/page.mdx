@@ -1,0 +1,55 @@
+export const metadata = {
+  title: "Private Blockchain | Wayan Phantom",
+  description: "Notes on private and permissioned blockchains. When to use them and how they differ from public chains.",
+};
+
+# Private Blockchain
+
+Not all blockchains need to be public and permissionless. Enterprise use cases often require permissioned participants, privacy, and compliance — things public chains are not designed for.
+
+---
+
+## Public vs Private Comparison
+
+| Factor | Public (Ethereum, Solana) | Private (Hyperledger, Quorum) |
+|--------|--------------------------|-------------------------------|
+| Who can join | Anyone | Invited participants only |
+| Who can read | Anyone | Permissioned |
+| Who can write | Anyone with tokens | Permissioned |
+| Consensus | PoS/PoW (energy intensive) | PBFT, Raft (fast, lightweight) |
+| Finality | Probabilistic | Immediate |
+| Transaction speed | 10-100 TPS | 1,000-10,000+ TPS |
+| Transparency | Full | Configurable |
+| Token required | Yes | No |
+| Use case | DeFi, NFTs, open apps | Supply chain, banking, healthcare |
+
+---
+
+## When Private Blockchain Makes Sense
+
+Use a private blockchain when:
+- Multiple organizations need a shared ledger but can't trust a single party to run it
+- Regulatory compliance requires controlling who sees transaction data
+- You need high throughput and instant finality without gas fees
+- Smart contract logic must remain confidential
+
+Examples:
+- **Trade finance**: banks settling cross-border payments (JPMorgan uses Quorum)
+- **Supply chain**: tracking goods from manufacturer to retailer (Walmart uses Hyperledger)
+- **Healthcare**: sharing patient records between hospitals with access control
+- **Central Bank Digital Currencies (CBDCs)**: national digital currencies
+
+---
+
+## When NOT to Use Private Blockchain
+
+Private blockchain is often overkill. A normal database is simpler if:
+- All parties already trust a single authority
+- You don't need immutability
+- The "blockchain" is just one organization's internal data
+
+The honest question: do you actually need multiple untrusting parties to share a ledger? If not, use PostgreSQL.
+
+---
+
+*Last updated: September 2026.*

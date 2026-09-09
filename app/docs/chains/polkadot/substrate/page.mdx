@@ -1,0 +1,117 @@
+export const metadata = {
+  title: "Substrate Framework | Wayan Phantom",
+  description: "Notes on Substrate — Parity's Rust framework for building custom blockchains.",
+};
+
+# Substrate Framework
+
+The Rust framework used to build Polkadot, Kusama, and all parachains. Also used standalone — you can build any blockchain with Substrate without connecting to Polkadot.
+
+---
+
+## What Substrate Is
+
+Substrate is a modular blockchain framework. Instead of writing a blockchain from scratch (consensus, networking, storage, runtime), you pick pre-built modules called **pallets** and compose them into a runtime.
+
+```
+Your Substrate Chain
+├── Runtime (WASM)
+│   ├── pallet_balances    → token transfers
+│   ├── pallet_staking     → validator staking
+│   ├── pallet_contracts   → smart contracts
+│   └── your_pallet        → custom logic
+├── Client
+│   ├── Networking (libp2p)
+│   ├── Database (RocksDB)
+│   └── RPC server
+└── Consensus
+    ├── AURA (simple round-robin)
+    ├── BABE (Polkadot's)
+    └── PoW (optional)
+```
+
+---
+
+## FRAME Pallets
+
+FRAME (Framework for Runtime Aggregation of Modularized Entities) is the pallet system.
+
+```rust
+// Basic pallet structure
+#[frame_support::pallet]
+pub mod pallet {
+    use frame_support::pallet_prelude::*;
+    use frame_system::pallet_prelude::*;
+
+    #[pallet::pallet]
+    pub struct Pallet<T>(_);
+
+    #[pallet::config]
+    pub trait Config: frame_system::Config {
+        type RuntimeEvent: From<Event<Self>> + IsType<<Self as frame_system::Config>::RuntimeEvent>;
+    }
+
+    #[pallet::storage]
+    pub type MyStorage<T> = StorageMap<_, Blake2_128Concat, T::AccountId, u32>;
+
+    #[pallet::event]
+    #[pallet::generate_deposit(pub(super) fn deposit_event)]
+    pub enum Event<T: Config> {
+        ValueSet { who: T::AccountId, value: u32 },
+    }
+
+    #[pallet::call]
+    impl<T: Config> Pallet<T> {
+        #[pallet::call_index(0)]
+        #[pallet::weight(10_000)]
+        pub fn set_value(origin: OriginFor<T>, value: u32) -> DispatchResult {
+            let who = ensure_signed(origin)?;
+            MyStorage::<T>::insert(&who, value);
+            Self::deposit_event(Event::ValueSet { who, value });
+            Ok(())
+        }
+    }
+}
+```
+
+---
+
+## Start a New Substrate Chain
+
+```bash
+# Install Rust and the substrate node template
+curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
+rustup target add wasm32-unknown-unknown
+
+# Clone node template
+git clone https://github.com/substrate-developer-hub/substrate-node-template
+cd substrate-node-template
+
+# Build
+cargo build --release
+
+# Run dev node
+./target/release/node-template --dev
+```
+
+The dev node starts with Alice and Bob funded accounts, instant finality, and no need for validators.
+
+---
+
+## Substrate vs Cosmos SDK
+
+Both are "build your own blockchain" frameworks, but different philosophy:
+
+| Factor | Substrate | Cosmos SDK |
+|--------|-----------|------------|
+| Language | Rust | Go |
+| IBC equivalent | XCM (if on Polkadot) | IBC (native) |
+| Smart contracts | ink! (optional) | CosmWasm (optional) |
+| Upgrades | Forkless via WASM runtime | Requires hardfork |
+| Target | Polkadot parachains | Cosmos ecosystem |
+
+Substrate's killer feature is **forkless runtime upgrades** — the chain logic is WASM stored on-chain, so you can upgrade it through governance without a hardfork.
+
+---
+
+*Last updated: September 2026.*

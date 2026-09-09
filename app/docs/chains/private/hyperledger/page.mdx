@@ -1,0 +1,117 @@
+export const metadata = {
+  title: "Hyperledger Fabric | Wayan Phantom",
+  description: "Notes on Hyperledger Fabric — the enterprise permissioned blockchain framework by the Linux Foundation.",
+};
+
+# Hyperledger Fabric
+
+The most widely deployed enterprise blockchain. Maintained by the Linux Foundation, used by IBM, Walmart, Maersk, and hundreds of enterprises.
+
+---
+
+## Architecture
+
+```
+Fabric Network
+├── Peers           → hold ledger + chaincode, endorse transactions
+├── Orderer         → orders transactions, creates blocks (Raft consensus)
+├── CA (MSP)        → certificate authority, identity management
+├── Channel         → private subnet between selected orgs
+└── Chaincode       → smart contracts (Go, Node.js, Java)
+```
+
+Key concept: **channels** let subsets of organizations share a private ledger within the same network. Org A and Org B can transact without Org C seeing anything.
+
+---
+
+## Chaincode (Smart Contracts)
+
+Fabric smart contracts are called chaincode. Written in Go, Node.js, or Java.
+
+```go
+// Go chaincode example
+package main
+
+import (
+    "encoding/json"
+    "fmt"
+    "github.com/hyperledger/fabric-contract-api-go/contractapi"
+)
+
+type Asset struct {
+    ID    string `json:"id"`
+    Owner string `json:"owner"`
+    Value int    `json:"value"`
+}
+
+type AssetContract struct {
+    contractapi.Contract
+}
+
+func (c *AssetContract) CreateAsset(ctx contractapi.TransactionContextInterface, id, owner string, value int) error {
+    asset := Asset{ID: id, Owner: owner, Value: value}
+    assetJSON, _ := json.Marshal(asset)
+    return ctx.GetStub().PutState(id, assetJSON)
+}
+
+func (c *AssetContract) QueryAsset(ctx contractapi.TransactionContextInterface, id string) (*Asset, error) {
+    assetJSON, err := ctx.GetStub().GetState(id)
+    if err != nil || assetJSON == nil {
+        return nil, fmt.Errorf("asset %s not found", id)
+    }
+    var asset Asset
+    json.Unmarshal(assetJSON, &asset)
+    return &asset, nil
+}
+```
+
+---
+
+## Transaction Flow
+
+```
+Client App
+  → Sends proposal to endorsing peers
+  → Peers simulate chaincode, return signed response
+  → Client collects enough endorsements
+  → Submits to Orderer
+  → Orderer creates block, broadcasts to all peers
+  → Peers validate and commit to ledger
+```
+
+This is different from Ethereum where any node can validate. In Fabric, specific peers are designated as endorsers based on policy.
+
+---
+
+## Local Dev Setup
+
+```bash
+# Install prerequisites: Docker, Go, Node.js
+
+# Download Fabric binaries and samples
+curl -sSL https://bit.ly/2ysbOFE | bash -s
+
+cd fabric-samples/test-network
+
+# Start the network
+./network.sh up createChannel -c mychannel -ca
+
+# Deploy chaincode
+./network.sh deployCC -ccn basic -ccp ../asset-transfer-basic/chaincode-go -ccl go
+
+# Interact via CLI
+peer chaincode invoke -C mychannel -n basic -c '{"function":"CreateAsset","Args":["asset1","Alice","100"]}'
+```
+
+---
+
+## Real World Usage
+
+- **Walmart**: tracks food supply chain — lettuce from farm to store in seconds instead of days
+- **Maersk/TradeLens**: global shipping documentation on a shared ledger
+- **We.Trade**: cross-border trade finance between European banks
+- **IBM Food Trust**: food safety and traceability
+
+---
+
+*Last updated: September 2026.*

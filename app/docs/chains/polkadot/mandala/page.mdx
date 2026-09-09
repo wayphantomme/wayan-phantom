@@ -1,0 +1,89 @@
+export const metadata = {
+  title: "Mandala Chain | Wayan Phantom",
+  description: "Notes on Mandala Chain — Acala's test network on Polkadot.",
+};
+
+# Mandala Chain
+
+Acala's test network. Used for testing DeFi protocols before deploying to Acala mainnet on Polkadot.
+
+---
+
+## What Acala Is
+
+Acala is a DeFi hub parachain on Polkadot. It provides:
+
+- **aUSD** — a decentralized stablecoin backed by cross-chain assets
+- **AcalaSwap** — a DEX with deep liquidity
+- **Liquid DOT (LDOT)** — liquid staking for DOT
+- **EVM+** — an EVM-compatible environment for Solidity contracts
+
+---
+
+## Mandala vs Acala vs Karura
+
+| Network | Chain | Status |
+|---------|-------|--------|
+| Mandala | Polkadot testnet | Test environment, free tokens |
+| Karura | Kusama parachain | Canary network, real money |
+| Acala | Polkadot parachain | Production mainnet |
+
+Typical flow: develop on Mandala → battle-test on Karura → launch on Acala.
+
+---
+
+## Connect to Mandala
+
+```typescript
+import { ApiPromise, WsProvider } from "@polkadot/api";
+
+async function connect() {
+  const provider = new WsProvider("wss://mandala.aca-staging.network");
+  const api = await ApiPromise.create({ provider });
+
+  console.log("Connected to Mandala");
+  console.log("Chain:", (await api.rpc.system.chain()).toHuman());
+  console.log("Block:", (await api.rpc.chain.getHeader()).number.toNumber());
+
+  return api;
+}
+```
+
+---
+
+## Use EVM+ on Mandala
+
+Acala's EVM+ lets you deploy Solidity contracts on Mandala/Acala while interacting with native Polkadot assets.
+
+```typescript
+import { ethers } from "ethers";
+
+// EVM+ endpoint on Mandala
+const provider = new ethers.JsonRpcProvider(
+  "https://eth-rpc-mandala.aca-staging.network"
+);
+
+// Deploy and interact like normal Ethereum
+const signer = new ethers.Wallet(process.env.PRIVATE_KEY!, provider);
+```
+
+---
+
+## Get Testnet Tokens
+
+Mandala tokens (mACA) are available from the Acala faucet. No real value — purely for testing.
+
+1. Go to the Acala Discord
+2. Use the `#faucet` channel
+3. Post your Mandala address
+4. Receive mACA within minutes
+
+---
+
+## Why Mandala Matters
+
+Mandala gives you a Polkadot-native environment to test cross-chain DeFi without spending real money. If you're building anything that involves DOT, aUSD, or cross-chain assets via XCM, Mandala is the first stop.
+
+---
+
+*Last updated: September 2026.*

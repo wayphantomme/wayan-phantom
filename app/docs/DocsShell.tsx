@@ -68,6 +68,49 @@ const NAV_SECTIONS: Section[] = [
       { label: "RAG Pipeline",    href: "/docs/ai/rag" },
     ],
   },
+  {
+    label: "Chains & Ecosystems",
+    href: "/docs/chains",
+    items: [
+      { label: "Overview", href: "/docs/chains" },
+    ],
+    subgroups: [
+      {
+        label: "EVM L2s",
+        items: [
+          { label: "Overview",        href: "/docs/chains/evm-l2s" },
+          { label: "Arbitrum",        href: "/docs/chains/evm-l2s/arbitrum" },
+          { label: "Base",            href: "/docs/chains/evm-l2s/base" },
+          { label: "Robinhood Chain", href: "/docs/chains/evm-l2s/robinhood" },
+          { label: "OP Stack",        href: "/docs/chains/evm-l2s/op-stack" },
+        ],
+      },
+      {
+        label: "Polkadot",
+        items: [
+          { label: "Overview",   href: "/docs/chains/polkadot" },
+          { label: "Substrate",  href: "/docs/chains/polkadot/substrate" },
+          { label: "Mandala",    href: "/docs/chains/polkadot/mandala" },
+        ],
+      },
+      {
+        label: "Private Chains",
+        items: [
+          { label: "Overview",            href: "/docs/chains/private" },
+          { label: "Hyperledger Fabric",  href: "/docs/chains/private/hyperledger" },
+          { label: "Quorum",              href: "/docs/chains/private/quorum" },
+        ],
+      },
+      {
+        label: "Frameworks",
+        items: [
+          { label: "Overview",          href: "/docs/chains/frameworks" },
+          { label: "Arbitrum Orbit",    href: "/docs/chains/frameworks/orbit" },
+          { label: "Substrate",         href: "/docs/chains/frameworks/substrate" },
+        ],
+      },
+    ],
+  },
 ];
 
 // ─── TOC map ─────────────────────────────────────────────────────────────────
@@ -189,6 +232,96 @@ const TOC_MAP: Record<string, { label: string; href: string }[]> = {
     { label: "Query",            href: "#query" },
     { label: "Chunking Tips",    href: "#chunking-tips" },
   ],
+  "/docs/chains": [
+    { label: "Public vs Private",  href: "#public-vs-private-blockchain" },
+    { label: "L1 vs L2 vs L3",    href: "#l1-vs-l2-vs-l3" },
+    { label: "Two Rollup Types",   href: "#two-rollup-approaches" },
+    { label: "What's Covered",     href: "#whats-covered-here" },
+  ],
+  "/docs/chains/evm-l2s": [
+    { label: "Why L2s Exist",      href: "#why-l2s-exist" },
+    { label: "Rollup Stacks",      href: "#two-rollup-stacks" },
+    { label: "Comparing Chains",   href: "#comparing-the-main-chains" },
+    { label: "Deploy Everywhere",  href: "#deploy-the-same-contract-everywhere" },
+  ],
+  "/docs/chains/evm-l2s/arbitrum": [
+    { label: "Products",          href: "#products" },
+    { label: "How It Works",      href: "#how-arbitrum-works" },
+    { label: "Deploy",            href: "#connect-and-deploy" },
+    { label: "Orbit L3s",         href: "#arbitrum-orbit-l3s" },
+  ],
+  "/docs/chains/evm-l2s/base": [
+    { label: "Why Base",          href: "#why-base" },
+    { label: "Deploy",            href: "#deploy-to-base" },
+    { label: "Base vs Arbitrum",  href: "#base-vs-arbitrum-when-to-choose" },
+    { label: "Superchain",        href: "#superchain" },
+  ],
+  "/docs/chains/evm-l2s/robinhood": [
+    { label: "What It Is",        href: "#what-it-is" },
+    { label: "Key Info",          href: "#key-info" },
+    { label: "What's Different",  href: "#what-makes-it-different" },
+    { label: "Why It Matters",    href: "#context-why-it-matters" },
+  ],
+  "/docs/chains/evm-l2s/op-stack": [
+    { label: "What It Is",        href: "#what-it-is" },
+    { label: "Superchain",        href: "#superchain-members-september-2026" },
+    { label: "Architecture",      href: "#architecture" },
+    { label: "Deploy Your Own",   href: "#deploy-your-own-op-stack-chain" },
+    { label: "vs Arbitrum Orbit", href: "#op-stack-vs-arbitrum-orbit" },
+  ],
+  "/docs/chains/polkadot": [
+    { label: "Architecture",      href: "#core-architecture" },
+    { label: "vs Ethereum",       href: "#key-concepts-vs-ethereum" },
+    { label: "Parachains",        href: "#notable-parachains" },
+    { label: "Kusama",            href: "#kusama" },
+  ],
+  "/docs/chains/polkadot/substrate": [
+    { label: "What It Is",        href: "#what-substrate-is" },
+    { label: "FRAME Pallets",     href: "#frame-pallets" },
+    { label: "Start a Chain",     href: "#start-a-new-substrate-chain" },
+    { label: "Forkless Upgrades", href: "#forkless-upgrades" },
+    { label: "vs Cosmos SDK",     href: "#substrate-vs-cosmos-sdk" },
+  ],
+  "/docs/chains/polkadot/mandala": [
+    { label: "What Acala Is",     href: "#what-acala-is" },
+    { label: "Networks",          href: "#mandala-vs-acala-vs-karura" },
+    { label: "Connect",           href: "#connect-to-mandala" },
+    { label: "EVM+ on Mandala",   href: "#use-evm-on-mandala" },
+  ],
+  "/docs/chains/private": [
+    { label: "Public vs Private",  href: "#public-vs-private-comparison" },
+    { label: "When to Use",        href: "#when-private-blockchain-makes-sense" },
+    { label: "When NOT to Use",    href: "#when-not-to-use-private-blockchain" },
+  ],
+  "/docs/chains/private/hyperledger": [
+    { label: "Architecture",       href: "#architecture" },
+    { label: "Chaincode",          href: "#chaincode-smart-contracts" },
+    { label: "Transaction Flow",   href: "#transaction-flow" },
+    { label: "Real World Usage",   href: "#real-world-usage" },
+  ],
+  "/docs/chains/private/quorum": [
+    { label: "What Quorum Is",     href: "#what-quorum-is" },
+    { label: "vs Ethereum",        href: "#quorum-vs-standard-ethereum" },
+    { label: "Private Tx",         href: "#private-transactions" },
+    { label: "JPM Coin",           href: "#jpm-coin" },
+  ],
+  "/docs/chains/frameworks": [
+    { label: "Overview",           href: "#overview" },
+    { label: "Which to Choose",    href: "#which-to-choose" },
+  ],
+  "/docs/chains/frameworks/orbit": [
+    { label: "What You Get",       href: "#what-you-get" },
+    { label: "Deploy",             href: "#deploy-an-orbit-chain" },
+    { label: "Custom Gas Token",   href: "#custom-gas-token" },
+    { label: "AnyTrust vs Rollup", href: "#anytrust-vs-rollup-mode" },
+  ],
+  "/docs/chains/frameworks/substrate": [
+    { label: "Deployment Modes",   href: "#two-deployment-modes" },
+    { label: "Runtime Modules",    href: "#runtime-modules-pallets" },
+    { label: "Forkless Upgrades",  href: "#forkless-upgrades" },
+    { label: "Polkadot Parachain", href: "#polkadot-parachain-slot" },
+    { label: "When to Use",        href: "#when-substrate-is-worth-the-complexity" },
+  ],
 };
 
 // ─── Breadcrumb map ───────────────────────────────────────────────────────────
@@ -213,6 +346,21 @@ const BREADCRUMB_MAP: Record<string, string[]> = {
   "/docs/ai/gemini": ["AI & Automation", "Gemini Models"],
   "/docs/ai/n8n":    ["AI & Automation", "n8n Workflows"],
   "/docs/ai/rag":                    ["AI & Automation", "RAG Pipeline"],
+  "/docs/chains":                          ["Chains & Ecosystems", "Overview"],
+  "/docs/chains/evm-l2s":                  ["Chains & Ecosystems", "EVM L2s", "Overview"],
+  "/docs/chains/evm-l2s/arbitrum":         ["Chains & Ecosystems", "EVM L2s", "Arbitrum"],
+  "/docs/chains/evm-l2s/base":             ["Chains & Ecosystems", "EVM L2s", "Base"],
+  "/docs/chains/evm-l2s/robinhood":        ["Chains & Ecosystems", "EVM L2s", "Robinhood Chain"],
+  "/docs/chains/evm-l2s/op-stack":         ["Chains & Ecosystems", "EVM L2s", "OP Stack"],
+  "/docs/chains/polkadot":                 ["Chains & Ecosystems", "Polkadot", "Overview"],
+  "/docs/chains/polkadot/substrate":       ["Chains & Ecosystems", "Polkadot", "Substrate"],
+  "/docs/chains/polkadot/mandala":         ["Chains & Ecosystems", "Polkadot", "Mandala"],
+  "/docs/chains/private":                  ["Chains & Ecosystems", "Private Chains", "Overview"],
+  "/docs/chains/private/hyperledger":      ["Chains & Ecosystems", "Private Chains", "Hyperledger Fabric"],
+  "/docs/chains/private/quorum":           ["Chains & Ecosystems", "Private Chains", "Quorum"],
+  "/docs/chains/frameworks":               ["Chains & Ecosystems", "Frameworks", "Overview"],
+  "/docs/chains/frameworks/orbit":         ["Chains & Ecosystems", "Frameworks", "Arbitrum Orbit"],
+  "/docs/chains/frameworks/substrate":     ["Chains & Ecosystems", "Frameworks", "Substrate"],
 };
 
 // ─── Sidebar ─────────────────────────────────────────────────────────────────
@@ -365,9 +513,25 @@ function Topbar() {
         </Link>
         <span className="docs-topbar-badge">Docs</span>
       </div>
+      <div className="docs-topbar-center">
+        <button className="docs-search-btn" aria-label="Search documentation">
+          <svg width="14" height="14" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+            <circle cx="11" cy="11" r="8" />
+            <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-4.35-4.35" />
+          </svg>
+          <span className="docs-search-placeholder">Search documentation...</span>
+          <kbd className="docs-search-kbd">⌘K</kbd>
+        </button>
+      </div>
       <div className="docs-topbar-right">
-        <a href="https://github.com/wayphantomme" target="_blank" rel="noopener noreferrer" className="docs-topbar-gh" aria-label="GitHub">
-          <svg width="16" height="16" fill="currentColor" viewBox="0 0 24 24">
+        <a
+          href="https://github.com/wayphantomme"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="docs-topbar-gh"
+          aria-label="GitHub"
+        >
+          <svg width="22" height="22" fill="currentColor" viewBox="0 0 24 24">
             <path fillRule="evenodd" d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.53 1.032 1.53 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z" clipRule="evenodd" />
           </svg>
         </a>

@@ -1,0 +1,116 @@
+export const metadata = {
+  title: "Base | Wayan Phantom",
+  description: "Notes on Base — Coinbase's OP Stack L2. Consumer apps, onchain economy.",
+};
+
+# Base
+
+Coinbase's Ethereum L2, built on the OP Stack. Launched 2023. One of the fastest-growing chains by user count and transactions.
+
+---
+
+## Why Base
+
+- Built and maintained by Coinbase — strong institutional backing
+- OP Stack (open source, battle-tested)
+- Deep integration with Coinbase Wallet and Coinbase exchange
+- Very active consumer app ecosystem (Farcaster, friend.tech, Zora)
+- Low fees, fast blocks
+
+---
+
+## Key Info
+
+| Item | Value |
+|------|-------|
+| Chain ID | 8453 |
+| RPC | https://mainnet.base.org |
+| Block Explorer | basescan.org |
+| Native Token | ETH |
+| Block Time | ~2 seconds |
+| Testnet | Base Sepolia (84532) |
+| Stack | OP Stack (Optimism) |
+
+---
+
+## Deploy to Base
+
+```javascript
+// hardhat.config.js
+networks: {
+  base: {
+    url: "https://mainnet.base.org",
+    accounts: [process.env.PRIVATE_KEY],
+    chainId: 8453,
+  },
+  baseSepolia: {
+    url: "https://sepolia.base.org",
+    accounts: [process.env.PRIVATE_KEY],
+    chainId: 84532,
+  },
+},
+etherscan: {
+  apiKey: {
+    base: process.env.BASESCAN_API_KEY,
+  },
+  customChains: [{
+    network: "base",
+    chainId: 8453,
+    urls: {
+      apiURL: "https://api.basescan.org/api",
+      browserURL: "https://basescan.org",
+    },
+  }],
+}
+```
+
+---
+
+## Connect with ethers.js
+
+```typescript
+import { JsonRpcProvider } from "ethers";
+
+const provider = new JsonRpcProvider("https://mainnet.base.org");
+const blockNumber = await provider.getBlockNumber();
+console.log("Base block:", blockNumber);
+```
+
+---
+
+## Base vs Arbitrum: When to Choose
+
+| Factor | Base | Arbitrum |
+|--------|------|----------|
+| TVL | Growing fast | Largest L2 |
+| User base | Consumer, Coinbase users | DeFi power users |
+| Ecosystem | Social, NFTs, consumer | DeFi, DEXs, lending |
+| Stack | OP Stack | Nitro (optimistic) |
+| Superchain | Yes (part of OP Superchain) | No |
+
+Base is better for consumer-facing apps with Coinbase user distribution. Arbitrum is better for DeFi with deeper liquidity.
+
+---
+
+## Superchain
+
+Base is part of the OP Superchain — a network of OP Stack chains that share a bridge and message-passing protocol. Cross-chain calls between Base, Optimism, Zora, and Mode are native and cheap.
+
+```typescript
+// Send a cross-chain message from Optimism to Base
+const l2CrossDomainMessenger = new Contract(
+  "0x4200000000000000000000000000000000000007",
+  MESSENGER_ABI,
+  signer
+);
+
+await l2CrossDomainMessenger.sendMessage(
+  targetContractOnBase,
+  encodedCalldata,
+  200000 // gas limit on destination
+);
+```
+
+---
+
+*Last updated: September 2026.*

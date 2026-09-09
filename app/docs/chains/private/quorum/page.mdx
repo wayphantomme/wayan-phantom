@@ -1,0 +1,98 @@
+export const metadata = {
+  title: "Quorum | Wayan Phantom",
+  description: "Notes on Quorum — JPMorgan's enterprise Ethereum fork for permissioned networks.",
+};
+
+# Quorum
+
+An enterprise-focused Ethereum fork originally built by JPMorgan. Now maintained by ConsenSys (acquired 2020). Powers JPM Coin and various institutional blockchain networks.
+
+---
+
+## What Quorum Is
+
+Quorum is a permissioned version of Ethereum. It keeps the EVM, Solidity, and the developer experience intact, but adds:
+
+- **Private transactions** — transaction data visible only to designated parties
+- **Permissioned networking** — only approved nodes can join
+- **Pluggable consensus** — IBFT, QBFT (BFT variants) instead of PoW/PoS
+- **No gas fees** — gas limit is set to zero on private networks
+
+---
+
+## Quorum vs Standard Ethereum
+
+| Feature | Ethereum | Quorum |
+|---------|----------|--------|
+| Participation | Permissionless | Permissioned |
+| Transaction privacy | None | Private transactions |
+| Consensus | PoS | IBFT/QBFT (BFT) |
+| Gas fees | Yes | Optional (usually disabled) |
+| Finality | Probabilistic | Immediate |
+| Smart contract lang | Solidity | Solidity (same) |
+
+---
+
+## Private Transactions
+
+Quorum's key differentiator. A transaction can be marked as private to a subset of participants.
+
+```javascript
+// Send a private transaction using web3-quorum
+const web3 = new Web3Quorum(
+  new Web3("http://localhost:8545"),
+  { privateUrl: "http://tessera:9101" } // Tessera = private tx manager
+);
+
+const txHash = await web3.eth.sendRawPrivateTransaction(
+  signedTx,
+  {
+    privateFrom: "sender_public_key",
+    privateFor: ["recipient1_public_key", "recipient2_public_key"],
+    restriction: "restricted",
+  }
+);
+```
+
+Only the `privateFrom` and `privateFor` nodes can see the transaction content. Everyone else sees a hash on the public state.
+
+---
+
+## Consensus: IBFT vs QBFT
+
+Both are Byzantine Fault Tolerant (BFT) — they finalize blocks immediately with no forks, as long as less than 1/3 of validators are faulty.
+
+**IBFT 2.0** — stable, widely deployed, used by JPMorgan.
+
+**QBFT** — newer, more resilient, recommended for new deployments.
+
+Practical: with 4 validators, 1 can fail. With 7, 2 can fail.
+
+---
+
+## JPM Coin
+
+JPMorgan built **JPM Coin** on Quorum — a permissioned stablecoin for institutional interbank transfers. It settles payments between JPMorgan clients instantly, 24/7.
+
+This is the largest real-world deployment of permissioned blockchain in traditional finance.
+
+---
+
+## Local Dev with GoQuorum
+
+```bash
+# Use GoQuorum quickstart
+git clone https://github.com/ConsenSys/quorum-dev-quickstart
+cd quorum-dev-quickstart
+npx quorum-dev-quickstart
+
+# Start the network (Docker)
+./run.sh
+
+# Network runs at localhost:8545
+# Blockchain explorer at localhost:25000
+```
+
+---
+
+*Last updated: September 2026.*

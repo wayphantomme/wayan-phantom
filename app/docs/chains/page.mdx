@@ -1,0 +1,61 @@
+export const metadata = {
+  title: "Chains & Ecosystems | Wayan Phantom",
+  description: "Notes on blockchain ecosystems — EVM L2s, Polkadot, private chains, and deployment frameworks.",
+};
+
+# Chains & Ecosystems
+
+Notes on the broader blockchain landscape beyond just Ethereum and Solana development. Architecture, frameworks, and how different chains are positioned.
+
+---
+
+## Public vs Private Blockchain
+
+| Type | Who Controls It | Examples | Use Case |
+|------|----------------|----------|----------|
+| Public L1 | Nobody (decentralized) | Ethereum, Solana, Bitcoin | Open DeFi, NFTs, permissionless apps |
+| Public L2 | Company / DAO | Arbitrum, Base, Robinhood Chain | Cheaper Ethereum transactions |
+| Public L3 | Anyone (via Orbit/OP Stack) | Custom app-chains | App-specific scaling |
+| Private / Permissioned | Enterprise consortium | Hyperledger Fabric, Quorum | Enterprise, compliance-heavy |
+
+---
+
+## L1 vs L2 vs L3
+
+**L1** is the base chain. Ethereum is an L1. It handles final settlement but is slow and expensive at scale.
+
+**L2** sits on top of L1. Transactions execute on L2, then compressed proofs or transaction batches are posted to L1. Inherits L1 security at a fraction of the cost.
+
+**L3** sits on top of L2. An app-chain customized for a specific use case — a game, a DeFi protocol, an exchange. Arbitrum Orbit lets you deploy L3s.
+
+```
+Ethereum (L1)          ← settlement, final security
+  Arbitrum One (L2)    ← general purpose rollup
+    My App Chain (L3)  ← via Arbitrum Orbit
+```
+
+---
+
+## Two Rollup Approaches
+
+| Approach | How It Works | Used By |
+|----------|-------------|---------|
+| Optimistic Rollups | Assume transactions are valid, allow fraud proofs | Arbitrum, Optimism, Base, Robinhood Chain |
+| ZK Rollups | Cryptographic validity proof for every batch | zkSync, Starknet, Polygon zkEVM |
+
+Optimistic rollups are easier to build and EVM-compatible. ZK rollups have faster finality but are more complex.
+
+---
+
+## What's Covered Here
+
+| Section | What's Inside |
+|---------|--------------|
+| EVM L2s | Arbitrum, Base, Robinhood Chain, OP Stack |
+| Polkadot | Relay chain, parachains, Substrate, Mandala |
+| Private Blockchain | Hyperledger Fabric, Quorum |
+| Frameworks | Arbitrum Orbit, OP Stack, Substrate |
+
+---
+
+*Last updated: September 2026.*

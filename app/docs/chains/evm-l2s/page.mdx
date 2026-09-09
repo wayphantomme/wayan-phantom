@@ -1,0 +1,81 @@
+export const metadata = {
+  title: "EVM L2s | Wayan Phantom",
+  description: "Notes on Ethereum Layer 2 networks — Arbitrum, Base, Robinhood Chain, and the OP Stack.",
+};
+
+# EVM L2s
+
+Ethereum Layer 2 networks that execute transactions off-chain and post proofs or batches back to Ethereum. Same EVM tooling, fraction of the cost.
+
+---
+
+## Why L2s Exist
+
+Ethereum mainnet can handle roughly 15-20 transactions per second. At peak demand, gas fees spike to $50-200 per transaction. L2s solve this by batching thousands of transactions and posting one compressed proof to L1.
+
+The result: sub-cent fees, sub-second confirmations, full Ethereum security.
+
+---
+
+## Two Rollup Stacks
+
+| Stack | How It Works | Key Chains |
+|-------|-------------|------------|
+| Arbitrum (Nitro) | Optimistic rollup, fraud proofs, 7-day withdrawal | Arbitrum One, Arbitrum Nova, Robinhood Chain |
+| OP Stack | Optimistic rollup, modular open-source framework | Optimism, Base, Zora, Mode |
+| zkSync (ZK) | ZK validity proofs, faster finality | zkSync Era |
+| Polygon zkEVM | ZK rollup, EVM-equivalent | Polygon zkEVM |
+| Starknet | ZK rollup, Cairo VM | Starknet |
+
+For building production apps: **Arbitrum** or **Base** (OP Stack) are the most battle-tested with the deepest liquidity.
+
+---
+
+## Comparing the Main Chains
+
+| Chain | Stack | TVL | Focus |
+|-------|-------|-----|-------|
+| Arbitrum One | Arbitrum Nitro | Largest L2 TVL | DeFi, DEXs |
+| Base | OP Stack | Fast growing | Consumer apps, Coinbase ecosystem |
+| Optimism | OP Stack | Original OP | Public goods, governance |
+| Robinhood Chain | Arbitrum Orbit | New July 2026 | Tokenized RWAs, stocks |
+| zkSync Era | ZK | Significant | ZK-native DeFi |
+
+---
+
+## Deploy the Same Contract Everywhere
+
+Since all EVM L2s run the same EVM, you can deploy the same Solidity contract to all of them. Just change the RPC URL and verify on the right block explorer.
+
+```bash
+# Arbitrum One
+npx hardhat run scripts/deploy.js --network arbitrum
+
+# Base
+npx hardhat run scripts/deploy.js --network base
+
+# Robinhood Chain
+npx hardhat run scripts/deploy.js --network robinhood
+```
+
+```javascript
+// hardhat.config.js
+networks: {
+  arbitrum: {
+    url: "https://arb1.arbitrum.io/rpc",
+    accounts: [process.env.PRIVATE_KEY],
+  },
+  base: {
+    url: "https://mainnet.base.org",
+    accounts: [process.env.PRIVATE_KEY],
+  },
+  robinhood: {
+    url: "https://rpc.robinhood.com",
+    accounts: [process.env.PRIVATE_KEY],
+  },
+}
+```
+
+---
+
+*Last updated: September 2026.*

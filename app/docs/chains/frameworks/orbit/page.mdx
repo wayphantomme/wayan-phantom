@@ -1,0 +1,94 @@
+export const metadata = {
+  title: "Arbitrum Orbit | Wayan Phantom",
+  description: "Notes on Arbitrum Orbit — deploy your own L3 chain that settles on Arbitrum.",
+};
+
+# Arbitrum Orbit
+
+Deploy your own L3 chain that settles on Arbitrum One or Nova. Full EVM compatibility, customizable gas token, throughput, and governance.
+
+---
+
+## What You Get
+
+- Your own chain with dedicated blockspace — no competing for gas with other apps
+- Custom gas token (use your own ERC-20, not ETH)
+- Custom block time and gas limit
+- Your own block explorer and RPC
+- Settles security on Arbitrum One (which settles on Ethereum)
+- Full Solidity/EVM compatibility
+
+---
+
+## Architecture
+
+```
+Ethereum L1
+└── Arbitrum One (L2)
+    └── Your Orbit Chain (L3)
+        ├── Sequencer (you run this)
+        ├── Your contracts
+        └── AnyTrust DA (cheap) or Rollup DA (secure)
+```
+
+---
+
+## Deploy an Orbit Chain
+
+```bash
+# Clone the setup script
+git clone https://github.com/OffchainLabs/orbit-setup-script
+cd orbit-setup-script
+npm install
+
+# Configure orbit-setup-script/config/orbitSetupScriptConfig.json
+{
+  "chainId": 12345,
+  "chainName": "My App Chain",
+  "nativeToken": "0x...",       // custom gas token address (or 0x for ETH)
+  "validators": ["0xYourAddress"],
+  "batchPoster": "0xYourAddress"
+}
+
+# Deploy (requires funded wallet on Arbitrum One)
+PRIVATE_KEY=0x... npm run deploy
+```
+
+---
+
+## Custom Gas Token
+
+One of Orbit's killer features. Your users pay gas in your token, not ETH.
+
+```javascript
+// In your orbit config
+"nativeToken": "0xYourERC20TokenAddress"
+```
+
+The token must exist on Arbitrum One before deploying. Once set, it cannot be changed — choose carefully.
+
+---
+
+## Real Examples Using Orbit
+
+| Chain | Built By | Use Case |
+|-------|----------|----------|
+| XAI | Ex Populus | Gaming L3 |
+| Robinhood Chain | Robinhood | Tokenized RWAs |
+| Degen Chain | Degen community | Social token L3 |
+| Treasure Chain | Treasure | Gaming ecosystem |
+
+---
+
+## AnyTrust vs Rollup Mode
+
+| Mode | Cost | Security |
+|------|------|----------|
+| AnyTrust | Cheapest | Data stored by trusted committee (2-of-N) |
+| Rollup | More expensive | Data posted to Arbitrum One |
+
+AnyTrust is suitable for gaming and social apps where ultra-cheap transactions matter more than maximum decentralization. Rollup is for financial apps.
+
+---
+
+*Last updated: September 2026.*

@@ -1,0 +1,117 @@
+export const metadata = {
+  title: "Substrate Framework | Wayan Phantom",
+  description: "Notes on using Substrate as a chain-building framework — standalone or as a Polkadot parachain.",
+};
+
+# Substrate as a Framework
+
+Substrate is the most flexible chain-building framework available. You control everything: consensus, runtime logic, networking, storage. More complex than Orbit or OP Stack, but more powerful.
+
+---
+
+## Two Deployment Modes
+
+**Standalone chain** — runs independently, no relay chain. You manage your own validators and security. Good for private enterprise networks or early development.
+
+**Polkadot parachain** — connects to the Polkadot relay chain. Leases a slot (bonded DOT) and gets shared security from Polkadot's validators. No need to bootstrap your own validator set.
+
+---
+
+## Runtime Modules (Pallets)
+
+The logic of your chain lives in the **runtime** — a WASM module compiled from Rust. You compose it from pallets.
+
+```toml
+# Cargo.toml — add pallets
+[dependencies]
+pallet-balances = { version = "4.0", default-features = false }
+pallet-staking = { version = "4.0", default-features = false }
+pallet-contracts = { version = "4.0", default-features = false }
+```
+
+```rust
+// runtime/src/lib.rs — compose your runtime
+construct_runtime!(
+    pub enum Runtime {
+        System: frame_system,
+        Balances: pallet_balances,
+        Staking: pallet_staking,
+        Contracts: pallet_contracts,
+        MyPallet: my_custom_pallet,
+    }
+);
+```
+
+---
+
+## Forkless Upgrades
+
+The biggest Substrate advantage over EVM chains. Your runtime is stored as WASM on-chain. Upgrading the chain logic is just a governance transaction — no hardfork, no coordination headache.
+
+```rust
+// Submit a runtime upgrade via governance
+RuntimeCall::System(frame_system::Call::set_code {
+    code: new_wasm_binary.to_vec(),
+})
+```
+
+---
+
+## Connect with Polkadot.js
+
+```typescript
+import { ApiPromise, WsProvider } from "@polkadot/api";
+import { Keyring } from "@polkadot/keyring";
+
+async function main() {
+  const provider = new WsProvider("ws://localhost:9944");
+  const api = await ApiPromise.create({ provider });
+
+  const keyring = new Keyring({ type: "sr25519" });
+  const alice = keyring.addFromUri("//Alice");
+
+  // Send tokens
+  const tx = api.tx.balances.transferKeepAlive(
+    "5FHneW46xGXgs5mUiveU4sbTyGBzmstUspZC92UhjJM694ty",
+    BigInt("1000000000000")
+  );
+
+  await tx.signAndSend(alice, ({ status }) => {
+    if (status.isInBlock) {
+      console.log("In block:", status.asInBlock.toHex());
+    }
+  });
+}
+```
+
+---
+
+## Polkadot Parachain Slot
+
+To become a Polkadot parachain, you need to win a slot auction or lease a slot through the coretime market.
+
+```
+1. Build your chain with Substrate + Cumulus (parachain adapter)
+2. Test on Rococo testnet
+3. Acquire coretime (buy block time on Polkadot relay chain)
+4. Register your parachain genesis state
+5. Connect your collators
+```
+
+**Cumulus** is the library that turns a Substrate chain into a parachain — adds the block validation and relay chain communication.
+
+---
+
+## When Substrate is Worth the Complexity
+
+- You need custom consensus (not PoS or PoW)
+- You want to become a Polkadot parachain
+- You need forkless upgrades as a core feature
+- You're building an enterprise chain with custom identity/permissioning
+- EVM is not the right model for your use case
+
+For most DeFi apps, Arbitrum Orbit or OP Stack is simpler. Substrate is for when you need to design the chain itself.
+
+---
+
+*Last updated: September 2026.*

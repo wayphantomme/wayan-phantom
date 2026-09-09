@@ -1933,16 +1933,13 @@ body {
   align-items: center;
   justify-content: space-between;
   padding: 0 1.5rem;
+  gap: 1rem;
 }
 .docs-topbar-left {
   display: flex;
   align-items: center;
   gap: 0.625rem;
-}
-.docs-topbar-right {
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
+  flex-shrink: 0;
 }
 .docs-topbar-logo {
   display: flex;
@@ -1978,11 +1975,55 @@ body {
   border-radius: 0.35rem;
   padding: 0.15rem 0.5rem;
 }
+.docs-topbar-center {
+  flex: 1;
+  max-width: 28rem;
+  margin: 0 auto;
+}
+.docs-search-btn {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  width: 100%;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 0.5rem;
+  padding: 0.4rem 0.75rem;
+  cursor: pointer;
+  transition: border-color 0.15s, background 0.15s;
+  text-align: left;
+  color: #94a3b8;
+}
+.docs-search-btn:hover {
+  border-color: #cbd5e1;
+  background: #f1f5f9;
+}
+.docs-search-placeholder {
+  flex: 1;
+  font-size: 0.82rem;
+  color: #94a3b8;
+}
+.docs-search-kbd {
+  font-size: 0.68rem;
+  color: #94a3b8;
+  background: #fff;
+  border: 1px solid #e2e8f0;
+  border-radius: 0.3rem;
+  padding: 0.1rem 0.35rem;
+  font-family: inherit;
+  flex-shrink: 0;
+}
+.docs-topbar-right {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex-shrink: 0;
+}
 .docs-topbar-gh {
   display: flex;
   align-items: center;
   justify-content: center;
-  color: #64748b;
+  color: #475569;
   text-decoration: none;
   transition: color 0.15s;
   padding: 0.25rem;

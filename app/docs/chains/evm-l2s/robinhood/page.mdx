@@ -1,0 +1,98 @@
+export const metadata = {
+  title: "Robinhood Chain | Wayan Phantom",
+  description: "Notes on Robinhood Chain — Arbitrum-based Ethereum L2 for tokenized real-world assets. Launched July 2026.",
+};
+
+# Robinhood Chain
+
+Robinhood's Ethereum L2, built on Arbitrum technology. Mainnet launched July 1, 2026. Designed for tokenized real-world assets — stocks, ETFs, and stablecoins traded 24/7 on-chain.
+
+---
+
+## What It Is
+
+Robinhood Chain is a permissionless, EVM-compatible Ethereum L2 built on the Arbitrum Orbit stack. Unlike general-purpose L2s, it has a specific focus: bringing traditional financial assets on-chain.
+
+Key features:
+- Tokenized US stocks and ETFs available 24/7 (not just market hours)
+- Native support for real-world assets (RWAs)
+- Uniswap AMM built-in for token swaps
+- Self-custody through Robinhood Wallet
+- Available in 120+ countries
+
+---
+
+## Key Info
+
+| Item | Value |
+|------|-------|
+| Stack | Arbitrum Orbit (Nitro) |
+| Chain Type | EVM-compatible L2 |
+| Native Token | ETH |
+| Block Time | 100ms |
+| Mainnet Launch | July 1, 2026 |
+| Testnet Launch | February 10, 2026 |
+| Built By | Robinhood Markets |
+| AMM | Uniswap + Pleiades |
+
+---
+
+## What Makes It Different
+
+Most L2s are general-purpose. Robinhood Chain is purpose-built:
+
+```
+Traditional Finance                  Robinhood Chain
+─────────────────                    ───────────────────────
+NYSE: AAPL stock         →           Tokenized AAPL (24/7)
+$0 commission trade      →           On-chain, self-custody
+Market hours only        →           Always open
+Broker holds assets      →           User holds in wallet
+USD settlement           →           USDC settlement
+```
+
+---
+
+## Connect with ethers.js
+
+```typescript
+import { JsonRpcProvider } from "ethers";
+
+// Robinhood Chain RPC
+const provider = new JsonRpcProvider("https://rpc.robinhood.com");
+
+const block = await provider.getBlockNumber();
+console.log("Robinhood Chain block:", block);
+```
+
+---
+
+## Deploy a Contract
+
+Since it's EVM-compatible, standard Hardhat workflow works:
+
+```javascript
+// hardhat.config.js
+networks: {
+  robinhoodChain: {
+    url: "https://rpc.robinhood.com",
+    accounts: [process.env.PRIVATE_KEY],
+  },
+}
+```
+
+```bash
+npx hardhat run scripts/deploy.js --network robinhoodChain
+```
+
+---
+
+## Context: Why It Matters
+
+The launch of Robinhood Chain is a signal: major fintech companies are building their own app-chains rather than deploying on shared L2s. This is the Arbitrum Orbit / OP Stack thesis — any company can launch a chain tailored to their use case.
+
+Coinbase built Base. Robinhood built Robinhood Chain. More are coming.
+
+---
+
+*Last updated: September 2026. Source: [docs.robinhood.com/chain](https://docs.robinhood.com/chain/)*

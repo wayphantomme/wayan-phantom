@@ -1,0 +1,71 @@
+export const metadata = {
+  title: "Polkadot Ecosystem | Wayan Phantom",
+  description: "Notes on Polkadot — relay chain, parachains, XCM cross-chain messaging, and the Substrate framework.",
+};
+
+# Polkadot Ecosystem
+
+A multi-chain architecture designed from the ground up for cross-chain interoperability. Different from Ethereum L2s — Polkadot chains are not rollups of one base chain, they're independent blockchains with shared security.
+
+---
+
+## Core Architecture
+
+```
+Polkadot Relay Chain       ← shared security, consensus, finality
+├── Parachain A            ← app-specific chain (e.g. Acala/DeFi)
+├── Parachain B            ← app-specific chain (e.g. Moonbeam/EVM)
+├── Parachain C            ← app-specific chain (e.g. Astar)
+└── System Chains          ← Asset Hub, Bridge Hub
+```
+
+**Relay Chain** handles consensus and security. It does not run smart contracts — it just coordinates parachains.
+
+**Parachains** are independent blockchains that lease a slot on the relay chain. They get shared security without running their own validator set.
+
+**XCM** (Cross-Consensus Messaging) is the protocol parachains use to pass messages and assets to each other.
+
+---
+
+## Key Concepts vs Ethereum
+
+| Concept | Ethereum | Polkadot |
+|---------|----------|----------|
+| Base layer | Ethereum (EVM) | Relay Chain (no contracts) |
+| App chains | L2 rollups | Parachains |
+| Shared security | Via L1 settlement | Via relay chain validators |
+| Cross-chain | Bridges (external) | XCM (native) |
+| Smart contract lang | Solidity | Rust (ink!) or EVM via Moonbeam |
+| Consensus | Proof of Stake | GRANDPA + BABE |
+
+---
+
+## Notable Parachains
+
+| Chain | Focus |
+|-------|-------|
+| Acala | DeFi, stablecoin (aUSD), DEX |
+| Moonbeam | EVM-compatible parachain |
+| Astar | Smart contracts (EVM + WASM) |
+| Phala | Privacy computing |
+| Centrifuge | Real-world asset tokenization |
+| Zeitgeist | Prediction markets |
+
+---
+
+## DOT Token
+
+DOT is the native token of Polkadot. Used for:
+- Governance (vote on upgrades)
+- Staking (nominate validators)
+- Parachain slot auctions (bond DOT to secure a parachain slot)
+
+---
+
+## Kusama
+
+Kusama is Polkadot's canary network — a live, real-money environment for testing before deploying to Polkadot. Less stable, faster governance. Most parachains launch on Kusama first.
+
+---
+
+*Last updated: September 2026.*
