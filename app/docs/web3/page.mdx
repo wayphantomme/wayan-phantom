@@ -1,110 +1,52 @@
 export const metadata = {
-  title: "Web3 & Blockchain | Notes by Wayan Phantom",
-  description: "Personal notes on Web3 and blockchain development. Ethereum, Solana, Solidity, DeFi, ethers.js.",
+  title: "Web3 & Blockchain | Wayan Phantom",
+  description: "Personal notes on Web3 and blockchain development. Ethereum, Solana, DeFi, smart contracts.",
 };
 
 # ⛓️ Web3 & Blockchain
 
-Personal notes from building production DeFi protocols on Ethereum and Solana. Smart contract patterns, frontend integration, and ecosystem building.
+Personal notes from building DeFi protocols, smart contracts, and ecosystem tools across Ethereum and Solana.
 
 ---
 
-## Chains I Build On
+## What's Covered
 
-| Chain | Use Case |
-|-------|----------|
-| Ethereum (EVM) | DeFi protocols, token swaps, smart contracts |
-| Solana | Ecosystem tools, community, AI x crypto |
-| Lisk (EVM L2) | Krono Finance, Lisk Spark Incubator 2025 |
-| ICP | Nekotip, ICP Hackathon 8.0, 2nd Place |
+| Section | What's Inside |
+|---------|--------------|
+| Ethereum | EVM, Solidity patterns, ethers.js frontend integration |
+| Solana | Ecosystem, wallet adapter, Anchor programs |
 
 ---
 
-## Solidity Smart Contract Patterns
+## Ethereum
 
-### ERC-20 Token (minimal)
+The EVM is my main chain for DeFi work. Solidity smart contracts, token swaps, liquidity pools, and frontend integration with ethers.js.
 
-```solidity
-// SPDX-License-Identifier: MIT
-pragma solidity ^0.8.20;
+Projects built on Ethereum: Bulldex Finance (DeFi monorepo), Krono Finance (Lisk Spark Incubator 2025, $4,000 grant), Neko Singa AI (AI-native crypto tools).
 
-import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
-
-contract MyToken is ERC20 {
-    constructor(uint256 initialSupply) ERC20("MyToken", "MTK") {
-        _mint(msg.sender, initialSupply * 10 ** decimals());
-    }
-}
-```
-
-### Reentrancy Guard Pattern
-
-```solidity
-// Always update state before external calls
-function withdraw(uint256 amount) external {
-    require(balances[msg.sender] >= amount, "Insufficient");
-    balances[msg.sender] -= amount; // state update first
-    (bool success, ) = msg.sender.call{value: amount}("");
-    require(success, "Transfer failed");
-}
-```
+Start here: [Ethereum Overview](/docs/web3/ethereum)
 
 ---
 
-## Frontend Integration with ethers.js
+## Solana
 
-```typescript
-import { ethers } from "ethers";
+More ecosystem and community-focused than deep protocol engineering. Active in Superteam Indonesia and Singapore. Familiar with wallet adapter, SPL tokens, and Anchor programs.
 
-// Connect wallet
-const provider = new ethers.BrowserProvider(window.ethereum);
-const signer = await provider.getSigner();
+Projects: Neko Singa AI, Solana Foundation Indonesia 2026 Bali Community Grants ($4,000).
 
-// Interact with contract
-const contract = new ethers.Contract(CONTRACT_ADDRESS, ABI, signer);
-const tx = await contract.swap(tokenIn, tokenOut, amountIn);
-await tx.wait();
-```
+Start here: [Solana Overview](/docs/web3/solana)
 
 ---
 
-## Bulldex Finance Architecture
+## Hackathon Results
 
-Built as a full DeFi monorepo on Ethereum:
-
-```
-bulldex-finance/
-├── contracts/        # Solidity smart contracts
-│   ├── BulldexSwap.sol
-│   ├── LiquidityPool.sol
-│   └── Faucet.sol
-├── frontend/         # Next.js + ethers.js
-│   ├── app/
-│   └── lib/contracts.ts
-└── scripts/          # Hardhat deployment scripts
-```
-
-Live: [bulldex-finance.vercel.app](https://bulldex-finance.vercel.app)
+| Event | Result |
+|-------|--------|
+| Solana Foundation Indonesia 2026 | Bali Community Grants $4,000 |
+| Lisk Spark Incubator 2025 | Krono Finance, $4,000 funding |
+| ICP Hackathon 8.0 2024 | Nekotip, 2nd Place |
+| Superteam Startup Village 2026 | Top 30 Builders Ideathon |
 
 ---
 
-## Solana Ecosystem Notes
-
-Active in Superteam Indonesia and Singapore as an ecosystem builder. Key tools:
-
-- **Wallet**: `@solana/wallet-adapter-react` for wallet connection
-- **RPC**: Helius or QuickNode for reliable RPC endpoints
-- **Tokens**: SPL token standard (similar to ERC-20 on Ethereum)
-- **Programs**: Anchor framework for Solana smart contracts (Rust)
-
----
-
-## Hackathon Wins
-
-- Solana Foundation Indonesia 2026, Bali Community Grants $4,000
-- Lisk Spark Incubator 2025, Krono Finance, $4,000 funding
-- ICP Hackathon 8.0 2024, Nekotip, 2nd Place
-
----
-
-*Last updated: September 2026. More contract patterns coming. Check [GitHub](https://github.com/wayphantomme) for live code.*
+*Last updated: September 2026.*

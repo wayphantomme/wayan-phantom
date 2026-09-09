@@ -2425,12 +2425,14 @@ body {
   background: none;
   border: none;
   cursor: pointer;
-  padding: 0.3rem 0.5rem;
-  font-size: 0.8rem;
-  font-weight: 600;
-  color: #475569;
+  padding: 0.3rem 0.625rem;
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: #64748b;
+  letter-spacing: 0.03em;
   border-radius: 0.375rem;
   transition: color 0.15s, background 0.15s;
+  text-transform: none;
 }
 .docs-nav-subgroup-btn:hover {
   color: #111;

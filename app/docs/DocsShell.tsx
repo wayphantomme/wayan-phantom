@@ -34,6 +34,9 @@ const NAV_SECTIONS: Section[] = [
   {
     label: "Web3 & Blockchain",
     href: "/docs/web3",
+    items: [
+      { label: "Overview", href: "/docs/web3" },
+    ],
     subgroups: [
       {
         label: "Ethereum",
