@@ -1,0 +1,137 @@
+export const metadata = {
+  title: "AI & Automation | Docs — Wayan Phantom",
+  description: "AI and automation notes — LLMs, n8n, RAG pipelines, chatbot architecture.",
+};
+
+# 🤖 AI & Automation
+
+How I design and ship AI-powered products — from LLM integration and RAG pipelines to n8n workflow automation. These are real patterns I use in production.
+
+---
+
+## LLM Stack
+
+| Purpose | Tool |
+|---------|------|
+| Reasoning / chat | Gemini (Google), Claude (Anthropic) |
+| Embeddings | Google Gemini Embedding, OpenAI |
+| Orchestration | n8n, LangChain (when needed) |
+| RAG storage | Supabase pgvector, Pinecone |
+| Deployment | Vercel (API routes), Railway |
+
+---
+
+## AI Chatbot Architecture
+
+This portfolio's chatbot uses a model fallback chain — starts with the fastest available model, falls back if quota is exhausted:
+
+```
+gemini-2.5-flash       → fastest, best cost/quality
+gemini-2.5-flash-lite  → cheaper fallback
+gemini-3.5-flash       → try newer if available
+...
+```
+
+### Route Handler Pattern (Next.js)
+
+```typescript
+// app/api/chat/route.ts
+import { GoogleGenerativeAI } from "@google/generative-ai";
+
+const MODEL_CHAIN = ["gemini-2.5-flash", "gemini-2.5-flash-lite"];
+
+export async function POST(request: Request) {
+  const { messages } = await request.json();
+  const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY!);
+
+  for (const modelId of MODEL_CHAIN) {
+    try {
+      const model = genAI.getGenerativeModel({
+        model: modelId,
+        systemInstruction: "You are a helpful assistant.",
+      });
+      const chat = model.startChat({ history: messages.slice(0, -1) });
+      const stream = await chat.sendMessageStream(messages.at(-1).content);
+
+      // Return as SSE stream
+      return new Response(/* stream */, {
+        headers: { "Content-Type": "text/event-stream" },
+      });
+    } catch {
+      continue; // fallback to next model
+    }
+  }
+}
+```
+
+---
+
+## n8n Workflow Automation
+
+I'm a certified n8n professional. Common workflows I build:
+
+### Lead Capture Automation
+```
+Webhook trigger
+  → Validate payload
+  → Save to Airtable / Notion
+  → Send welcome email (Gmail node)
+  → Notify Slack channel
+```
+
+### AI Content Pipeline (Impact Stories)
+```
+Schedule trigger (daily)
+  → HTTP Request → fetch topic/source
+  → OpenAI node → generate article
+  → Code node → format & sanitize
+  → HTTP Request → POST to CMS API
+  → Telegram notification
+```
+
+---
+
+## RAG Pipeline Pattern
+
+For knowledge-base chatbots with large documents:
+
+```
+1. Ingest
+   Document → chunk (500-1000 tokens) → embed → store in pgvector
+
+2. Query
+   User question → embed → similarity search (top 5 chunks)
+   → inject chunks into LLM context → stream response
+
+3. Stack
+   Supabase (pgvector) + Gemini Embeddings + any LLM
+```
+
+When **not** to use RAG: if your knowledge fits in ~3,000 tokens, just use a well-crafted system prompt. RAG adds latency and complexity for minimal gain at small scales.
+
+---
+
+## AI x Web3
+
+A pattern I'm exploring with Neko Singa AI:
+
+```
+Real-time on-chain data (Helius webhook)
+  → n8n processes event
+  → AI agent analyzes tx pattern
+  → Generates market insight
+  → Pushes to frontend via WebSocket
+```
+
+---
+
+## Prompt Engineering Tips
+
+- Put the most important instructions at the **top** of the system prompt, not the bottom
+- Use `CRITICAL:` or `IMPORTANT:` prefixes for rules that must not be broken
+- Specify the **negative** as well: "Do NOT use markdown headers"
+- Temperature `0.7` for conversational, `0.2` for factual/structured output
+
+---
+
+*Last updated: September 2026. Connect on [GitHub](https://github.com/wayphantomme) or book a call at [calendly.com/wayanphantomme/30min](https://calendly.com/wayanphantomme/30min).*

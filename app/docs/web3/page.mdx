@@ -1,0 +1,110 @@
+export const metadata = {
+  title: "Web3 & Blockchain | Docs — Wayan Phantom",
+  description: "Web3 and blockchain development notes — Ethereum, Solana, Solidity, DeFi, ethers.js.",
+};
+
+# ⛓️ Web3 & Blockchain
+
+Notes from building production DeFi protocols on Ethereum and Solana. Includes smart contract patterns, frontend integration, and ecosystem building.
+
+---
+
+## Chains I Build On
+
+| Chain | Use Case |
+|-------|----------|
+| Ethereum (EVM) | DeFi protocols, token swaps, smart contracts |
+| Solana | Ecosystem tools, community, AI x crypto |
+| Lisk (EVM L2) | Krono Finance — Lisk Spark Incubator 2025 |
+| ICP | Nekotip — ICP Hackathon 8.0, 2nd Place |
+
+---
+
+## Solidity Smart Contract Patterns
+
+### ERC-20 Token (minimal)
+
+```solidity
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.20;
+
+import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
+
+contract MyToken is ERC20 {
+    constructor(uint256 initialSupply) ERC20("MyToken", "MTK") {
+        _mint(msg.sender, initialSupply * 10 ** decimals());
+    }
+}
+```
+
+### Reentrancy Guard Pattern
+
+```solidity
+// Always update state before external calls
+function withdraw(uint256 amount) external {
+    require(balances[msg.sender] >= amount, "Insufficient");
+    balances[msg.sender] -= amount; // state update first
+    (bool success, ) = msg.sender.call{value: amount}("");
+    require(success, "Transfer failed");
+}
+```
+
+---
+
+## Frontend Integration with ethers.js
+
+```typescript
+import { ethers } from "ethers";
+
+// Connect wallet
+const provider = new ethers.BrowserProvider(window.ethereum);
+const signer = await provider.getSigner();
+
+// Interact with contract
+const contract = new ethers.Contract(CONTRACT_ADDRESS, ABI, signer);
+const tx = await contract.swap(tokenIn, tokenOut, amountIn);
+await tx.wait();
+```
+
+---
+
+## Bulldex Finance Architecture
+
+Built as a full DeFi monorepo on Ethereum:
+
+```
+bulldex-finance/
+├── contracts/        → Solidity smart contracts
+│   ├── BulldexSwap.sol
+│   ├── LiquidityPool.sol
+│   └── Faucet.sol
+├── frontend/         → Next.js + ethers.js
+│   ├── app/
+│   └── lib/contracts.ts
+└── scripts/          → Hardhat deployment scripts
+```
+
+Live: [bulldex-finance.vercel.app](https://bulldex-finance.vercel.app)
+
+---
+
+## Solana Ecosystem Notes
+
+I'm active in Superteam Indonesia and Singapore as an ecosystem builder. Key tools:
+
+- **Wallet**: `@solana/wallet-adapter-react` for wallet connection
+- **RPC**: Helius or QuickNode for reliable RPC endpoints
+- **Tokens**: SPL token standard (similar to ERC-20 on Ethereum)
+- **Programs**: Anchor framework for Solana smart contracts (Rust)
+
+---
+
+## Hackathon Wins
+
+- 🌐 **Solana Foundation Indonesia 2026** — Bali Community Grants $4,000
+- 💎 **Lisk Spark Incubator 2025** — Krono Finance, $4,000 funding
+- 🏆 **ICP Hackathon 8.0 2024** — Nekotip, 2nd Place
+
+---
+
+*Last updated: September 2026. More contract patterns coming — check [GitHub](https://github.com/wayphantomme) for live code.*

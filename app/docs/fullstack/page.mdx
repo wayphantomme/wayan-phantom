@@ -1,0 +1,110 @@
+export const metadata = {
+  title: "Fullstack | Docs — Wayan Phantom",
+  description: "Fullstack web development notes — Next.js, React, TypeScript, Node.js, PostgreSQL.",
+};
+
+# 🖥️ Fullstack Development
+
+Notes on building production-grade web applications end-to-end. These are patterns and decisions I've used across 20+ projects.
+
+---
+
+## Stack Overview
+
+My default stack for most projects:
+
+| Layer | Tech |
+|-------|------|
+| Framework | Next.js (App Router) |
+| Language | TypeScript |
+| Styling | Tailwind CSS v4 |
+| Database | PostgreSQL |
+| ORM | Prisma |
+| Auth | NextAuth.js / Clerk |
+| Deployment | Vercel + GitHub CI |
+| Storage | Cloudinary (media), Supabase (files) |
+
+---
+
+## Project Structure
+
+```
+app/
+├── api/           → Route handlers (POST, GET, etc.)
+├── components/    → Shared UI components
+├── data/          → Static data, constants
+├── (routes)/      → Page routes
+lib/
+├── db.ts          → Prisma client singleton
+├── utils.ts       → Shared utilities
+public/            → Static assets
+```
+
+I always start with a BRD (Business Requirements Document), PRD (Product Requirements Document), and TRD (Technical Requirements Document) before writing any code.
+
+---
+
+## Next.js App Router Patterns
+
+### Route Handlers
+
+```typescript
+// app/api/example/route.ts
+export async function POST(request: Request) {
+  const body = await request.json();
+  // handle logic
+  return Response.json({ success: true });
+}
+```
+
+### Server vs Client Components
+
+- Default to **Server Components** — they fetch data server-side, no hydration cost
+- Add `"use client"` only when you need: `useState`, `useEffect`, event handlers, browser APIs
+- Keep client components as leaf nodes (bottom of the tree)
+
+---
+
+## TypeScript Patterns I Use
+
+```typescript
+// Prefer interfaces for object shapes
+interface Project {
+  id: string;
+  name: string;
+  tags: string[];
+  createdAt: Date;
+}
+
+// Use type for unions and intersections
+type Status = "active" | "inactive" | "pending";
+type WithId<T> = T & { id: string };
+```
+
+---
+
+## Performance Checklist
+
+- [ ] Images use `next/image` with explicit `width` and `height`
+- [ ] Fonts loaded via `next/font` (no layout shift)
+- [ ] Large lists virtualized (react-virtual)
+- [ ] API routes protected with rate limiting
+- [ ] Database queries use indexes on filtered columns
+- [ ] Static pages use `generateStaticParams` where possible
+
+---
+
+## Deployment on Vercel
+
+```bash
+# Environment variables
+NEXT_PUBLIC_*   → exposed to browser
+*               → server-only (never exposed)
+
+# Preview deployments
+Every PR gets a preview URL automatically via GitHub integration
+```
+
+---
+
+*Last updated: September 2026. More patterns coming — connect on [GitHub](https://github.com/wayphantomme).*
