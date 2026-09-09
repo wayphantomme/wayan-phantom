@@ -68,52 +68,10 @@ function renderText(text: string) {
 // ─── Animated eyes avatar ────────────────────────────────────────────────────
 
 function EyesAvatar({ size = "sm" }: { size?: "sm" | "md" | "lg" }) {
-  const leftEyeRef = useRef<SVGCircleElement>(null);
-  const rightEyeRef = useRef<SVGCircleElement>(null);
-  const svgRef = useRef<SVGSVGElement>(null);
-
-  useEffect(() => {
-    const handleMouseMove = (e: MouseEvent) => {
-      if (!svgRef.current) return;
-      const rect = svgRef.current.getBoundingClientRect();
-      const cx = rect.left + rect.width / 2;
-      const cy = rect.top + rect.height / 2;
-
-      // Eye centers in SVG coords (viewBox 0 0 40 40)
-      const eyes = [
-        { ref: leftEyeRef, ex: 13, ey: 18 },
-        { ref: rightEyeRef, ex: 27, ey: 18 },
-      ];
-
-      eyes.forEach(({ ref, ex, ey }) => {
-        if (!ref.current) return;
-        // Convert SVG coord to screen coord
-        const scaleX = rect.width / 40;
-        const scaleY = rect.height / 40;
-        const eyeScreenX = rect.left + ex * scaleX;
-        const eyeScreenY = rect.top + ey * scaleY;
-
-        const dx = e.clientX - eyeScreenX;
-        const dy = e.clientY - eyeScreenY;
-        const angle = Math.atan2(dy, dx);
-        const dist = 2.2; // max pupil offset
-        const px = ex + Math.cos(angle) * dist;
-        const py = ey + Math.sin(angle) * dist;
-
-        ref.current.setAttribute("cx", String(px));
-        ref.current.setAttribute("cy", String(py));
-      });
-    };
-
-    window.addEventListener("mousemove", handleMouseMove);
-    return () => window.removeEventListener("mousemove", handleMouseMove);
-  }, []);
-
   const dim = size === "lg" ? 48 : size === "md" ? 32 : 26;
 
   return (
     <svg
-      ref={svgRef}
       width={dim}
       height={dim}
       viewBox="0 0 40 40"
@@ -128,16 +86,20 @@ function EyesAvatar({ size = "sm" }: { size?: "sm" | "md" | "lg" }) {
       {/* Left eye white */}
       <ellipse cx="13" cy="18" rx="5" ry="5.5" fill="white" stroke="#cbd5e1" strokeWidth="0.8" />
       {/* Left pupil */}
-      <circle ref={leftEyeRef} cx="13" cy="18" r="2.5" fill="#111" />
-      {/* Left pupil shine */}
-      <circle cx="14.2" cy="16.8" r="0.8" fill="white" style={{ pointerEvents: "none" }} />
+      <circle cx="13" cy="18" r="2.5" fill="#111" className="chatbot-eye-pupil" />
+      {/* Left eyelid — animates down to blink */}
+      <ellipse cx="13" cy="18" rx="5.2" ry="5.7" fill="#f1f5f9" className="chatbot-eye-lid chatbot-eye-lid-left" />
+      {/* Left shine */}
+      <circle cx="14.2" cy="16.8" r="0.8" fill="white" />
 
       {/* Right eye white */}
       <ellipse cx="27" cy="18" rx="5" ry="5.5" fill="white" stroke="#cbd5e1" strokeWidth="0.8" />
       {/* Right pupil */}
-      <circle ref={rightEyeRef} cx="27" cy="18" r="2.5" fill="#111" />
-      {/* Right pupil shine */}
-      <circle cx="28.2" cy="16.8" r="0.8" fill="white" style={{ pointerEvents: "none" }} />
+      <circle cx="27" cy="18" r="2.5" fill="#111" className="chatbot-eye-pupil" />
+      {/* Right eyelid */}
+      <ellipse cx="27" cy="18" rx="5.2" ry="5.7" fill="#f1f5f9" className="chatbot-eye-lid chatbot-eye-lid-right" />
+      {/* Right shine */}
+      <circle cx="28.2" cy="16.8" r="0.8" fill="white" />
 
       {/* Smile */}
       <path
