@@ -1,0 +1,126 @@
+export const metadata = {
+  title: "Solana Ecosystem | Wayan Phantom",
+  description: "Personal notes on the Solana ecosystem, wallet adapters, SPL tokens, and Anchor.",
+};
+
+# Solana Ecosystem
+
+Notes from being active in Superteam Indonesia and Singapore. More community and ecosystem-level than deep protocol engineering, but here's what I know.
+
+---
+
+## Wallet Adapter
+
+```tsx
+// _app.tsx or layout.tsx
+import {
+  ConnectionProvider,
+  WalletProvider,
+} from "@solana/wallet-adapter-react";
+import { WalletModalProvider } from "@solana/wallet-adapter-react-ui";
+import { PhantomWalletAdapter } from "@solana/wallet-adapter-wallets";
+import { clusterApiUrl } from "@solana/web3.js";
+
+const endpoint = clusterApiUrl("mainnet-beta");
+const wallets = [new PhantomWalletAdapter()];
+
+export default function App({ children }) {
+  return (
+    <ConnectionProvider endpoint={endpoint}>
+      <WalletProvider wallets={wallets} autoConnect>
+        <WalletModalProvider>
+          {children}
+        </WalletModalProvider>
+      </WalletProvider>
+    </ConnectionProvider>
+  );
+}
+```
+
+---
+
+## Read Wallet Balance
+
+```typescript
+import { useConnection, useWallet } from "@solana/wallet-adapter-react";
+import { LAMPORTS_PER_SOL } from "@solana/web3.js";
+
+function BalanceDisplay() {
+  const { connection } = useConnection();
+  const { publicKey } = useWallet();
+
+  async function getBalance() {
+    if (!publicKey) return;
+    const balance = await connection.getBalance(publicKey);
+    console.log(balance / LAMPORTS_PER_SOL, "SOL");
+  }
+}
+```
+
+---
+
+## SPL Tokens
+
+SPL is Solana's equivalent of ERC-20.
+
+```typescript
+import { getAssociatedTokenAddress, getAccount } from "@solana/spl-token";
+import { PublicKey } from "@solana/web3.js";
+
+async function getSPLBalance(
+  connection: Connection,
+  mint: PublicKey,
+  owner: PublicKey
+) {
+  const ata = await getAssociatedTokenAddress(mint, owner);
+  const account = await getAccount(connection, ata);
+  return account.amount; // BigInt, divide by 10^decimals
+}
+```
+
+---
+
+## Anchor Framework
+
+Anchor is like Hardhat + ethers.js but for Solana. Programs are written in Rust.
+
+```rust
+// Basic Anchor program structure
+use anchor_lang::prelude::*;
+
+declare_id!("YourProgramId...");
+
+#[program]
+pub mod my_program {
+    use super::*;
+
+    pub fn initialize(ctx: Context<Initialize>, data: u64) -> Result<()> {
+        ctx.accounts.my_account.data = data;
+        Ok(())
+    }
+}
+
+#[derive(Accounts)]
+pub struct Initialize<'info> {
+    #[account(init, payer = user, space = 8 + 8)]
+    pub my_account: Account<'info, MyAccount>,
+    #[account(mut)]
+    pub user: Signer<'info>,
+    pub system_program: Program<'info, System>,
+}
+
+#[account]
+pub struct MyAccount {
+    pub data: u64,
+}
+```
+
+---
+
+## Ecosystem Notes
+
+Events I've attended and found useful for Solana context: Coinfest Asia, CatLumpur in Malaysia, Bali Blockchain Summit, Superteam Singapore meetups. Worth going to if you're serious about building in this ecosystem.
+
+---
+
+*Last updated: September 2026.*

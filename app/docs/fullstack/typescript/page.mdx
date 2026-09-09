@@ -1,0 +1,126 @@
+export const metadata = {
+  title: "TypeScript Patterns | Wayan Phantom",
+  description: "Personal notes on TypeScript patterns I use in production.",
+};
+
+# TypeScript Patterns
+
+Patterns I use consistently across projects. Nothing fancy, just things that save time and reduce bugs.
+
+---
+
+## Interfaces vs Types
+
+Use `interface` for object shapes. Use `type` for unions, intersections, and primitives.
+
+```typescript
+// Object shape → interface
+interface User {
+  id: string;
+  name: string;
+  email: string;
+  createdAt: Date;
+}
+
+// Union → type
+type Status = "active" | "inactive" | "pending";
+
+// Intersection → type
+type AdminUser = User & { role: "admin"; permissions: string[] };
+```
+
+---
+
+## Utility Types
+
+```typescript
+// Partial makes all fields optional
+type UserUpdate = Partial<User>;
+
+// Pick selects specific fields
+type UserPreview = Pick<User, "id" | "name">;
+
+// Omit removes specific fields
+type UserWithoutDates = Omit<User, "createdAt" | "updatedAt">;
+
+// Record for key-value maps
+type StatusMap = Record<string, Status>;
+
+// ReturnType extracts function return type
+type ApiResponse = ReturnType<typeof fetchUser>;
+```
+
+---
+
+## Generic Patterns
+
+```typescript
+// Generic API response wrapper
+interface ApiResult<T> {
+  data: T;
+  error: string | null;
+  status: number;
+}
+
+// Generic with constraint
+function getProperty<T, K extends keyof T>(obj: T, key: K): T[K] {
+  return obj[key];
+}
+
+// Generic React component
+interface ListProps<T> {
+  items: T[];
+  renderItem: (item: T) => React.ReactNode;
+  keyExtractor: (item: T) => string;
+}
+```
+
+---
+
+## Discriminated Unions
+
+Useful for state machines and API responses.
+
+```typescript
+type LoadingState =
+  | { status: "idle" }
+  | { status: "loading" }
+  | { status: "success"; data: User[] }
+  | { status: "error"; message: string };
+
+function render(state: LoadingState) {
+  switch (state.status) {
+    case "idle": return <p>Not started</p>;
+    case "loading": return <Spinner />;
+    case "success": return <UserList users={state.data} />;
+    case "error": return <p>Error: {state.message}</p>;
+  }
+}
+```
+
+---
+
+## Zod for Runtime Validation
+
+```typescript
+import { z } from "zod";
+
+const UserSchema = z.object({
+  id: z.string().uuid(),
+  name: z.string().min(1).max(100),
+  email: z.string().email(),
+  age: z.number().int().positive().optional(),
+});
+
+type User = z.infer<typeof UserSchema>;
+
+// Validate API input
+const result = UserSchema.safeParse(req.body);
+if (!result.success) {
+  return Response.json({ error: result.error.issues }, { status: 400 });
+}
+```
+
+---
+
+*Last updated: September 2026.*

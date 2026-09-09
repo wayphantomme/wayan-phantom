@@ -1,0 +1,77 @@
+export const metadata = {
+  title: "Deployment | Wayan Phantom",
+  description: "Personal notes on deploying Next.js apps to Vercel.",
+};
+
+# Deployment
+
+How I deploy every project. Vercel + GitHub is my default setup.
+
+---
+
+## Vercel Setup
+
+1. Push to GitHub
+2. Import repo at vercel.com/new
+3. Framework preset auto-detects Next.js
+4. Set environment variables
+5. Deploy
+
+That's it for most projects. Zero config needed.
+
+---
+
+## Environment Variables
+
+```bash
+# .env.local (never commit this)
+DATABASE_URL="postgresql://..."
+NEXTAUTH_SECRET="your-secret"
+GEMINI_API_KEY="your-key"
+
+# Prefix with NEXT_PUBLIC_ to expose to browser
+NEXT_PUBLIC_APP_URL="https://yourapp.com"
+NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME="yourcloud"
+```
+
+Rules:
+- `NEXT_PUBLIC_*` is bundled into client JS, visible to everyone
+- Everything else is server-only, never exposed to the browser
+- Use Vercel environment variables for production secrets, never `.env.local` in the repo
+
+---
+
+## CI/CD via GitHub
+
+Every push to `main` triggers a production deployment automatically. Every PR gets a preview URL.
+
+```
+main branch    → production deploy (wayan-phantom.vercel.app)
+feature branch → preview deploy   (wayan-phantom-git-feature.vercel.app)
+```
+
+Push env vars via Vercel CLI:
+
+```bash
+echo "your-value" | npx vercel env add VARIABLE_NAME production
+```
+
+---
+
+## Custom Domain
+
+In Vercel dashboard: Settings > Domains > Add. Point your DNS CNAME to `cname.vercel-dns.com`. SSL is automatic.
+
+---
+
+## Build Optimization Checklist
+
+- [ ] Remove `console.log` in production code
+- [ ] Set proper `Cache-Control` headers on API routes
+- [ ] Use `next/image` for all images
+- [ ] Enable Vercel Analytics for performance monitoring
+- [ ] Set up error tracking (Sentry or Vercel's built-in)
+
+---
+
+*Last updated: September 2026.*

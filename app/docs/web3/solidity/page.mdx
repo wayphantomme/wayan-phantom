@@ -1,0 +1,108 @@
+export const metadata = {
+  title: "Solidity Patterns | Wayan Phantom",
+  description: "Personal notes on Solidity smart contract patterns I use.",
+};
+
+# Solidity Patterns
+
+Notes from building Bulldex Finance and other EVM projects. These are patterns I keep coming back to.
+
+---
+
+## ERC-20 Token (minimal)
+
+```solidity
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.20;
+
+import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
+import "@openzeppelin/contracts/access/Ownable.sol";
+
+contract MyToken is ERC20, Ownable {
+    constructor(uint256 initialSupply) ERC20("MyToken", "MTK") Ownable(msg.sender) {
+        _mint(msg.sender, initialSupply * 10 ** decimals());
+    }
+
+    function mint(address to, uint256 amount) external onlyOwner {
+        _mint(to, amount);
+    }
+}
+```
+
+Always use OpenZeppelin. Don't reinvent the wheel on token standards.
+
+---
+
+## Reentrancy Guard
+
+The most common vulnerability in DeFi. Fix: always update state before making external calls.
+
+```solidity
+// WRONG: external call before state update
+function withdraw(uint256 amount) external {
+    (bool success, ) = msg.sender.call{value: amount}(""); // attacked here
+    require(success);
+    balances[msg.sender] -= amount; // too late
+}
+
+// CORRECT: state update first
+function withdraw(uint256 amount) external {
+    require(balances[msg.sender] >= amount, "Insufficient");
+    balances[msg.sender] -= amount; // state update first
+    (bool success, ) = msg.sender.call{value: amount}("");
+    require(success, "Transfer failed");
+}
+```
+
+Or use OpenZeppelin's `ReentrancyGuard`:
+
+```solidity
+import "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
+
+contract Vault is ReentrancyGuard {
+    function withdraw(uint256 amount) external nonReentrant {
+        // safe
+    }
+}
+```
+
+---
+
+## Bulldex Finance Architecture
+
+The swap contract from Bulldex Finance:
+
+```
+contracts/
+├── BulldexSwap.sol      → Jupiter-style token swap
+├── LiquidityPool.sol    → Add/remove liquidity, LP tokens
+├── Faucet.sol           → Testnet token distribution
+└── interfaces/
+    └── ILiquidityPool.sol
+```
+
+Key design decision: keep swap logic in one contract, liquidity management in another. Easier to audit and upgrade.
+
+---
+
+## Testing with Hardhat
+
+```javascript
+// test/Token.test.js
+const { expect } = require("chai");
+
+describe("MyToken", function () {
+  it("should mint initial supply to owner", async function () {
+    const [owner] = await ethers.getSigners();
+    const Token = await ethers.getContractFactory("MyToken");
+    const token = await Token.deploy(1000);
+
+    expect(await token.balanceOf(owner.address))
+      .to.equal(ethers.parseUnits("1000", 18));
+  });
+});
+```
+
+---
+
+*Last updated: September 2026.*

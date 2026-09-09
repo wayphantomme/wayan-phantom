@@ -1,0 +1,106 @@
+export const metadata = {
+  title: "ethers.js Integration | Wayan Phantom",
+  description: "Personal notes on connecting frontends to Ethereum smart contracts with ethers.js.",
+};
+
+# ethers.js Integration
+
+How I wire up Next.js frontends to smart contracts. Using ethers.js v6.
+
+---
+
+## Connect Wallet
+
+```typescript
+import { ethers, BrowserProvider, JsonRpcSigner } from "ethers";
+
+async function connectWallet(): Promise<JsonRpcSigner> {
+  if (!window.ethereum) throw new Error("No wallet found");
+
+  const provider = new BrowserProvider(window.ethereum);
+  await provider.send("eth_requestAccounts", []);
+  return provider.getSigner();
+}
+```
+
+---
+
+## Read from Contract
+
+Reading doesn't require a signer, just a provider.
+
+```typescript
+import { ethers, Contract, JsonRpcProvider } from "ethers";
+import ERC20_ABI from "./abis/ERC20.json";
+
+const provider = new JsonRpcProvider("https://mainnet.infura.io/v3/YOUR_KEY");
+
+async function getTokenBalance(tokenAddress: string, walletAddress: string) {
+  const contract = new Contract(tokenAddress, ERC20_ABI, provider);
+  const balance = await contract.balanceOf(walletAddress);
+  return ethers.formatUnits(balance, 18);
+}
+```
+
+---
+
+## Write Transaction
+
+Writing requires a signer connected to the user's wallet.
+
+```typescript
+async function swapTokens(
+  contractAddress: string,
+  tokenIn: string,
+  tokenOut: string,
+  amountIn: bigint
+) {
+  const signer = await connectWallet();
+  const contract = new Contract(contractAddress, SWAP_ABI, signer);
+
+  const tx = await contract.swap(tokenIn, tokenOut, amountIn);
+  const receipt = await tx.wait(); // wait for confirmation
+  return receipt;
+}
+```
+
+---
+
+## Listen to Events
+
+```typescript
+const contract = new Contract(address, abi, provider);
+
+// Subscribe
+contract.on("Swap", (user, tokenIn, tokenOut, amountIn, amountOut) => {
+  console.log(`${user} swapped ${amountIn} ${tokenIn} for ${amountOut} ${tokenOut}`);
+});
+
+// One-time
+contract.once("Transfer", (from, to, value) => {
+  console.log("Transfer detected");
+});
+
+// Cleanup
+contract.removeAllListeners();
+```
+
+---
+
+## Format Values
+
+```typescript
+// Wei to ETH
+ethers.formatEther(bigIntValue)          // "1.5"
+
+// ETH to Wei
+ethers.parseEther("1.5")                 // 1500000000000000000n
+
+// Generic decimals
+ethers.formatUnits(bigIntValue, 6)       // for USDC (6 decimals)
+ethers.parseUnits("100", 6)              // "100 USDC" as raw units
+```
+
+---
+
+*Last updated: September 2026.*

@@ -1,0 +1,98 @@
+export const metadata = {
+  title: "Next.js & React | Wayan Phantom",
+  description: "Personal notes on Next.js App Router, React patterns, and server components.",
+};
+
+# Next.js & React
+
+Notes on building with Next.js App Router. These are patterns I use in every project.
+
+---
+
+## App Router
+
+The App Router uses a file-based routing system inside the `app/` directory. Every folder with a `page.tsx` becomes a route.
+
+```
+app/
+├── page.tsx          → /
+├── about/
+│   └── page.tsx      → /about
+└── blog/
+    └── [slug]/
+        └── page.tsx  → /blog/:slug
+```
+
+Special files: `layout.tsx` (shared UI), `loading.tsx` (suspense), `error.tsx` (error boundary), `route.ts` (API endpoint).
+
+---
+
+## Route Handlers
+
+```typescript
+// app/api/example/route.ts
+export async function POST(request: Request) {
+  const body = await request.json();
+  return Response.json({ success: true });
+}
+
+export async function GET(request: Request) {
+  const { searchParams } = new URL(request.url);
+  const id = searchParams.get("id");
+  return Response.json({ id });
+}
+```
+
+---
+
+## Server vs Client Components
+
+Default to **Server Components**. Add `"use client"` only when you need interactivity.
+
+| Use Server Component | Use Client Component |
+|---------------------|---------------------|
+| Fetch data | useState, useEffect |
+| Access backend directly | Event handlers |
+| Keep secrets server-side | Browser APIs |
+| Reduce bundle size | Real-time updates |
+
+```tsx
+// Server Component (default)
+async function Page() {
+  const data = await fetch("https://api.example.com/data");
+  return <div>{data}</div>;
+}
+
+// Client Component
+"use client";
+import { useState } from "react";
+
+function Counter() {
+  const [count, setCount] = useState(0);
+  return <button onClick={() => setCount(c => c + 1)}>{count}</button>;
+}
+```
+
+Keep client components at the bottom of the tree (leaf nodes) to minimize client bundle size.
+
+---
+
+## Data Fetching Patterns
+
+```tsx
+// Parallel fetching (faster than sequential)
+const [users, posts] = await Promise.all([
+  fetch("/api/users").then(r => r.json()),
+  fetch("/api/posts").then(r => r.json()),
+]);
+
+// Revalidation
+export const revalidate = 3600; // revalidate every hour
+
+// Force dynamic
+export const dynamic = "force-dynamic";
+```
+
+---
+
+*Last updated: September 2026.*
