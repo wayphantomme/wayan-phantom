@@ -65,7 +65,91 @@ function renderText(text: string) {
   });
 }
 
-// ─── Typing indicator ─────────────────────────────────────────────────────────
+// ─── Animated eyes avatar ────────────────────────────────────────────────────
+
+function EyesAvatar({ size = "sm" }: { size?: "sm" | "md" | "lg" }) {
+  const leftEyeRef = useRef<SVGCircleElement>(null);
+  const rightEyeRef = useRef<SVGCircleElement>(null);
+  const svgRef = useRef<SVGSVGElement>(null);
+
+  useEffect(() => {
+    const handleMouseMove = (e: MouseEvent) => {
+      if (!svgRef.current) return;
+      const rect = svgRef.current.getBoundingClientRect();
+      const cx = rect.left + rect.width / 2;
+      const cy = rect.top + rect.height / 2;
+
+      // Eye centers in SVG coords (viewBox 0 0 40 40)
+      const eyes = [
+        { ref: leftEyeRef, ex: 13, ey: 18 },
+        { ref: rightEyeRef, ex: 27, ey: 18 },
+      ];
+
+      eyes.forEach(({ ref, ex, ey }) => {
+        if (!ref.current) return;
+        // Convert SVG coord to screen coord
+        const scaleX = rect.width / 40;
+        const scaleY = rect.height / 40;
+        const eyeScreenX = rect.left + ex * scaleX;
+        const eyeScreenY = rect.top + ey * scaleY;
+
+        const dx = e.clientX - eyeScreenX;
+        const dy = e.clientY - eyeScreenY;
+        const angle = Math.atan2(dy, dx);
+        const dist = 2.2; // max pupil offset
+        const px = ex + Math.cos(angle) * dist;
+        const py = ey + Math.sin(angle) * dist;
+
+        ref.current.setAttribute("cx", String(px));
+        ref.current.setAttribute("cy", String(py));
+      });
+    };
+
+    window.addEventListener("mousemove", handleMouseMove);
+    return () => window.removeEventListener("mousemove", handleMouseMove);
+  }, []);
+
+  const dim = size === "lg" ? 48 : size === "md" ? 32 : 26;
+
+  return (
+    <svg
+      ref={svgRef}
+      width={dim}
+      height={dim}
+      viewBox="0 0 40 40"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+      style={{ flexShrink: 0, display: "block" }}
+      aria-hidden="true"
+    >
+      {/* Face circle */}
+      <circle cx="20" cy="20" r="19" fill="#f1f5f9" stroke="#e2e8f0" strokeWidth="1" />
+
+      {/* Left eye white */}
+      <ellipse cx="13" cy="18" rx="5" ry="5.5" fill="white" stroke="#cbd5e1" strokeWidth="0.8" />
+      {/* Left pupil */}
+      <circle ref={leftEyeRef} cx="13" cy="18" r="2.5" fill="#111" />
+      {/* Left pupil shine */}
+      <circle cx="14.2" cy="16.8" r="0.8" fill="white" style={{ pointerEvents: "none" }} />
+
+      {/* Right eye white */}
+      <ellipse cx="27" cy="18" rx="5" ry="5.5" fill="white" stroke="#cbd5e1" strokeWidth="0.8" />
+      {/* Right pupil */}
+      <circle ref={rightEyeRef} cx="27" cy="18" r="2.5" fill="#111" />
+      {/* Right pupil shine */}
+      <circle cx="28.2" cy="16.8" r="0.8" fill="white" style={{ pointerEvents: "none" }} />
+
+      {/* Smile */}
+      <path
+        d="M14 27 Q20 31 26 27"
+        stroke="#94a3b8"
+        strokeWidth="1.5"
+        strokeLinecap="round"
+        fill="none"
+      />
+    </svg>
+  );
+}
 
 function TypingDots() {
   return (
@@ -83,11 +167,7 @@ function Bubble({ msg }: { msg: Message }) {
   const isUser = msg.role === "user";
   return (
     <div className={`chatbot-bubble-row ${isUser ? "chatbot-bubble-row-user" : "chatbot-bubble-row-bot"}`}>
-      {!isUser && (
-        <div className="chatbot-avatar" aria-hidden="true">
-          WP
-        </div>
-      )}
+      {!isUser && <EyesAvatar size="sm" />}
       <div className={`chatbot-bubble ${isUser ? "chatbot-bubble-user" : "chatbot-bubble-bot"}`}>
         {renderText(msg.content)}
       </div>
@@ -196,7 +276,7 @@ export default function ChatBot() {
         {/* Header */}
         <div className="chatbot-header">
           <div className="chatbot-header-info">
-            <div className="chatbot-header-avatar" aria-hidden="true">WP</div>
+            <EyesAvatar size="md" />
             <div>
               <p className="chatbot-header-name">Wayan Phantom Bot</p>
               <p className="chatbot-header-sub">Ask me anything about Wayan</p>
@@ -218,7 +298,7 @@ export default function ChatBot() {
           {/* Welcome */}
           {messages.length === 0 && (
             <div className="chatbot-welcome">
-              <div className="chatbot-welcome-avatar" aria-hidden="true">WP</div>
+              <EyesAvatar size="lg" />
               <p className="chatbot-welcome-title">Hi! I&apos;m Wayan Phantom Bot 👋</p>
               <p className="chatbot-welcome-sub">
                 Ask me anything about Wayan&apos;s skills, experience, projects, or availability.
@@ -250,7 +330,7 @@ export default function ChatBot() {
           {/* Typing indicator */}
           {loading && (
             <div className="chatbot-bubble-row chatbot-bubble-row-bot">
-              <div className="chatbot-avatar" aria-hidden="true">WP</div>
+              <EyesAvatar size="sm" />
               <div className="chatbot-bubble chatbot-bubble-bot">
                 <TypingDots />
               </div>
