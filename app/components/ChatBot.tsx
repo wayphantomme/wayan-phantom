@@ -18,41 +18,50 @@ const SUGGESTIONS = [
   "Is he open to new opportunities?",
 ];
 
-// ─── Markdown-lite renderer (bold + links only) ───────────────────────────────
+// ─── URL / mailto / wa.me auto-linker ────────────────────────────────────────
+
+// Matches: mailto:..., https://..., http://...
+const URL_REGEX = /(mailto:[^\s,)]+|https?:\/\/[^\s,)"]+)/g;
+
+function linkifySegment(text: string, keyPrefix: string) {
+  const segments = text.split(URL_REGEX);
+  return segments.map((seg, i) => {
+    if (URL_REGEX.test(seg)) {
+      URL_REGEX.lastIndex = 0; // reset after .test()
+      const isMail = seg.startsWith("mailto:");
+      const isWa = seg.includes("wa.me");
+      const label = isMail
+        ? seg.replace("mailto:", "")
+        : isWa
+        ? "WhatsApp"
+        : seg.replace(/^https?:\/\//, "").replace(/\/$/, "");
+      return (
+        <a
+          key={`${keyPrefix}-${i}`}
+          href={seg}
+          target={isMail ? undefined : "_blank"}
+          rel="noopener noreferrer"
+          className="chatbot-link"
+        >
+          {label}
+        </a>
+      );
+    }
+    URL_REGEX.lastIndex = 0;
+    return <span key={`${keyPrefix}-${i}`}>{seg}</span>;
+  });
+}
+
+// ─── Render plain prose text ──────────────────────────────────────────────────
 
 function renderText(text: string) {
-  // Split by lines, render each
   return text.split("\n").map((line, i) => {
     if (line.trim() === "") return <br key={i} />;
-
-    // Bold: **text**
-    const parts = line.split(/(\*\*[^*]+\*\*)/g);
-    const rendered = parts.map((part, j) => {
-      if (part.startsWith("**") && part.endsWith("**")) {
-        return <strong key={j}>{part.slice(2, -2)}</strong>;
-      }
-      // Inline links: [label](url)
-      const linkParts = part.split(/(\[[^\]]+\]\([^)]+\))/g);
-      return linkParts.map((lp, k) => {
-        const match = lp.match(/^\[([^\]]+)\]\(([^)]+)\)$/);
-        if (match) {
-          return (
-            <a
-              key={k}
-              href={match[2]}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="chatbot-link"
-            >
-              {match[1]}
-            </a>
-          );
-        }
-        return <span key={k}>{lp}</span>;
-      });
-    });
-
-    return <p key={i} className="chatbot-msg-line">{rendered}</p>;
+    return (
+      <p key={i} className="chatbot-msg-line">
+        {linkifySegment(line, `l${i}`)}
+      </p>
+    );
   });
 }
 
