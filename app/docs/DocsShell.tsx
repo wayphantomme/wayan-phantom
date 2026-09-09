@@ -61,10 +61,11 @@ const NAV_SECTIONS: Section[] = [
   {
     label: "AI & Automation",
     items: [
-      { label: "Overview",     href: "/docs/ai" },
-      { label: "LLM Stack",    href: "/docs/ai/llm" },
-      { label: "n8n Workflows",href: "/docs/ai/n8n" },
-      { label: "RAG Pipeline", href: "/docs/ai/rag" },
+      { label: "Overview",        href: "/docs/ai" },
+      { label: "LLM Stack",       href: "/docs/ai/llm" },
+      { label: "Gemini Models",   href: "/docs/ai/gemini" },
+      { label: "n8n Workflows",   href: "/docs/ai/n8n" },
+      { label: "RAG Pipeline",    href: "/docs/ai/rag" },
     ],
   },
 ];
@@ -158,6 +159,14 @@ const TOC_MAP: Record<string, { label: string; href: string }[]> = {
     { label: "LLM Stack",          href: "#llm-stack" },
     { label: "Chatbot Architecture",href: "#chatbot" },
   ],
+  "/docs/ai/gemini": [
+    { label: "What is AI Studio",  href: "#what-is-google-ai-studio" },
+    { label: "Model Families",     href: "#gemini-model-families" },
+    { label: "Capabilities",       href: "#what-each-model-can-do" },
+    { label: "Free Tier Limits",   href: "#free-tier-rate-limits-real-data" },
+    { label: "Model Selection",    href: "#model-selection-guide" },
+    { label: "Fallback Chain",     href: "#fallback-chain-for-production" },
+  ],
   "/docs/ai/llm": [
     { label: "Models I Use",     href: "#models-i-use" },
     { label: "Fallback Chain",   href: "#model-fallback-chain" },
@@ -200,8 +209,9 @@ const BREADCRUMB_MAP: Record<string, string[]> = {
   "/docs/web3/solana/wallet":        ["Web3 & Blockchain", "Solana", "Wallet & Web3.js"],
   "/docs/web3/solana/programs":      ["Web3 & Blockchain", "Solana", "Anchor Programs"],
   "/docs/ai":                        ["AI & Automation", "Overview"],
-  "/docs/ai/llm":                    ["AI & Automation", "LLM Stack"],
-  "/docs/ai/n8n":                    ["AI & Automation", "n8n Workflows"],
+  "/docs/ai/llm":    ["AI & Automation", "LLM Stack"],
+  "/docs/ai/gemini": ["AI & Automation", "Gemini Models"],
+  "/docs/ai/n8n":    ["AI & Automation", "n8n Workflows"],
   "/docs/ai/rag":                    ["AI & Automation", "RAG Pipeline"],
 };
 
