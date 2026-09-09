@@ -1,0 +1,192 @@
+export const metadata = {
+  title: "Blockchain Concepts | Wayan Phantom",
+  description: "Core concepts every blockchain developer needs to know: wallets, tokens, networks, gas, and transactions.",
+};
+
+# Blockchain Concepts
+
+The fundamentals — what everything actually is before you write a single line of code.
+
+---
+
+## Wallet
+
+A wallet doesn't store your crypto. It stores your **private key** — the cryptographic proof that you own an address on a blockchain.
+
+| Term | What It Is |
+|------|------------|
+| Private Key | Secret number. Anyone who has it controls your funds. Never share. |
+| Public Key | Derived from private key. Used to generate your address. |
+| Address | What you share publicly to receive funds. |
+| Seed Phrase | 12 or 24 words that regenerate your private key. Backup of everything. |
+
+### Wallet types
+
+- **EOA (Externally Owned Account)** — controlled by a private key. MetaMask, Phantom, etc.
+- **Smart Contract Wallet** — controlled by code. Safe (Gnosis), ERC-4337 account abstraction.
+- **Custodial** — exchange holds your keys (Coinbase, Binance). You don't actually own the wallet.
+
+```
+Not your keys, not your coins.
+```
+
+---
+
+## Network / Chain
+
+A blockchain network is a distributed ledger maintained by nodes around the world. Key concepts:
+
+| Concept | Ethereum | Solana |
+|---------|----------|--------|
+| Consensus | Proof of Stake | Proof of History + PoS |
+| Block time | ~12 seconds | ~400ms |
+| Smart contract language | Solidity | Rust (via Anchor) |
+| Native token | ETH | SOL |
+| Account model | Balance model | Account model |
+
+### Mainnet vs Testnet
+
+- **Mainnet** — real money, real transactions, permanent.
+- **Testnet** — fake money, for development and testing.
+- **Devnet** — local or semi-public chain for dev, no value.
+
+Common testnets:
+
+| Chain | Testnet Name | Faucet |
+|-------|-------------|--------|
+| Ethereum | Sepolia | [sepoliafaucet.com](https://sepoliafaucet.com) |
+| Base | Base Sepolia | [faucet.quicknode.com](https://faucet.quicknode.com/base/sepolia) |
+| Arbitrum | Arbitrum Sepolia | [faucets.chain.link](https://faucets.chain.link/arbitrum-sepolia) |
+| Solana | Devnet | `solana airdrop 2` or [faucet.solana.com](https://faucet.solana.com) |
+
+---
+
+## Token
+
+A token is a digital asset that lives on a blockchain. Two categories:
+
+### Native Token (Coin)
+The chain's built-in currency. Used to pay gas fees.
+- ETH on Ethereum
+- SOL on Solana
+- BNB on BSC
+
+### Contract Token
+Created by a smart contract. Follows a standard interface.
+
+| Standard | Chain | What It Is |
+|----------|-------|------------|
+| ERC-20 | EVM | Fungible token (currency, governance, utility) |
+| ERC-721 | EVM | Non-fungible token (NFT) |
+| ERC-1155 | EVM | Multi-token (fungible + NFT in one contract) |
+| SPL Token | Solana | Both fungible and NFT on Solana |
+
+---
+
+## Gas
+
+Gas is the fee you pay to execute operations on a blockchain. It compensates validators for computation.
+
+### How gas works on Ethereum (EIP-1559)
+
+```
+Total fee = (Base Fee + Priority Fee) × Gas Used
+```
+
+- **Base Fee** — set by the network based on demand. Gets burned.
+- **Priority Fee (tip)** — you set this to incentivize validators to include your tx faster.
+- **Gas Limit** — max gas you're willing to spend. Unused gas is refunded.
+
+```typescript
+// ethers.js — estimate gas before sending
+const gasEstimate = await provider.estimateGas({
+  to: contractAddress,
+  data: contract.interface.encodeFunctionData("transfer", [to, amount]),
+});
+
+// Send with manual gas settings
+const tx = await contract.transfer(to, amount, {
+  gasLimit: gasEstimate * 120n / 100n, // 20% buffer
+  maxFeePerGas: ethers.parseUnits("20", "gwei"),
+  maxPriorityFeePerGas: ethers.parseUnits("1", "gwei"),
+});
+```
+
+### Gas on Solana
+
+Solana calls fees **lamports** (1 SOL = 1,000,000,000 lamports). Fees are tiny (~0.000005 SOL per tx) because computation is measured differently — by **compute units**.
+
+```typescript
+// @solana/web3.js — add compute budget instruction
+import { ComputeBudgetProgram } from "@solana/web3.js";
+
+const modifyComputeUnits = ComputeBudgetProgram.setComputeUnitLimit({ units: 200_000 });
+const addPriorityFee = ComputeBudgetProgram.setComputeUnitPrice({ microLamports: 1 });
+```
+
+---
+
+## Transaction Lifecycle
+
+1. **Construct** — build the tx object with `to`, `value`, `data`, `gasLimit`
+2. **Sign** — wallet signs with private key (never leaves the device)
+3. **Broadcast** — send to a node via RPC
+4. **Mempool** — tx waits to be included in a block
+5. **Confirmed** — included in a block. 1 confirmation.
+6. **Finalized** — enough blocks built on top. Safe to treat as permanent.
+
+```typescript
+// Full lifecycle with ethers.js
+const tx = await signer.sendTransaction({ to: recipient, value: ethers.parseEther("0.01") });
+console.log("Broadcast:", tx.hash);
+
+const receipt = await tx.wait(1); // wait 1 confirmation
+console.log("Confirmed in block:", receipt.blockNumber);
+```
+
+---
+
+## RPC / Node Providers
+
+Your app talks to the blockchain via an **RPC endpoint**. You can run your own node or use a provider.
+
+| Provider | Free Tier | Chains |
+|----------|-----------|--------|
+| [Alchemy](https://alchemy.com) | 300M compute units/month | Ethereum, Base, Arbitrum, Polygon, Solana |
+| [Infura](https://infura.io) | 100K requests/day | Ethereum, IPFS, L2s |
+| [QuickNode](https://quicknode.com) | 50M credits/month | 60+ chains |
+| [Helius](https://helius.dev) | 100K req/day | Solana only, best DX |
+
+```typescript
+// Connect with ethers.js
+import { ethers } from "ethers";
+const provider = new ethers.JsonRpcProvider(process.env.ALCHEMY_RPC_URL);
+
+// Connect with @solana/web3.js
+import { Connection } from "@solana/web3.js";
+const connection = new Connection(process.env.HELIUS_RPC_URL!, "confirmed");
+```
+
+---
+
+## IPFS & Metadata
+
+NFTs and on-chain assets often store metadata off-chain on IPFS — a content-addressed decentralized file system.
+
+```json
+{
+  "name": "Phantom #001",
+  "description": "A dark phantom from the void.",
+  "image": "ipfs://QmXxxx.../image.png",
+  "attributes": [
+    { "trait_type": "Background", "value": "Dark" },
+    { "trait_type": "Eyes", "value": "Glowing" }
+  ]
+}
+```
+
+Upload services: [Pinata](https://pinata.cloud), [NFT.Storage](https://nft.storage), [web3.storage](https://web3.storage).
+
+---
+
+*See also: [Faucets & Testnets](/docs/web3/basics/faucets) | [Deploy: Testnet → Mainnet](/docs/web3/ethereum/deploy)*

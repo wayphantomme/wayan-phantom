@@ -1,0 +1,324 @@
+export const metadata = {
+  title: "Deploy: Testnet → Mainnet | Wayan Phantom",
+  description: "Step-by-step guide to deploying Solidity smart contracts on Ethereum testnets and promoting to mainnet using Hardhat and Foundry.",
+};
+
+# Deploy: Testnet → Mainnet
+
+The full deployment flow — from writing your contract to going live on mainnet.
+
+---
+
+## Toolchain
+
+Two main options. Both are solid; most new projects lean toward Foundry.
+
+| Tool | Language | Best For |
+|------|----------|----------|
+| [Hardhat](https://hardhat.org) | TypeScript/JS | Familiar JS ecosystem, large plugin library |
+| [Foundry](https://book.getfoundry.sh) | Rust (CLI) + Solidity tests | Faster, Solidity-native testing, better fuzzing |
+
+---
+
+## Hardhat Setup
+
+```bash
+mkdir my-contract && cd my-contract
+npm init -y
+npm install --save-dev hardhat @nomicfoundation/hardhat-toolbox
+npx hardhat init
+# Choose: "Create a TypeScript project"
+```
+
+### Project structure
+
+```
+contracts/
+  MyToken.sol
+scripts/
+  deploy.ts
+test/
+  MyToken.ts
+hardhat.config.ts
+.env
+```
+
+### hardhat.config.ts
+
+```typescript
+import { HardhatUserConfig } from "hardhat/config";
+import "@nomicfoundation/hardhat-toolbox";
+import * as dotenv from "dotenv";
+dotenv.config();
+
+const config: HardhatUserConfig = {
+  solidity: "0.8.24",
+  networks: {
+    sepolia: {
+      url: process.env.SEPOLIA_RPC!,
+      accounts: [process.env.PRIVATE_KEY!],
+    },
+    "base-sepolia": {
+      url: process.env.BASE_SEPOLIA_RPC!,
+      accounts: [process.env.PRIVATE_KEY!],
+    },
+    mainnet: {
+      url: process.env.MAINNET_RPC!,
+      accounts: [process.env.PRIVATE_KEY!],
+    },
+    base: {
+      url: process.env.BASE_RPC!,
+      accounts: [process.env.PRIVATE_KEY!],
+    },
+  },
+  etherscan: {
+    apiKey: {
+      sepolia: process.env.ETHERSCAN_API_KEY!,
+      base: process.env.BASESCAN_API_KEY!,
+    },
+  },
+};
+
+export default config;
+```
+
+### Deploy script
+
+```typescript
+// scripts/deploy.ts
+import { ethers } from "hardhat";
+
+async function main() {
+  const [deployer] = await ethers.getSigners();
+  console.log("Deploying with:", deployer.address);
+  console.log("Balance:", ethers.formatEther(await deployer.provider.getBalance(deployer.address)), "ETH");
+
+  const MyToken = await ethers.getContractFactory("MyToken");
+  const token = await MyToken.deploy("MyToken", "MTK", ethers.parseEther("1000000"));
+
+  await token.waitForDeployment();
+  console.log("Deployed to:", await token.getAddress());
+}
+
+main().catch((err) => { console.error(err); process.exit(1); });
+```
+
+---
+
+## Foundry Setup
+
+```bash
+curl -L https://foundry.paradigm.xyz | bash
+foundryup
+forge init my-contract && cd my-contract
+```
+
+### Project structure
+
+```
+src/
+  MyToken.sol
+script/
+  Deploy.s.sol
+test/
+  MyToken.t.sol
+foundry.toml
+.env
+```
+
+### foundry.toml
+
+```toml
+[profile.default]
+src = "src"
+out = "out"
+libs = ["lib"]
+solc = "0.8.24"
+
+[rpc_endpoints]
+sepolia = "${SEPOLIA_RPC}"
+base_sepolia = "${BASE_SEPOLIA_RPC}"
+mainnet = "${MAINNET_RPC}"
+base = "${BASE_RPC}"
+
+[etherscan]
+sepolia = { key = "${ETHERSCAN_API_KEY}" }
+base = { key = "${BASESCAN_API_KEY}", url = "https://api.basescan.org/api" }
+```
+
+### Deploy script
+
+```solidity
+// script/Deploy.s.sol
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.24;
+
+import "forge-std/Script.sol";
+import "../src/MyToken.sol";
+
+contract DeployScript is Script {
+    function run() external {
+        uint256 deployerKey = vm.envUint("PRIVATE_KEY");
+        vm.startBroadcast(deployerKey);
+
+        MyToken token = new MyToken("MyToken", "MTK", 1_000_000 ether);
+        console.log("Deployed:", address(token));
+
+        vm.stopBroadcast();
+    }
+}
+```
+
+---
+
+## Step 1: Deploy to Testnet
+
+### Hardhat
+
+```bash
+npx hardhat run scripts/deploy.ts --network sepolia
+```
+
+### Foundry
+
+```bash
+forge script script/Deploy.s.sol --rpc-url sepolia --broadcast -vvvv
+```
+
+Save the deployed contract address. You'll verify it next.
+
+---
+
+## Step 2: Verify on Etherscan
+
+Verification makes your contract source code visible on the block explorer. Required for any serious project.
+
+### Hardhat
+
+```bash
+npx hardhat verify --network sepolia DEPLOYED_ADDRESS "MyToken" "MTK" "1000000000000000000000000"
+```
+
+### Foundry
+
+```bash
+forge verify-contract DEPLOYED_ADDRESS src/MyToken.sol:MyToken \
+  --chain sepolia \
+  --etherscan-api-key $ETHERSCAN_API_KEY
+```
+
+After verification, your contract shows a green checkmark on Etherscan and users can read/write directly from the explorer.
+
+---
+
+## Step 3: Test on Testnet
+
+Before going to mainnet, do a full smoke test on testnet:
+
+- [ ] Contract deployed and verified ✓
+- [ ] Functions callable via Etherscan's "Write Contract" tab ✓
+- [ ] Events emitting correctly (check Etherscan logs) ✓
+- [ ] Interact via your frontend against testnet ✓
+- [ ] Edge cases tested (zero value, overflow, unauthorized calls) ✓
+- [ ] Run your test suite: `npx hardhat test` or `forge test` ✓
+
+---
+
+## Step 4: Audit Checklist (Pre-Mainnet)
+
+A quick self-audit before spending real gas:
+
+```
+Security
+  [ ] No reentrancy vulnerabilities (use ReentrancyGuard or checks-effects-interactions)
+  [ ] Access control on all admin functions (Ownable or AccessControl)
+  [ ] No unchecked external calls
+  [ ] Integer overflow handled (Solidity 0.8+ handles this natively)
+  [ ] Constructor initializes all critical state
+
+Logic
+  [ ] Token decimals correct (ERC-20 default = 18)
+  [ ] Max supply enforced
+  [ ] Transfer/approval logic follows ERC standard
+
+Gas
+  [ ] No unbounded loops
+  [ ] Storage reads minimized (cache to memory)
+  [ ] Events emitted for all state changes
+```
+
+---
+
+## Step 5: Deploy to Mainnet
+
+Same command as testnet — just change the network.
+
+### Hardhat
+
+```bash
+npx hardhat run scripts/deploy.ts --network mainnet
+# or for Base:
+npx hardhat run scripts/deploy.ts --network base
+```
+
+### Foundry
+
+```bash
+forge script script/Deploy.s.sol --rpc-url mainnet --broadcast -vvvv
+# or Base:
+forge script script/Deploy.s.sol --rpc-url base --broadcast -vvvv
+```
+
+> **Estimate gas cost before deploying.** Add `--simulate` (Foundry) or remove `--broadcast` first.
+> Check current gas prices at [etherscan.io/gastracker](https://etherscan.io/gastracker).
+
+---
+
+## Step 6: Verify on Mainnet
+
+```bash
+# Hardhat
+npx hardhat verify --network mainnet DEPLOYED_ADDRESS "MyToken" "MTK" "1000000000000000000000000"
+
+# Foundry
+forge verify-contract DEPLOYED_ADDRESS src/MyToken.sol:MyToken \
+  --chain mainnet \
+  --etherscan-api-key $ETHERSCAN_API_KEY
+```
+
+---
+
+## Deployment Cost Estimates (Mainnet)
+
+| Contract Type | Approximate Gas | Cost at 20 gwei |
+|--------------|-----------------|-----------------|
+| Simple ERC-20 | ~800K gas | ~$4–8 |
+| ERC-721 NFT | ~1.2M gas | ~$6–12 |
+| Uniswap V2 Pool | ~3M gas | ~$15–30 |
+| Full DEX | ~5M+ gas | ~$25–50+ |
+
+Prices vary significantly with ETH price and network congestion.
+
+---
+
+## Upgradeability (Optional)
+
+If you need to update logic after deployment, use a proxy pattern:
+
+```bash
+# OpenZeppelin Upgrades plugin for Hardhat
+npm install @openzeppelin/hardhat-upgrades
+```
+
+```typescript
+const proxy = await upgrades.deployProxy(MyToken, ["MyToken", "MTK"], {
+  initializer: "initialize",
+});
+```
+
+Common patterns: **UUPS**, **Transparent Proxy**, **Diamond (EIP-2535)**.
+Note: upgradeable contracts are more complex and have their own security considerations.
+
+---
+
+*Related: [Create ERC-20 Token](/docs/web3/ethereum/token) | [Faucets & Testnets](/docs/web3/basics/faucets)*

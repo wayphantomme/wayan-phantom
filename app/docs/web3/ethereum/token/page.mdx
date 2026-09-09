@@ -1,0 +1,261 @@
+export const metadata = {
+  title: "Create an ERC-20 Token | Wayan Phantom",
+  description: "How to write, deploy, and interact with an ERC-20 fungible token on Ethereum using Solidity and OpenZeppelin.",
+};
+
+# Create an ERC-20 Token
+
+ERC-20 is the standard interface for fungible tokens on Ethereum and all EVM chains. Every DeFi token, stablecoin, and governance token you've used is an ERC-20.
+
+---
+
+## What ERC-20 Defines
+
+The standard requires these functions and events:
+
+```solidity
+// Required functions
+function totalSupply() external view returns (uint256);
+function balanceOf(address account) external view returns (uint256);
+function transfer(address to, uint256 amount) external returns (bool);
+function allowance(address owner, address spender) external view returns (uint256);
+function approve(address spender, uint256 amount) external returns (bool);
+function transferFrom(address from, address to, uint256 amount) external returns (bool);
+
+// Required events
+event Transfer(address indexed from, address indexed to, uint256 value);
+event Approval(address indexed owner, address indexed spender, uint256 value);
+```
+
+You don't need to implement these from scratch — OpenZeppelin has a battle-tested implementation.
+
+---
+
+## Basic ERC-20 with OpenZeppelin
+
+```bash
+npm install @openzeppelin/contracts
+```
+
+```solidity
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.24;
+
+import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
+import "@openzeppelin/contracts/access/Ownable.sol";
+
+contract MyToken is ERC20, Ownable {
+    constructor(
+        string memory name,
+        string memory symbol,
+        uint256 initialSupply
+    ) ERC20(name, symbol) Ownable(msg.sender) {
+        // initialSupply in whole tokens, mint converts to 18 decimals
+        _mint(msg.sender, initialSupply * 10 ** decimals());
+    }
+
+    // Owner can mint more tokens
+    function mint(address to, uint256 amount) external onlyOwner {
+        _mint(to, amount);
+    }
+
+    // Anyone can burn their own tokens
+    function burn(uint256 amount) external {
+        _burn(msg.sender, amount);
+    }
+}
+```
+
+### What this gives you
+
+- `transfer`, `approve`, `transferFrom` — all standard ERC-20 methods
+- `decimals()` returns 18 (default)
+- `totalSupply()` tracks minted tokens
+- `mint` — only owner can create new tokens
+- `burn` — anyone can destroy their own tokens
+
+---
+
+## Fixed Supply Token (No Mint After Deploy)
+
+```solidity
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.24;
+
+import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
+
+contract FixedToken is ERC20 {
+    uint256 public constant MAX_SUPPLY = 100_000_000 * 10 ** 18; // 100M tokens
+
+    constructor() ERC20("Fixed Token", "FXD") {
+        _mint(msg.sender, MAX_SUPPLY);
+    }
+}
+```
+
+All tokens minted at deploy. No `mint` function = truly fixed supply. Simple and auditable.
+
+---
+
+## Token with Capped Supply
+
+```solidity
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.24;
+
+import "@openzeppelin/contracts/token/ERC20/extensions/ERC20Capped.sol";
+import "@openzeppelin/contracts/access/Ownable.sol";
+
+contract CappedToken is ERC20Capped, Ownable {
+    constructor(uint256 cap) ERC20("Capped Token", "CPT") ERC20Capped(cap) Ownable(msg.sender) {
+        _mint(msg.sender, cap / 2); // mint 50% at launch
+    }
+
+    function mint(address to, uint256 amount) external onlyOwner {
+        _mint(to, amount); // will revert if cap exceeded
+    }
+}
+```
+
+---
+
+## Token with Tax / Transfer Fee
+
+Common in memecoin and DeFi projects. A percentage of every transfer goes to a designated wallet.
+
+```solidity
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.24;
+
+import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
+import "@openzeppelin/contracts/access/Ownable.sol";
+
+contract TaxToken is ERC20, Ownable {
+    address public treasury;
+    uint256 public taxBps = 200; // 2% in basis points (100 bps = 1%)
+
+    constructor(address _treasury) ERC20("Tax Token", "TAX") Ownable(msg.sender) {
+        treasury = _treasury;
+        _mint(msg.sender, 1_000_000 ether);
+    }
+
+    function _update(address from, address to, uint256 amount) internal override {
+        if (from != address(0) && to != address(0)) {
+            uint256 fee = (amount * taxBps) / 10_000;
+            super._update(from, treasury, fee);
+            super._update(from, to, amount - fee);
+        } else {
+            super._update(from, to, amount);
+        }
+    }
+}
+```
+
+---
+
+## Deploy
+
+```typescript
+// scripts/deploy.ts
+import { ethers } from "hardhat";
+
+async function main() {
+  const MyToken = await ethers.getContractFactory("MyToken");
+  const token = await MyToken.deploy(
+    "My Token",                 // name
+    "MTK",                      // symbol
+    1_000_000                   // initial supply (in whole tokens)
+  );
+  await token.waitForDeployment();
+  console.log("Token deployed to:", await token.getAddress());
+}
+
+main().catch(console.error);
+```
+
+```bash
+npx hardhat run scripts/deploy.ts --network sepolia
+```
+
+---
+
+## Interact with the Token
+
+### Read state
+
+```typescript
+import { ethers } from "ethers";
+import TokenABI from "./artifacts/contracts/MyToken.sol/MyToken.json";
+
+const provider = new ethers.JsonRpcProvider(process.env.RPC_URL);
+const token = new ethers.Contract(TOKEN_ADDRESS, TokenABI.abi, provider);
+
+const name = await token.name();               // "My Token"
+const symbol = await token.symbol();           // "MTK"
+const decimals = await token.decimals();       // 18n
+const supply = await token.totalSupply();      // 1000000000000000000000000n
+const balance = await token.balanceOf(wallet); // balance in wei
+
+console.log(`${name} (${symbol})`);
+console.log("Supply:", ethers.formatEther(supply));
+console.log("Balance:", ethers.formatUnits(balance, decimals));
+```
+
+### Send tokens
+
+```typescript
+const signer = new ethers.Wallet(process.env.PRIVATE_KEY!, provider);
+const tokenWithSigner = token.connect(signer);
+
+const tx = await tokenWithSigner.transfer(
+  "0xRecipientAddress",
+  ethers.parseEther("100") // 100 tokens
+);
+await tx.wait();
+console.log("Transferred. Tx:", tx.hash);
+```
+
+### Approve and transferFrom (allowance pattern)
+
+```typescript
+// User approves spender (e.g., a DEX) to spend their tokens
+const approveTx = await tokenWithSigner.approve(SPENDER_ADDRESS, ethers.parseEther("500"));
+await approveTx.wait();
+
+// Spender pulls tokens from user
+const spender = tokenWithSigner.connect(spenderSigner);
+const transferTx = await spender.transferFrom(USER_ADDRESS, DEST_ADDRESS, ethers.parseEther("500"));
+await transferTx.wait();
+```
+
+---
+
+## Common Token Standards (Extensions)
+
+| Standard | What It Adds |
+|----------|-------------|
+| ERC-20 + `Permit` | Gasless approvals via signature (EIP-2612) |
+| ERC-20 + `Votes` | On-chain governance voting power |
+| ERC-20 + `Snapshot` | Balance snapshots at specific blocks |
+| ERC-20 + `Pausable` | Emergency pause on all transfers |
+| ERC-20 + `Burnable` | Standard `burn` function |
+
+All available as OpenZeppelin extensions via inheritance.
+
+---
+
+## Decimals
+
+By default, ERC-20 uses 18 decimals (same as ETH). Override if needed:
+
+```solidity
+function decimals() public pure override returns (uint8) {
+    return 6; // like USDC
+}
+```
+
+Then `1 token = 1_000_000` in raw units (not `1e18`).
+
+---
+
+*Related: [Deploy Testnet → Mainnet](/docs/web3/ethereum/deploy) | [Create NFT (ERC-721)](/docs/web3/ethereum/nft) | [Liquidity Pool](/docs/web3/ethereum/pool)*

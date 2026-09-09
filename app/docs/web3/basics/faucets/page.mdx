@@ -1,0 +1,167 @@
+export const metadata = {
+  title: "Faucets & Testnets | Wayan Phantom",
+  description: "How to get testnet tokens on Ethereum, Solana, and L2s — and how to set up your dev environment for each network.",
+};
+
+# Faucets & Testnets
+
+Before you spend real money, you test on a testnet. Here's how to get free tokens on every network worth knowing.
+
+---
+
+## What Is a Faucet
+
+A faucet is a web app or CLI that sends you free testnet tokens. They're worthless — only valid on that specific test network. You can't bridge them to mainnet.
+
+---
+
+## Ethereum — Sepolia
+
+Sepolia is the primary Ethereum testnet since Goerli was deprecated.
+
+| Faucet | Limit | Notes |
+|--------|-------|-------|
+| [sepoliafaucet.com](https://sepoliafaucet.com) | 0.5 ETH/day | Requires Alchemy account |
+| [faucets.chain.link](https://faucets.chain.link/sepolia) | 0.1 ETH/day | No signup |
+| [infura.io/faucet/sepolia](https://www.infura.io/faucet/sepolia) | 0.5 ETH/day | Requires Infura account |
+| [pk910.de PoW Faucet](https://sepolia-faucet.pk910.de) | Unlimited (PoW mining) | Runs in browser, slow but no limit |
+
+### Add Sepolia to MetaMask
+
+```
+Network Name: Sepolia
+RPC URL:      https://rpc.sepolia.org
+Chain ID:     11155111
+Symbol:       ETH
+Explorer:     https://sepolia.etherscan.io
+```
+
+Or just go to [chainlist.org](https://chainlist.org) → search "Sepolia" → Add to MetaMask.
+
+---
+
+## Base Sepolia
+
+Base's testnet. Same gas as Sepolia but on the Base L2.
+
+| Faucet | Limit |
+|--------|-------|
+| [faucet.quicknode.com/base/sepolia](https://faucet.quicknode.com/base/sepolia) | 0.1 ETH/day |
+| [faucets.chain.link/base-sepolia](https://faucets.chain.link/base-sepolia) | 0.1 ETH/day |
+| [base-sepolia-faucet.clabs.co](https://base-sepolia-faucet.clabs.co) | 0.05 ETH/day |
+
+```
+Network Name: Base Sepolia
+RPC URL:      https://sepolia.base.org
+Chain ID:     84532
+Symbol:       ETH
+Explorer:     https://sepolia.basescan.org
+```
+
+---
+
+## Arbitrum Sepolia
+
+| Faucet | Limit |
+|--------|-------|
+| [faucets.chain.link/arbitrum-sepolia](https://faucets.chain.link/arbitrum-sepolia) | 0.1 ETH/day |
+| [faucet.quicknode.com/arbitrum/sepolia](https://faucet.quicknode.com/arbitrum/sepolia) | 0.1 ETH/day |
+
+```
+Network Name: Arbitrum Sepolia
+RPC URL:      https://sepolia-rollup.arbitrum.io/rpc
+Chain ID:     421614
+Symbol:       ETH
+Explorer:     https://sepolia.arbiscan.io
+```
+
+---
+
+## Solana — Devnet
+
+Solana has two testnets: **Devnet** (most used) and **Testnet** (closer to mainnet, less stable).
+
+### CLI airdrop (easiest)
+
+```bash
+# Switch to devnet
+solana config set --url devnet
+
+# Airdrop 2 SOL (limit: 2 SOL per request, a few times per day)
+solana airdrop 2
+
+# Check balance
+solana balance
+```
+
+### Web faucet
+
+| Faucet | Limit |
+|--------|-------|
+| [faucet.solana.com](https://faucet.solana.com) | 2 SOL/day |
+| [solfaucet.com](https://solfaucet.com) | 1 SOL/request |
+
+### Add Devnet to Phantom Wallet
+
+In Phantom: Settings → Developer Settings → Change Network → Devnet.
+
+---
+
+## OP Sepolia (Optimism Testnet)
+
+| Faucet | Limit |
+|--------|-------|
+| [faucets.chain.link/optimism-sepolia](https://faucets.chain.link/optimism-sepolia) | 0.1 ETH/day |
+
+```
+Network Name: OP Sepolia
+RPC URL:      https://sepolia.optimism.io
+Chain ID:     11155420
+Symbol:       ETH
+Explorer:     https://sepolia-optimism.etherscan.io
+```
+
+---
+
+## Polygon Amoy
+
+| Faucet | Limit |
+|--------|-------|
+| [faucet.polygon.technology](https://faucet.polygon.technology) | 0.5 MATIC/day |
+
+```
+Network Name: Polygon Amoy
+RPC URL:      https://rpc-amoy.polygon.technology
+Chain ID:     80002
+Symbol:       MATIC
+Explorer:     https://amoy.polygonscan.com
+```
+
+---
+
+## Quick Setup Script
+
+If you're starting a new EVM project, run this to add all testnets to your `.env`:
+
+```bash
+# .env.local
+SEPOLIA_RPC=https://eth-sepolia.g.alchemy.com/v2/YOUR_KEY
+BASE_SEPOLIA_RPC=https://base-sepolia.g.alchemy.com/v2/YOUR_KEY
+ARB_SEPOLIA_RPC=https://arb-sepolia.g.alchemy.com/v2/YOUR_KEY
+PRIVATE_KEY=0xYOUR_DEPLOYER_PRIVATE_KEY
+```
+
+> **Never use a wallet with real funds as your deployer key.** Create a separate wallet for development.
+
+---
+
+## Tips
+
+- Use a **dedicated dev wallet** — not your main wallet. Generate a fresh one, fund it with testnet tokens only.
+- Testnet faucets have daily limits. If you need more, try PoW faucets (pk910.de) — they're slower but unlimited.
+- Testnet tokens reset periodically. Don't build anything that depends on testnet state persisting long-term.
+- For Solana Devnet, `solana airdrop` is the fastest — no signup, instant.
+
+---
+
+*Next: [Deploy Testnet → Mainnet](/docs/web3/ethereum/deploy)*

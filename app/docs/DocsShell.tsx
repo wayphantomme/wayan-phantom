@@ -63,7 +63,7 @@ const NAV_SECTIONS: Section[] = [
     items: [
       { label: "Overview",        href: "/docs/ai" },
       { label: "LLM Stack",       href: "/docs/ai/llm" },
-      { label: "Gemini Models",   href: "/docs/ai/gemini" },
+      { label: "Google AI Studio", href: "/docs/ai/gemini" },
       { label: "n8n Workflows",   href: "/docs/ai/n8n" },
       { label: "RAG Pipeline",    href: "/docs/ai/rag" },
     ],
@@ -389,7 +389,7 @@ const BREADCRUMB_MAP: Record<string, string[]> = {
   "/docs/web3/solana/programs":      ["Web3 & Blockchain", "Solana", "Anchor Programs"],
   "/docs/ai":                        ["AI & Automation", "Overview"],
   "/docs/ai/llm":    ["AI & Automation", "LLM Stack"],
-  "/docs/ai/gemini": ["AI & Automation", "Gemini Models"],
+  "/docs/ai/gemini": ["AI & Automation", "Google AI Studio"],
   "/docs/ai/n8n":    ["AI & Automation", "n8n Workflows"],
   "/docs/ai/rag":                    ["AI & Automation", "RAG Pipeline"],
   "/docs/chains":                          ["Chains & Ecosystems", "Overview"],

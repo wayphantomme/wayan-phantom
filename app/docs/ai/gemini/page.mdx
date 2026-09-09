@@ -66,6 +66,114 @@ As of September 2026, Google runs two active Flash lines plus legacy 2.x models.
 
 ---
 
+## Features & API Functions (Free Tier Flash)
+
+A summary of what you can do with Flash/Flash-Lite models — all available on the free tier. Note: Pro models have broader access (larger context, deeper reasoning), and other AI providers like OpenAI or Anthropic have entirely different APIs.
+
+| # | Feature | What It Does | Tier | Function |
+|---|---------|--------------|------|----------|
+| 1 | Text Chat & Reasoning | Q&A, writing, coding, translation, brainstorming | Flash / Flash-Lite | `generateContent()` |
+| 2 | Vision | Send images or screenshots, model describes the content | Flash / Flash-Lite | `generateContent([image, text])` |
+| 3 | Web Search Grounding | Pulls real-time info from Google before answering | 5,000 prompts/month (Gemini 3.x), over quota → billed per 1,000 prompts | `generateContent()` + `tools: [{ googleSearch: {} }]` |
+| 4 | Function / Tool Calling | Model can call custom functions you define | Flash / Flash-Lite | `generateContent()` + `tools: [{ functionDeclarations }]` |
+| 5 | Structured Output (JSON) | Response comes back as structured JSON, easy to parse | Flash / Flash-Lite | `generateContent()` + `responseMimeType: "application/json"` |
+| 6 | Long Context | Context window up to 1M tokens (~750K words) | Flash models only — not all models | `generateContent()` with long input |
+| 7 | Document Understanding | Read and understand PDFs and other document files | Flash / Flash-Lite | `generateContent([filePart, text])` via File API |
+
+### Code examples
+
+**1. Text Chat**
+```typescript
+const result = await model.generateContent("Explain DeFi in 2 sentences.");
+console.log(result.response.text());
+```
+
+**2. Vision — send an image**
+```typescript
+const result = await model.generateContent([
+  { inlineData: { mimeType: "image/jpeg", data: base64Image } },
+  "What is in this image?",
+]);
+```
+
+**3. Web Search Grounding**
+```typescript
+const result = await model.generateContent({
+  contents: [{ role: "user", parts: [{ text: "What is the ETH price today?" }] }],
+  tools: [{ googleSearch: {} }],
+});
+```
+
+**4. Function Calling**
+```typescript
+const tools = [{
+  functionDeclarations: [{
+    name: "getTokenPrice",
+    description: "Fetch token price from a DEX",
+    parameters: {
+      type: "object",
+      properties: {
+        symbol: { type: "string", description: "Token ticker, e.g. ETH" },
+      },
+      required: ["symbol"],
+    },
+  }],
+}];
+
+const result = await model.generateContent({
+  contents: [{ role: "user", parts: [{ text: "What is the SOL price right now?" }] }],
+  tools,
+});
+// Check result.response.functionCalls() for the called function name and args
+```
+
+**5. Structured Output (JSON)**
+```typescript
+const model = genAI.getGenerativeModel({
+  model: "gemini-2.5-flash",
+  generationConfig: {
+    responseMimeType: "application/json",
+    responseSchema: {
+      type: "object",
+      properties: {
+        name: { type: "string" },
+        score: { type: "number" },
+      },
+    },
+  },
+});
+
+const result = await model.generateContent("Give me the name and score of the best crypto project.");
+const json = JSON.parse(result.response.text());
+```
+
+**6. Long Context — send a large document**
+```typescript
+// Just pass the long text directly — Flash models handle up to 1M tokens
+const result = await model.generateContent([
+  longDocumentText,
+  "Write an executive summary of this document.",
+]);
+```
+
+**7. Document Understanding — upload a PDF**
+```typescript
+import { GoogleAIFileManager } from "@google/generative-ai/server";
+
+const fileManager = new GoogleAIFileManager(process.env.GEMINI_API_KEY!);
+const uploadResult = await fileManager.uploadFile("./whitepaper.pdf", {
+  mimeType: "application/pdf",
+  displayName: "Whitepaper",
+});
+
+const result = await model.generateContent([
+  { fileData: { mimeType: "application/pdf", fileUri: uploadResult.file.uri } },
+  "What are the key points of this whitepaper?",
+]);
+```
+
+---
+
 ## What Each Model Can Do
 
 ### Text and Chat

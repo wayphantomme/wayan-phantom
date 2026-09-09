@@ -1,0 +1,297 @@
+export const metadata = {
+  title: "Liquidity Pool | Wayan Phantom",
+  description: "How liquidity pools work on Uniswap V2 and V3, how to create a pool, add/remove liquidity, and interact via Solidity and ethers.js.",
+};
+
+# Liquidity Pool
+
+Liquidity pools are the backbone of DeFi. Instead of order books, tokens are traded against a pool of reserves held by liquidity providers (LPs) who earn fees in return.
+
+---
+
+## How It Works
+
+### Constant Product Formula (Uniswap V2)
+
+```
+x * y = k
+```
+
+- `x` = reserve of token A
+- `y` = reserve of token B
+- `k` = constant (never changes, except on fee collection)
+
+When a user swaps token A for token B:
+- They add token A to the pool → `x` increases
+- The contract sends them token B → `y` decreases
+- `k` stays constant → price is determined by the ratio
+
+**Price impact**: larger trades relative to pool size = worse rate.
+
+### Fee Structure
+
+| Protocol | Fee |
+|----------|-----|
+| Uniswap V2 | 0.3% flat on every swap |
+| Uniswap V3 | 0.01%, 0.05%, 0.3%, or 1% (per pool) |
+| Curve | 0.04% (stable pairs) |
+
+Fees go to LPs proportional to their share.
+
+---
+
+## Uniswap V2 — Create a Pool
+
+### 1. Deploy your two tokens
+
+Both tokens must be ERC-20s. One can be an existing token (WETH, USDC).
+
+### 2. Create pool via Factory
+
+```typescript
+import { ethers } from "ethers";
+
+const UNISWAP_V2_FACTORY = "0x5C69bEe701ef814a2B6a3EDD4B1652CB9cc5aA6f"; // Mainnet
+const FACTORY_ABI = [
+  "function createPair(address tokenA, address tokenB) external returns (address pair)",
+  "function getPair(address tokenA, address tokenB) external view returns (address pair)",
+];
+
+const factory = new ethers.Contract(UNISWAP_V2_FACTORY, FACTORY_ABI, signer);
+const tx = await factory.createPair(TOKEN_A_ADDRESS, TOKEN_B_ADDRESS);
+await tx.wait();
+
+const pairAddress = await factory.getPair(TOKEN_A_ADDRESS, TOKEN_B_ADDRESS);
+console.log("Pair created at:", pairAddress);
+```
+
+### 3. Add initial liquidity via Router
+
+```typescript
+const UNISWAP_V2_ROUTER = "0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D"; // Mainnet
+const ROUTER_ABI = [
+  "function addLiquidity(address tokenA, address tokenB, uint amountADesired, uint amountBDesired, uint amountAMin, uint amountBMin, address to, uint deadline) external returns (uint amountA, uint amountB, uint liquidity)",
+  "function addLiquidityETH(address token, uint amountTokenDesired, uint amountTokenMin, uint amountETHMin, address to, uint deadline) external payable returns (uint amountToken, uint amountETH, uint liquidity)",
+];
+
+const router = new ethers.Contract(UNISWAP_V2_ROUTER, ROUTER_ABI, signer);
+
+// Approve router to spend your tokens first
+const tokenA = new ethers.Contract(TOKEN_A_ADDRESS, ERC20_ABI, signer);
+const tokenB = new ethers.Contract(TOKEN_B_ADDRESS, ERC20_ABI, signer);
+
+await (await tokenA.approve(UNISWAP_V2_ROUTER, ethers.parseEther("1000"))).wait();
+await (await tokenB.approve(UNISWAP_V2_ROUTER, ethers.parseEther("1000"))).wait();
+
+// Add liquidity
+const deadline = Math.floor(Date.now() / 1000) + 60 * 20; // 20 minutes
+const tx = await router.addLiquidity(
+  TOKEN_A_ADDRESS,
+  TOKEN_B_ADDRESS,
+  ethers.parseEther("1000"),  // amountADesired
+  ethers.parseEther("1000"),  // amountBDesired
+  ethers.parseEther("950"),   // amountAMin (5% slippage)
+  ethers.parseEther("950"),   // amountBMin
+  signer.address,              // LP tokens go to you
+  deadline
+);
+await tx.wait();
+console.log("Liquidity added. You received LP tokens.");
+```
+
+### Add ETH + Token liquidity
+
+```typescript
+await (await token.approve(UNISWAP_V2_ROUTER, ethers.parseEther("1000"))).wait();
+
+const tx = await router.addLiquidityETH(
+  TOKEN_ADDRESS,
+  ethers.parseEther("1000"),   // tokens
+  ethers.parseEther("950"),    // min tokens
+  ethers.parseEther("0.475"),  // min ETH
+  signer.address,
+  deadline,
+  { value: ethers.parseEther("0.5") } // ETH amount
+);
+await tx.wait();
+```
+
+---
+
+## Read Pool State
+
+```typescript
+const PAIR_ABI = [
+  "function getReserves() external view returns (uint112 reserve0, uint112 reserve1, uint32 blockTimestampLast)",
+  "function token0() external view returns (address)",
+  "function token1() external view returns (address)",
+  "function totalSupply() external view returns (uint256)",
+  "function balanceOf(address) external view returns (uint256)",
+];
+
+const pair = new ethers.Contract(PAIR_ADDRESS, PAIR_ABI, provider);
+
+const [reserve0, reserve1] = await pair.getReserves();
+const token0 = await pair.token0();
+const token1 = await pair.token1();
+
+console.log("Reserve 0:", ethers.formatEther(reserve0));
+console.log("Reserve 1:", ethers.formatEther(reserve1));
+
+// Price of token1 in terms of token0
+const price = Number(reserve0) / Number(reserve1);
+console.log("Price:", price);
+
+// Your LP share
+const totalSupply = await pair.totalSupply();
+const myBalance = await pair.balanceOf(signer.address);
+const sharePercent = (Number(myBalance) / Number(totalSupply)) * 100;
+console.log(`Your share: ${sharePercent.toFixed(4)}%`);
+```
+
+---
+
+## Remove Liquidity
+
+```typescript
+const ROUTER_ABI_REMOVE = [
+  "function removeLiquidity(address tokenA, address tokenB, uint liquidity, uint amountAMin, uint amountBMin, address to, uint deadline) external returns (uint amountA, uint amountB)",
+];
+
+// Approve router to burn your LP tokens
+const lpToken = new ethers.Contract(PAIR_ADDRESS, ERC20_ABI, signer);
+const lpBalance = await lpToken.balanceOf(signer.address);
+await (await lpToken.approve(UNISWAP_V2_ROUTER, lpBalance)).wait();
+
+// Remove all liquidity
+const tx = await router.removeLiquidity(
+  TOKEN_A_ADDRESS,
+  TOKEN_B_ADDRESS,
+  lpBalance,
+  0, // amountAMin — set 0 for max slippage (not production-safe)
+  0, // amountBMin
+  signer.address,
+  deadline
+);
+await tx.wait();
+console.log("Liquidity removed. LP tokens burned.");
+```
+
+---
+
+## Uniswap V3 — Concentrated Liquidity
+
+V3 lets LPs choose a **price range** instead of providing liquidity across the full curve. Better capital efficiency, but more complex.
+
+```typescript
+import { Pool, Position, NonfungiblePositionManager } from "@uniswap/v3-sdk";
+import { Token, CurrencyAmount, Percent } from "@uniswap/sdk-core";
+
+// V3 uses a different approach — positions are NFTs (ERC-721)
+// Each position = unique price range + liquidity amount
+
+const NONFUNGIBLE_POSITION_MANAGER = "0xC36442b4a4522E871399CD717aBDD847Ab11FE88";
+```
+
+For most projects, V2-style (full range) liquidity is fine. V3 is better for stablecoin pairs or if you want to optimize LP returns.
+
+---
+
+## Create a Pool in Solidity (V2 Factory Pattern)
+
+If you're building your own DEX (like a forked Uniswap), you interact with the factory directly in Solidity:
+
+```solidity
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.24;
+
+interface IUniswapV2Factory {
+    function createPair(address tokenA, address tokenB) external returns (address pair);
+    function getPair(address tokenA, address tokenB) external view returns (address pair);
+}
+
+interface IUniswapV2Router02 {
+    function addLiquidity(
+        address tokenA, address tokenB,
+        uint amountADesired, uint amountBDesired,
+        uint amountAMin, uint amountBMin,
+        address to, uint deadline
+    ) external returns (uint amountA, uint amountB, uint liquidity);
+}
+
+contract PoolManager {
+    address public constant FACTORY = 0x5C69bEe701ef814a2B6a3EDD4B1652CB9cc5aA6f;
+    address public constant ROUTER  = 0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D;
+
+    function createAndSeedPool(
+        address tokenA,
+        address tokenB,
+        uint256 amountA,
+        uint256 amountB
+    ) external returns (address pair) {
+        // Create the pair if it doesn't exist
+        pair = IUniswapV2Factory(FACTORY).getPair(tokenA, tokenB);
+        if (pair == address(0)) {
+            pair = IUniswapV2Factory(FACTORY).createPair(tokenA, tokenB);
+        }
+
+        // Transfer tokens from caller to this contract
+        IERC20(tokenA).transferFrom(msg.sender, address(this), amountA);
+        IERC20(tokenB).transferFrom(msg.sender, address(this), amountB);
+
+        // Approve router
+        IERC20(tokenA).approve(ROUTER, amountA);
+        IERC20(tokenB).approve(ROUTER, amountB);
+
+        // Add liquidity
+        IUniswapV2Router02(ROUTER).addLiquidity(
+            tokenA, tokenB,
+            amountA, amountB,
+            amountA * 95 / 100,
+            amountB * 95 / 100,
+            msg.sender,
+            block.timestamp + 600
+        );
+    }
+}
+
+interface IERC20 {
+    function approve(address spender, uint256 amount) external returns (bool);
+    function transferFrom(address from, address to, uint256 amount) external returns (bool);
+}
+```
+
+---
+
+## Impermanent Loss
+
+LPs face **impermanent loss (IL)** when the price ratio between the two tokens changes after deposit.
+
+```
+IL formula (simplified):
+IL = 2 * sqrt(price_ratio) / (1 + price_ratio) - 1
+
+If token price doubles relative to the other:
+IL ≈ -5.7%
+
+If token price goes up 5x:
+IL ≈ -25.5%
+```
+
+IL becomes permanent if you withdraw during the price change. If prices converge back, IL disappears. Fees earned can offset IL for high-volume pools.
+
+---
+
+## Key Addresses
+
+| Network | Uniswap V2 Factory | Uniswap V2 Router |
+|---------|-------------------|-------------------|
+| Ethereum Mainnet | `0x5C69bE...aA6f` | `0x7a250d...88D` |
+| Sepolia | `0xB7f907...` (varies) | Deploy locally with Hardhat |
+| Base | `0x8909Dc...` | `0x4752ba...` |
+
+For local testing, deploy Uniswap V2 contracts via the [uniswap-v2-core](https://github.com/Uniswap/v2-core) repo.
+
+---
+
+*Related: [DeFi DApp](/docs/web3/dapps/defi) | [Create ERC-20 Token](/docs/web3/ethereum/token)*

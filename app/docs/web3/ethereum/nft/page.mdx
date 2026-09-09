@@ -1,0 +1,268 @@
+export const metadata = {
+  title: "Create an NFT (ERC-721) | Wayan Phantom",
+  description: "How to write, deploy, and mint ERC-721 NFTs on Ethereum using Solidity, OpenZeppelin, and IPFS metadata.",
+};
+
+# Create an NFT (ERC-721)
+
+ERC-721 is the standard for non-fungible tokens — each token has a unique ID and can have its own metadata. Every PFP collection, on-chain game item, and digital artwork lives here.
+
+---
+
+## ERC-721 vs ERC-1155
+
+| | ERC-721 | ERC-1155 |
+|--|---------|----------|
+| Token type | Each token is unique | Can be fungible OR non-fungible |
+| Transfer | One at a time | Batch transfer in one tx |
+| Gas | Higher per token | Lower for bulk ops |
+| Use case | 1/1 art, PFP collections | Games, mixed-supply drops |
+
+Use ERC-721 for pure NFT collections. Use ERC-1155 for games or editions.
+
+---
+
+## Basic ERC-721 with OpenZeppelin
+
+```solidity
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.24;
+
+import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
+import "@openzeppelin/contracts/token/ERC721/extensions/ERC721URIStorage.sol";
+import "@openzeppelin/contracts/access/Ownable.sol";
+
+contract MyNFT is ERC721URIStorage, Ownable {
+    uint256 private _tokenIdCounter;
+
+    constructor() ERC721("My NFT", "MNFT") Ownable(msg.sender) {}
+
+    function mint(address to, string memory tokenURI) external onlyOwner returns (uint256) {
+        uint256 tokenId = _tokenIdCounter++;
+        _safeMint(to, tokenId);
+        _setTokenURI(tokenId, tokenURI);
+        return tokenId;
+    }
+}
+```
+
+`_safeMint` checks if the recipient can handle ERC-721 tokens (important when minting to contracts).
+
+---
+
+## Collection with Max Supply and Public Mint
+
+```solidity
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.24;
+
+import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
+import "@openzeppelin/contracts/access/Ownable.sol";
+
+contract PhantomCollection is ERC721, Ownable {
+    uint256 public constant MAX_SUPPLY = 10_000;
+    uint256 public constant MINT_PRICE = 0.05 ether;
+    uint256 public totalMinted;
+    string private _baseTokenURI;
+
+    constructor(string memory baseURI) ERC721("Phantom Collection", "PHANTOM") Ownable(msg.sender) {
+        _baseTokenURI = baseURI;
+    }
+
+    function mint(uint256 quantity) external payable {
+        require(totalMinted + quantity <= MAX_SUPPLY, "Exceeds max supply");
+        require(msg.value >= MINT_PRICE * quantity, "Insufficient payment");
+
+        for (uint256 i = 0; i < quantity; i++) {
+            _safeMint(msg.sender, totalMinted++);
+        }
+    }
+
+    function _baseURI() internal view override returns (string memory) {
+        return _baseTokenURI;
+    }
+
+    // tokenURI returns: baseURI + tokenId
+    // e.g., "ipfs://QmXxx.../1"
+
+    function setBaseURI(string memory newURI) external onlyOwner {
+        _baseTokenURI = newURI;
+    }
+
+    function withdraw() external onlyOwner {
+        (bool ok, ) = owner().call{ value: address(this).balance }("");
+        require(ok, "Withdraw failed");
+    }
+}
+```
+
+---
+
+## Metadata Structure
+
+NFT metadata is typically stored as JSON on IPFS. The `tokenURI` points to this file.
+
+```json
+{
+  "name": "Phantom #001",
+  "description": "A dark phantom from the void.",
+  "image": "ipfs://QmImageHash.../001.png",
+  "external_url": "https://wayphantom.dev",
+  "attributes": [
+    { "trait_type": "Background", "value": "Dark" },
+    { "trait_type": "Eyes", "value": "Glowing Red" },
+    { "trait_type": "Rarity", "value": "Legendary" },
+    { "trait_type": "Power", "display_type": "number", "value": 95 }
+  ]
+}
+```
+
+### Upload to IPFS via Pinata
+
+```typescript
+import PinataSDK from "@pinata/sdk";
+import fs from "fs";
+
+const pinata = new PinataSDK({ pinataApiKey: process.env.PINATA_KEY!, pinataSecretApiKey: process.env.PINATA_SECRET! });
+
+// 1. Upload image
+const imageStream = fs.createReadStream("./images/001.png");
+const imageResult = await pinata.pinFileToIPFS(imageStream, { pinataMetadata: { name: "Phantom #001" } });
+const imageURI = `ipfs://${imageResult.IpfsHash}`;
+
+// 2. Upload metadata JSON
+const metadata = {
+  name: "Phantom #001",
+  description: "A dark phantom from the void.",
+  image: imageURI,
+  attributes: [{ trait_type: "Background", value: "Dark" }],
+};
+const metaResult = await pinata.pinJSONToIPFS(metadata);
+const tokenURI = `ipfs://${metaResult.IpfsHash}`;
+```
+
+---
+
+## Deploy and Mint
+
+```typescript
+import { ethers } from "hardhat";
+
+async function main() {
+  const [deployer] = await ethers.getSigners();
+
+  const NFT = await ethers.getContractFactory("PhantomCollection");
+  const nft = await NFT.deploy("ipfs://QmBaseMetadataHash/");
+  await nft.waitForDeployment();
+
+  const address = await nft.getAddress();
+  console.log("NFT deployed to:", address);
+
+  // Mint 1 token to deployer (owner mint — no payment needed for owner)
+  // For public mint, send value
+  const tx = await nft.mint(1, { value: ethers.parseEther("0.05") });
+  await tx.wait();
+  console.log("Minted. Owner:", await nft.ownerOf(0));
+}
+
+main().catch(console.error);
+```
+
+---
+
+## Read NFT Data from Frontend
+
+```typescript
+import { ethers } from "ethers";
+
+const provider = new ethers.JsonRpcProvider(process.env.RPC_URL);
+const nft = new ethers.Contract(NFT_ADDRESS, NFT_ABI, provider);
+
+// Token owner
+const owner = await nft.ownerOf(0);
+
+// Token metadata URI
+const uri = await nft.tokenURI(0);
+// → "ipfs://QmXxx.../0"
+
+// Fetch metadata from IPFS
+const res = await fetch(uri.replace("ipfs://", "https://ipfs.io/ipfs/"));
+const metadata = await res.json();
+console.log(metadata.name);    // "Phantom #001"
+console.log(metadata.image);   // "ipfs://QmImage..."
+```
+
+---
+
+## Lazy Minting (Signature-Based)
+
+Instead of minting on-chain upfront, issue signed vouchers and let users mint themselves.
+
+```solidity
+function mintWithSignature(
+    uint256 tokenId,
+    string memory uri,
+    bytes memory signature
+) external payable {
+    require(msg.value >= MINT_PRICE, "Underpaid");
+
+    // Recreate the signed message hash
+    bytes32 hash = keccak256(abi.encodePacked(tokenId, uri, msg.sender));
+    bytes32 ethHash = MessageHashUtils.toEthSignedMessageHash(hash);
+
+    // Verify it was signed by the owner
+    require(ECDSA.recover(ethHash, signature) == owner(), "Invalid signature");
+
+    _safeMint(msg.sender, tokenId);
+    _setTokenURI(tokenId, uri);
+}
+```
+
+---
+
+## ERC-721A (Gas-Optimized Batch Mint)
+
+For large collections, ERC-721A by Azuki cuts gas significantly when minting multiple tokens at once.
+
+```bash
+npm install erc721a
+```
+
+```solidity
+import "erc721a/contracts/ERC721A.sol";
+
+contract PhantomA is ERC721A, Ownable {
+    constructor() ERC721A("Phantom", "PHM") Ownable(msg.sender) {}
+
+    function mint(uint256 quantity) external payable {
+        require(totalSupply() + quantity <= 10_000, "Exceeds max");
+        require(msg.value >= 0.05 ether * quantity, "Underpaid");
+        _mint(msg.sender, quantity); // batch mint, ~same gas as single ERC-721 mint
+    }
+}
+```
+
+---
+
+## Royalties (ERC-2981)
+
+```solidity
+import "@openzeppelin/contracts/token/common/ERC2981.sol";
+
+contract RoyaltyNFT is ERC721, ERC2981, Ownable {
+    constructor() ERC721("Royalty NFT", "RNFT") Ownable(msg.sender) {
+        // 5% royalty to deployer on all secondary sales
+        _setDefaultRoyalty(msg.sender, 500); // 500 = 5% in basis points
+    }
+
+    function supportsInterface(bytes4 interfaceId)
+        public view override(ERC721, ERC2981) returns (bool)
+    {
+        return super.supportsInterface(interfaceId);
+    }
+}
+```
+
+---
+
+*Related: [Create ERC-20 Token](/docs/web3/ethereum/token) | [NFT Marketplace DApp](/docs/web3/dapps/nft-marketplace) | [Solana NFT](/docs/web3/solana/nft)*
