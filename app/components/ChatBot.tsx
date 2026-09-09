@@ -95,6 +95,8 @@ export default function ChatBot() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [usedModel, setUsedModel] = useState<string | null>(null);
+  const [showTooltip, setShowTooltip] = useState(false);
+  const [tooltipDismissed, setTooltipDismissed] = useState(false);
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
@@ -110,6 +112,20 @@ export default function ChatBot() {
       setTimeout(() => inputRef.current?.focus(), 150);
     }
   }, [open]);
+
+  // Show tooltip after 2s, hide after 5s — only once
+  useEffect(() => {
+    if (tooltipDismissed || open) return;
+    const showTimer = setTimeout(() => setShowTooltip(true), 2000);
+    const hideTimer = setTimeout(() => {
+      setShowTooltip(false);
+      setTooltipDismissed(true);
+    }, 7000);
+    return () => {
+      clearTimeout(showTimer);
+      clearTimeout(hideTimer);
+    };
+  }, [tooltipDismissed, open]);
 
   const sendMessage = useCallback(
     async (text: string) => {
@@ -275,23 +291,55 @@ export default function ChatBot() {
         </div>
       </div>
 
-      {/* ── Floating trigger button ───────────────────────────────────────── */}
-      <button
-        onClick={() => setOpen((v) => !v)}
-        className={`chatbot-fab ${open ? "chatbot-fab-active" : ""}`}
-        aria-label={open ? "Close chat" : "Open Wayan Phantom Bot"}
-        aria-expanded={open}
-      >
-        {open ? (
-          <svg width="22" height="22" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
-          </svg>
-        ) : (
-          <svg width="22" height="22" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" d="M8.625 9.75a.375.375 0 11-.75 0 .375.375 0 01.75 0zm0 0H8.25m4.125 0a.375.375 0 11-.75 0 .375.375 0 01.75 0zm0 0H12m4.125 0a.375.375 0 11-.75 0 .375.375 0 01.75 0zm0 0h-.375m-13.5 3.01c0 1.6 1.123 2.994 2.707 3.227 1.087.16 2.185.283 3.293.369V21l4.184-4.183a1.14 1.14 0 01.778-.332 48.294 48.294 0 005.83-.498c1.585-.233 2.708-1.626 2.708-3.228V6.741c0-1.602-1.123-2.995-2.707-3.228A48.394 48.394 0 0012 3c-2.392 0-4.744.175-7.043.513C3.373 3.746 2.25 5.14 2.25 6.741v6.018z" />
-          </svg>
+      {/* ── Floating trigger button + animations ─────────────────────────── */}
+      <div className="chatbot-fab-wrap">
+        {/* Tooltip bubble */}
+        {!open && showTooltip && (
+          <div className="chatbot-tooltip" role="status">
+            <span>Ask me anything 👋</span>
+            <button
+              className="chatbot-tooltip-close"
+              aria-label="Dismiss"
+              onClick={(e) => {
+                e.stopPropagation();
+                setShowTooltip(false);
+                setTooltipDismissed(true);
+              }}
+            >
+              ×
+            </button>
+          </div>
         )}
-      </button>
+
+        {/* Pulse rings — only when closed */}
+        {!open && (
+          <>
+            <span className="chatbot-pulse chatbot-pulse-1" aria-hidden="true" />
+            <span className="chatbot-pulse chatbot-pulse-2" aria-hidden="true" />
+          </>
+        )}
+
+        <button
+          onClick={() => {
+            setOpen((v) => !v);
+            setShowTooltip(false);
+            setTooltipDismissed(true);
+          }}
+          className={`chatbot-fab ${open ? "chatbot-fab-active" : ""}`}
+          aria-label={open ? "Close chat" : "Open Wayan Phantom Bot"}
+          aria-expanded={open}
+        >
+          {open ? (
+            <svg width="22" height="22" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          ) : (
+            <svg width="22" height="22" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M8.625 9.75a.375.375 0 11-.75 0 .375.375 0 01.75 0zm0 0H8.25m4.125 0a.375.375 0 11-.75 0 .375.375 0 01.75 0zm0 0H12m4.125 0a.375.375 0 11-.75 0 .375.375 0 01.75 0zm0 0h-.375m-13.5 3.01c0 1.6 1.123 2.994 2.707 3.227 1.087.16 2.185.283 3.293.369V21l4.184-4.183a1.14 1.14 0 01.778-.332 48.294 48.294 0 005.83-.498c1.585-.233 2.708-1.626 2.708-3.228V6.741c0-1.602-1.123-2.995-2.707-3.228A48.394 48.394 0 0012 3c-2.392 0-4.744.175-7.043.513C3.373 3.746 2.25 5.14 2.25 6.741v6.018z" />
+            </svg>
+          )}
+        </button>
+      </div>
     </>
   );
 }
