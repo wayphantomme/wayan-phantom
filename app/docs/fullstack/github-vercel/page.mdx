@@ -1,0 +1,190 @@
+export const metadata = {
+  title: "GitHub, Vercel & Env Variables | Wayan Phantom",
+  description: "How I set up GitHub repos, deploy to Vercel, and wire everything together with environment variables.",
+};
+
+# GitHub, Vercel & Env Variables
+
+My standard workflow for going from local code to a live deployed app. Takes about 5 minutes for a new project.
+
+---
+
+## Create a GitHub Repo
+
+```bash
+# Initialize locally
+git init
+git add .
+git commit -m "init"
+
+# Create repo on GitHub and push
+gh repo create my-project --public --source=. --remote=origin --push
+
+# Or manually via GitHub website, then:
+git remote add origin https://github.com/username/my-project.git
+git push -u origin main
+```
+
+I use GitHub CLI (`gh`) to skip the browser entirely.
+
+---
+
+## Connect to Vercel
+
+```bash
+# Link existing project
+npx vercel link
+
+# Or deploy directly (auto-creates Vercel project)
+npx vercel
+```
+
+After linking, every `git push` to `main` triggers a production deploy automatically. PRs get preview URLs.
+
+From the Vercel dashboard: Import > select GitHub repo > framework auto-detected > Deploy.
+
+---
+
+## Environment Variables
+
+### Local development
+
+```bash
+# .env.local — never commit this file
+DATABASE_URL="postgresql://localhost:5432/mydb"
+NEXTAUTH_SECRET="dev-secret-change-in-prod"
+GEMINI_API_KEY="your-key-here"
+
+# Exposed to browser (prefix with NEXT_PUBLIC_)
+NEXT_PUBLIC_APP_URL="http://localhost:3000"
+NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME="your-cloud"
+```
+
+`.env.local` is in `.gitignore` by default in Next.js. Never commit secrets.
+
+### Push to Vercel via CLI
+
+```bash
+# Add one variable to production
+echo "your-secret-value" | npx vercel env add VARIABLE_NAME production
+
+# Add to preview and development too
+echo "your-value" | npx vercel env add VARIABLE_NAME preview
+echo "your-value" | npx vercel env add VARIABLE_NAME development
+
+# List all variables
+npx vercel env ls
+
+# Pull remote env to local .env.local
+npx vercel env pull .env.local
+```
+
+### Via Vercel dashboard
+
+Project Settings > Environment Variables > Add. You can set different values per environment (Production / Preview / Development).
+
+---
+
+## Connecting Multiple Services via Env
+
+The pattern I use when a frontend talks to a separate backend API or smart contract:
+
+```
+Frontend (Vercel)         Backend API (Railway/Render)
+      |                           |
+NEXT_PUBLIC_API_URL  ────────>  deployed URL
+API_SECRET_KEY       ────────>  shared secret (server-only)
+```
+
+```bash
+# Frontend .env.local
+NEXT_PUBLIC_API_URL="https://api.myproject.com"
+API_SECRET_KEY="shared-secret-between-apps"
+
+# Backend .env
+FRONTEND_URL="https://myproject.vercel.app"
+API_SECRET_KEY="shared-secret-between-apps"
+```
+
+```typescript
+// Frontend calling backend API
+const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/users`, {
+  headers: {
+    Authorization: `Bearer ${process.env.API_SECRET_KEY}`,
+  },
+});
+```
+
+**NEXT_PUBLIC_ variables** are bundled into the client JS. Anyone can see them in the browser. Only use for non-sensitive values like public URLs, public keys, CDN names.
+
+**Non-prefixed variables** are server-only. Never exposed to the client. Use for database URLs, API secrets, private keys.
+
+---
+
+## Multi-Project with Shared Backend
+
+For example: two Vercel frontends sharing one Railway backend.
+
+```
+github.com/me/app-web      → vercel deploy #1
+github.com/me/app-mobile   → vercel deploy #2
+github.com/me/app-api      → railway deploy
+
+# app-web .env
+NEXT_PUBLIC_API_URL="https://app-api.railway.app"
+
+# app-mobile .env
+NEXT_PUBLIC_API_URL="https://app-api.railway.app"
+
+# app-api .env
+ALLOWED_ORIGINS="https://app-web.vercel.app,https://app-mobile.vercel.app"
+```
+
+CORS on the backend controls which frontends can call it:
+
+```typescript
+// app-api/middleware/cors.ts
+const allowedOrigins = process.env.ALLOWED_ORIGINS?.split(",") ?? [];
+
+app.use((req, res, next) => {
+  const origin = req.headers.origin;
+  if (origin && allowedOrigins.includes(origin)) {
+    res.setHeader("Access-Control-Allow-Origin", origin);
+  }
+  next();
+});
+```
+
+---
+
+## Web3: Connecting Frontend to Smart Contracts via Env
+
+```bash
+# .env.local
+NEXT_PUBLIC_CONTRACT_ADDRESS="0xYourContractAddress"
+NEXT_PUBLIC_CHAIN_ID="1"                          # 1 = mainnet, 11155111 = sepolia
+NEXT_PUBLIC_RPC_URL="https://mainnet.infura.io/v3/YOUR_KEY"
+```
+
+```typescript
+// lib/contracts.ts
+import { ethers } from "ethers";
+import MyContractABI from "./abis/MyContract.json";
+
+export function getContract(signer?: ethers.Signer) {
+  const provider = signer ?? new ethers.JsonRpcProvider(
+    process.env.NEXT_PUBLIC_RPC_URL
+  );
+  return new ethers.Contract(
+    process.env.NEXT_PUBLIC_CONTRACT_ADDRESS!,
+    MyContractABI,
+    provider
+  );
+}
+```
+
+Switching from testnet to mainnet is just updating 3 env vars in Vercel. No code changes needed.
+
+---
+
+*Last updated: September 2026.*

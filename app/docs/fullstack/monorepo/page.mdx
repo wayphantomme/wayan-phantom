@@ -1,0 +1,155 @@
+export const metadata = {
+  title: "Monorepo vs Polyrepo | Wayan Phantom",
+  description: "Notes on monorepo and polyrepo architecture, when to use each, and how I structure projects.",
+};
+
+# Monorepo vs Polyrepo
+
+Two different ways to organize a project across multiple apps or packages. Both work — the tradeoff is about team size, complexity, and deployment independence.
+
+---
+
+## What is a Monorepo
+
+One Git repository, multiple apps or packages inside it.
+
+```
+my-project/                   ← single repo
+├── apps/
+│   ├── web/                  → Next.js frontend
+│   ├── api/                  → Express/Node backend
+│   └── mobile/               → React Native
+├── packages/
+│   ├── ui/                   → shared component library
+│   ├── types/                → shared TypeScript types
+│   └── config/               → shared ESLint, Tailwind config
+├── package.json
+└── turbo.json                → build orchestration
+```
+
+One `git push` can trigger builds for all affected apps. Shared code lives in `packages/` and is imported directly — no publishing to npm.
+
+**Tools:** Turborepo, Nx, pnpm workspaces
+
+---
+
+## What is a Polyrepo
+
+Each app or service lives in its own separate Git repository.
+
+```
+github.com/wayphantomme/bulldex-finance    ← frontend + contracts
+github.com/wayphantomme/bulldex-api        ← backend API
+github.com/wayphantomme/bulldex-contracts  ← Solidity only
+```
+
+Each repo is fully independent. Different teams can move at different speeds. Breaking changes in one service don't block others.
+
+**Downside:** sharing code between repos requires publishing packages or copy-pasting.
+
+---
+
+## When to Use Which
+
+| Situation | Use |
+|-----------|-----|
+| Solo project, everything related | Monorepo |
+| Small team, tight coupling between apps | Monorepo |
+| Different teams, different deployment cadences | Polyrepo |
+| Microservices with independent scaling | Polyrepo |
+| Open source with separate packages | Monorepo (Turborepo) |
+| DeFi project with contracts + frontend | Polyrepo (security isolation) |
+
+For most of my projects I use **polyrepo** because each app deploys independently to Vercel and has its own environment variables. The Bulldex Finance repo is a monorepo exception because the contracts, frontend, and scripts are tightly coupled.
+
+---
+
+## Turborepo Setup (if you go monorepo)
+
+```bash
+npx create-turbo@latest
+```
+
+```json
+// turbo.json
+{
+  "$schema": "https://turbo.build/schema.json",
+  "tasks": {
+    "build": {
+      "dependsOn": ["^build"],
+      "outputs": [".next/**", "dist/**"]
+    },
+    "dev": {
+      "cache": false,
+      "persistent": true
+    },
+    "lint": {}
+  }
+}
+```
+
+```json
+// root package.json
+{
+  "workspaces": ["apps/*", "packages/*"],
+  "scripts": {
+    "dev": "turbo dev",
+    "build": "turbo build"
+  }
+}
+```
+
+Run only the affected apps on every commit. Turbo caches build outputs so unchanged apps are skipped.
+
+---
+
+## Shared Packages Pattern
+
+```
+packages/ui/
+├── src/
+│   ├── Button.tsx
+│   └── index.ts
+└── package.json
+```
+
+```json
+// packages/ui/package.json
+{
+  "name": "@myapp/ui",
+  "main": "./src/index.ts",
+  "exports": {
+    ".": "./src/index.ts"
+  }
+}
+```
+
+```tsx
+// apps/web/src/app/page.tsx
+import { Button } from "@myapp/ui";
+```
+
+No publishing step needed inside a monorepo. Turborepo resolves the package locally.
+
+---
+
+## Bulldex Finance (Polyrepo Example)
+
+```
+github.com/wayphantomme/bulldex-finance
+├── frontend/         → Next.js app (deployed to Vercel)
+│   ├── app/
+│   └── lib/
+│       └── contracts.ts   → ABI + contract addresses
+├── contracts/        → Hardhat project
+│   ├── contracts/
+│   ├── scripts/
+│   └── test/
+└── README.md
+```
+
+The frontend reads contract addresses from environment variables, so switching between testnet and mainnet is just an env change with no code edits.
+
+---
+
+*Last updated: September 2026.*

@@ -17,6 +17,8 @@ const NAV_SECTIONS = [
       { label: "Overview", href: "/docs/fullstack" },
       { label: "Next.js & React", href: "/docs/fullstack/nextjs" },
       { label: "TypeScript Patterns", href: "/docs/fullstack/typescript" },
+      { label: "Monorepo vs Polyrepo", href: "/docs/fullstack/monorepo" },
+      { label: "GitHub, Vercel & Env", href: "/docs/fullstack/github-vercel" },
       { label: "Deployment", href: "/docs/fullstack/deployment" },
     ],
   },
@@ -56,6 +58,20 @@ const TOC_MAP: Record<string, { label: string; href: string }[]> = {
   "/docs/fullstack/typescript": [
     { label: "Interfaces", href: "#interfaces" },
     { label: "Utility Types", href: "#utility-types" },
+  ],
+  "/docs/fullstack/monorepo": [
+    { label: "Monorepo", href: "#monorepo" },
+    { label: "Polyrepo", href: "#polyrepo" },
+    { label: "When to Use Which", href: "#when-to-use" },
+    { label: "Turborepo Setup", href: "#turborepo" },
+    { label: "Shared Packages", href: "#shared-packages" },
+  ],
+  "/docs/fullstack/github-vercel": [
+    { label: "Create GitHub Repo", href: "#github" },
+    { label: "Connect to Vercel", href: "#vercel" },
+    { label: "Environment Variables", href: "#env" },
+    { label: "Multi-Project Setup", href: "#multi-project" },
+    { label: "Web3 Contract Env", href: "#web3-env" },
   ],
   "/docs/fullstack/deployment": [
     { label: "Vercel Setup", href: "#vercel" },
@@ -107,6 +123,8 @@ const BREADCRUMB_MAP: Record<string, string[]> = {
   "/docs/fullstack": ["Fullstack", "Overview"],
   "/docs/fullstack/nextjs": ["Fullstack", "Next.js & React"],
   "/docs/fullstack/typescript": ["Fullstack", "TypeScript Patterns"],
+  "/docs/fullstack/monorepo": ["Fullstack", "Monorepo vs Polyrepo"],
+  "/docs/fullstack/github-vercel": ["Fullstack", "GitHub, Vercel & Env"],
   "/docs/fullstack/deployment": ["Fullstack", "Deployment"],
   "/docs/web3": ["Web3 & Blockchain", "Overview"],
   "/docs/web3/solidity": ["Web3 & Blockchain", "Solidity Patterns"],
