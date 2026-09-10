@@ -1,0 +1,50 @@
+export const metadata = {
+  title: "AI Developer | Wayan Phantom",
+  description: "Building with AI APIs — LLM integration, Google Gemini, RAG pipelines, and production chatbot architecture.",
+};
+
+# AI Developer
+
+Notes on building AI-powered products through code. This covers working directly with AI APIs, model selection, prompt engineering, and production patterns.
+
+---
+
+## What's Inside
+
+**LLM Stack** — The model lineup I use, fallback chains, streaming, and system prompt design.
+
+**Google AI Studio** — Gemini model families, free tier limits, API functions, and code examples for every capability.
+
+**RAG Pipeline** — Retrieval-Augmented Generation architecture for grounding LLMs in your own data.
+
+---
+
+## My AI Stack
+
+| Layer | Tool |
+|-------|------|
+| Primary model | Gemini 2.5 Flash / 3.x Flash |
+| Fallback chain | gemini-2.5-flash-lite → gemini-3.1-flash-lite |
+| SDK | `@google/generative-ai` |
+| Embeddings | `gemini-embedding-001` |
+| Vector store | Pinecone / pgvector |
+| Streaming | Server-Sent Events (SSE) |
+| Framework | Next.js App Router + Route Handlers |
+
+---
+
+## Quick Start
+
+```typescript
+import { GoogleGenerativeAI } from "@google/generative-ai";
+
+const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY!);
+const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
+
+const result = await model.generateContent("Explain RAG in 2 sentences.");
+console.log(result.response.text());
+```
+
+---
+
+*See also: [AI Automation](/docs/ai-auto) for low-code n8n workflows.*

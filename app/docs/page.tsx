@@ -24,12 +24,20 @@ const CATEGORIES = [
     color: "#8b5cf6",
   },
   {
-    href: "/docs/ai",
+    href: "/docs/ai-dev",
     icon: "🤖",
-    label: "AI & Automation",
-    desc: "How I build AI-powered products. LLM integration, n8n workflow automation, RAG pipelines, and chatbot architecture.",
-    tags: ["LLMs", "n8n", "RAG", "Gemini", "Claude"],
+    label: "AI Developer",
+    desc: "Building with AI APIs. LLM integration, Google Gemini, RAG pipelines, and production chatbot architecture.",
+    tags: ["Gemini", "LLMs", "RAG", "Embeddings", "Streaming"],
     color: "#10b981",
+  },
+  {
+    href: "/docs/ai-auto",
+    icon: "⚙️",
+    label: "AI Automation",
+    desc: "Low-code automation with n8n. Workflow design, AI agent nodes, webhooks, and real client delivery patterns.",
+    tags: ["n8n", "Webhooks", "Workflows", "No-Code", "Agents"],
+    color: "#f59e0b",
   },
 ];
 

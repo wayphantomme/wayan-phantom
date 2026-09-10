@@ -1,0 +1,322 @@
+export const metadata = {
+  title: "Google AI Studio & Gemini Models | Wayan Phantom",
+  description: "Notes on Google AI Studio, Gemini model lineup, capabilities, and free tier rate limits.",
+};
+
+# Google AI Studio & Gemini Models
+
+Personal notes on the Gemini ecosystem. What each model does, what it can handle, and what's free.
+
+---
+
+## What is Google AI Studio
+
+Google AI Studio is the browser-based IDE for Gemini. You can:
+
+- Chat with any Gemini model directly
+- Write and test system prompts
+- Generate API keys
+- Monitor usage and rate limits
+- Try image, audio, video, and code generation in one place
+- Export prompts as Python or JavaScript code with one click
+
+Access it at: [aistudio.google.com](https://aistudio.google.com)
+
+---
+
+## Gemini Model Families
+
+As of September 2026, Google runs two active Flash lines plus legacy 2.x models.
+
+### Gemini 3.x Flash (newest)
+
+| Model | API ID | Best For |
+|-------|--------|----------|
+| Gemini 3.8 Flash | `gemini-3.8-flash` | Most capable Flash, complex tasks, agentic workflows |
+| Gemini 3.7 Flash | `gemini-3.7-flash` | High quality, complex coding and reasoning |
+| Gemini 3.6 Flash | `gemini-3.6-flash` | Balanced speed and capability |
+| Gemini 3.5 Flash | `gemini-3.5-flash` | Near-Pro intelligence at Flash cost |
+| Gemini 3.5 Flash Lite | `gemini-3.5-flash-lite` | Fastest 3.5, high-throughput tasks |
+| Gemini 3.1 Flash Lite | `gemini-3.1-flash-lite` | Most cost-efficient, high-volume low-latency |
+| Gemini 3 Flash | `gemini-3-flash-preview` | Multimodal general tasks |
+| Gemini 3.1 Pro | `gemini-3.1-pro-preview` | Frontier-class reasoning |
+
+### Gemini 2.5 (stable)
+
+| Model | API ID | Best For |
+|-------|--------|----------|
+| Gemini 2.5 Flash | `gemini-2.5-flash` | Best price/performance, reasoning-capable |
+| Gemini 2.5 Flash Lite | `gemini-2.5-flash-lite` | Fastest and cheapest in 2.5 family |
+| Gemini 2.5 Pro | `gemini-2.5-pro` | Deep reasoning, complex coding |
+
+### Specialized Models
+
+| Model | API ID | Category |
+|-------|--------|----------|
+| Gemini 3.8 Flash (image) | Nano Banana 2 | `gemini-3.1-flash-image` | Image generation |
+| Gemini 2.5 Flash TTS | `gemini-2.5-flash-preview-tts` | Text to speech |
+| Gemini 3.1 Flash TTS | `gemini-3.1-flash-tts-preview` | Text to speech |
+| Gemini 3.5 Transcribe | `gemini-3.5-transcribe` | Speech to text |
+| Gemini Embedding 1 | `gemini-embedding-001` | Text embeddings |
+| Gemini Embedding 2 | `gemini-embedding-2-preview` | Multimodal embeddings |
+| Veo 3 | `veo-3-generate-preview` | Video generation |
+| Lyria 3 | `lyria-3-pro-preview` | Music generation |
+| Antigravity | `antigravity-preview` | Autonomous coding agent |
+| Deep Research Pro | `deep-research-preview` | Multi-step research agent |
+
+---
+
+## Features & API Functions (Free Tier Flash)
+
+A summary of what you can do with Flash/Flash-Lite models — all available on the free tier. Note: Pro models have broader access (larger context, deeper reasoning), and other AI providers like OpenAI or Anthropic have entirely different APIs.
+
+| # | Feature | What It Does | Tier | Function |
+|---|---------|--------------|------|----------|
+| 1 | Text Chat & Reasoning | Q&A, writing, coding, translation, brainstorming | Flash / Flash-Lite | `generateContent()` |
+| 2 | Vision | Send images or screenshots, model describes the content | Flash / Flash-Lite | `generateContent([image, text])` |
+| 3 | Web Search Grounding | Pulls real-time info from Google before answering | 5,000 prompts/month (Gemini 3.x), over quota → billed per 1,000 prompts | `generateContent()` + `tools: [{ googleSearch: {} }]` |
+| 4 | Function / Tool Calling | Model can call custom functions you define | Flash / Flash-Lite | `generateContent()` + `tools: [{ functionDeclarations }]` |
+| 5 | Structured Output (JSON) | Response comes back as structured JSON, easy to parse | Flash / Flash-Lite | `generateContent()` + `responseMimeType: "application/json"` |
+| 6 | Long Context | Context window up to 1M tokens (~750K words) | Flash models only — not all models | `generateContent()` with long input |
+| 7 | Document Understanding | Read and understand PDFs and other document files | Flash / Flash-Lite | `generateContent([filePart, text])` via File API |
+
+### Code examples
+
+**1. Text Chat**
+```typescript
+const result = await model.generateContent("Explain DeFi in 2 sentences.");
+console.log(result.response.text());
+```
+
+**2. Vision — send an image**
+```typescript
+const result = await model.generateContent([
+  { inlineData: { mimeType: "image/jpeg", data: base64Image } },
+  "What is in this image?",
+]);
+```
+
+**3. Web Search Grounding**
+```typescript
+const result = await model.generateContent({
+  contents: [{ role: "user", parts: [{ text: "What is the ETH price today?" }] }],
+  tools: [{ googleSearch: {} }],
+});
+```
+
+**4. Function Calling**
+```typescript
+const tools = [{
+  functionDeclarations: [{
+    name: "getTokenPrice",
+    description: "Fetch token price from a DEX",
+    parameters: {
+      type: "object",
+      properties: {
+        symbol: { type: "string", description: "Token ticker, e.g. ETH" },
+      },
+      required: ["symbol"],
+    },
+  }],
+}];
+
+const result = await model.generateContent({
+  contents: [{ role: "user", parts: [{ text: "What is the SOL price right now?" }] }],
+  tools,
+});
+// Check result.response.functionCalls() for the called function name and args
+```
+
+**5. Structured Output (JSON)**
+```typescript
+const model = genAI.getGenerativeModel({
+  model: "gemini-2.5-flash",
+  generationConfig: {
+    responseMimeType: "application/json",
+    responseSchema: {
+      type: "object",
+      properties: {
+        name: { type: "string" },
+        score: { type: "number" },
+      },
+    },
+  },
+});
+
+const result = await model.generateContent("Give me the name and score of the best crypto project.");
+const json = JSON.parse(result.response.text());
+```
+
+**6. Long Context — send a large document**
+```typescript
+// Just pass the long text directly — Flash models handle up to 1M tokens
+const result = await model.generateContent([
+  longDocumentText,
+  "Write an executive summary of this document.",
+]);
+```
+
+**7. Document Understanding — upload a PDF**
+```typescript
+import { GoogleAIFileManager } from "@google/generative-ai/server";
+
+const fileManager = new GoogleAIFileManager(process.env.GEMINI_API_KEY!);
+const uploadResult = await fileManager.uploadFile("./whitepaper.pdf", {
+  mimeType: "application/pdf",
+  displayName: "Whitepaper",
+});
+
+const result = await model.generateContent([
+  { fileData: { mimeType: "application/pdf", fileUri: uploadResult.file.uri } },
+  "What are the key points of this whitepaper?",
+]);
+```
+
+---
+
+## What Each Model Can Do
+
+### Text and Chat
+
+All Gemini Flash and Pro models support:
+
+- Multi-turn chat with history
+- Long context (up to 1M tokens on 2.5+)
+- System instructions
+- Function calling / tool use
+- Structured JSON output
+- Code generation and debugging
+- Reasoning and analysis
+
+```typescript
+import { GoogleGenerativeAI } from "@google/generative-ai";
+
+const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY!);
+const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
+
+const result = await model.generateContent("Explain RAG in 3 sentences");
+console.log(result.response.text());
+```
+
+### Vision (Image Input)
+
+Most Flash models accept images alongside text. Useful for: analyzing screenshots, reading charts, describing photos, OCR.
+
+```typescript
+const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
+
+const result = await model.generateContent([
+  { inlineData: { mimeType: "image/jpeg", data: base64Image } },
+  "What is in this image?",
+]);
+```
+
+### Image Generation
+
+Nano Banana models generate and edit images natively.
+
+```typescript
+const model = genAI.getGenerativeModel({ model: "gemini-3.1-flash-image" });
+
+const result = await model.generateContent(
+  "A minimal dark logo for a crypto trading app"
+);
+// result contains generated image data
+```
+
+### Audio: Text to Speech
+
+Gemini TTS models generate natural speech. Supports multiple voices and expressive audio tags.
+
+```typescript
+const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash-preview-tts" });
+
+const result = await model.generateContent({
+  contents: [{ parts: [{ text: "Hello, I'm Wayan Phantom." }] }],
+  generationConfig: { responseModalities: ["AUDIO"] },
+});
+```
+
+### Audio: Speech to Text
+
+Gemini 3.5 Transcribe handles speech-to-text with speaker diarization and word-level timestamps.
+
+### Video Generation
+
+Veo 3 generates cinematic video from text prompts. Still in preview — not on free tier.
+
+### Embeddings
+
+Convert text or images to vectors for semantic search and RAG.
+
+```typescript
+const model = genAI.getGenerativeModel({ model: "gemini-embedding-001" });
+const result = await model.embedContent("What is DeFi?");
+const vector = result.embedding.values; // float[]
+```
+
+---
+
+## Free Tier Rate Limits (Real Data)
+
+These are the actual limits on the free tier from my API key as of September 2026. RPM = requests/minute, TPM = tokens/minute, RPD = requests/day.
+
+| Model | RPM | TPM | RPD |
+|-------|-----|-----|-----|
+| Gemini 3.8 Flash | 5 | 250K | 20 |
+| Gemini 3.7 Flash | 5 | 250K | 20 |
+| Gemini 3.6 Flash | 5 | 250K | 20 |
+| Gemini 3.5 Flash | 5 | 250K | 20 |
+| Gemini 3.5 Flash Lite | 15 | 250K | 500 |
+| Gemini 3.1 Flash Lite | 15 | 250K | 500 |
+| Gemini 3 Flash | 5 | 250K | 20 |
+| Gemini 2.5 Flash | 5 | 250K | 20 |
+| Gemini 2.5 Flash Lite | 10 | 250K | 20 |
+| Gemini 2.5 Flash TTS | 3 | 10K | 10 |
+| Gemini 3.1 Flash TTS | 3 | 10K | 10 |
+| Gemini 3.5 Transcribe | 3 | 10K | 25 |
+| Gemini Embedding 1 | 100 | 30K | 1K |
+| Gemini Embedding 2 | 100 | 30K | 1K |
+| Antigravity Agent | 60 | 100K | 100 |
+| Gemma 4 26B | 30 | 16K | 14.4K |
+| Gemma 4 31B | 30 | 16K | 14.4K |
+
+**Not on free tier** (0/0 limits): Gemini 2.5 Pro, Gemini 3.1 Pro, Veo 3, Lyria 3, Nano Banana image models, Gemini Omni.
+
+---
+
+## Model Selection Guide
+
+```
+Need fast chat responses?      → gemini-2.5-flash or gemini-3.5-flash
+Need most capable?             → gemini-3.8-flash or gemini-3.1-pro
+Need cheapest/most quota?      → gemini-3.5-flash-lite or gemini-3.1-flash-lite
+Need image understanding?      → any flash model (pass image as input)
+Need image generation?         → gemini-3.1-flash-image (Nano Banana 2)
+Need voice output?             → gemini-2.5-flash-preview-tts
+Need speech to text?           → gemini-3.5-transcribe
+Need embeddings for RAG?       → gemini-embedding-001
+Need autonomous coding?        → antigravity-preview
+Need deep research?            → deep-research-preview
+```
+
+---
+
+## Fallback Chain for Production
+
+Since free tier limits are low (20 RPD on most models), use a fallback chain so your app doesn't break when quota runs out.
+
+```typescript
+const MODEL_CHAIN = [
+  "gemini-2.5-flash",       // fastest, most reliable
+  "gemini-2.5-flash-lite",  // cheaper fallback
+  "gemini-3.5-flash",
+  "gemini-3.1-flash-lite",  // highest RPD (500/day)
+];
+```
+
+The chatbot on this portfolio uses this exact pattern. See [LLM Stack](/docs/ai/llm) for the full implementation.
+
+---
+
+*Last updated: September 2026. Rate limits sourced from my own Google AI Studio API key. Free tier limits change — check [ai.google.dev](https://ai.google.dev/gemini-api/docs/models) for current limits.*

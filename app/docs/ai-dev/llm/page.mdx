@@ -1,0 +1,160 @@
+export const metadata = {
+  title: "LLM Stack | Wayan Phantom",
+  description: "Notes on LLM selection, model fallback chains, streaming, and prompt patterns.",
+};
+
+# LLM Stack
+
+Notes on integrating large language models into real products. Not theory — actual patterns I use in production.
+
+---
+
+## Models I Use
+
+| Model | Provider | Best For |
+|-------|----------|----------|
+| gemini-2.5-flash | Google | Fast responses, cost-efficient |
+| gemini-3.x-flash | Google | Higher quality, newer models |
+| claude-3-5-sonnet | Anthropic | Complex reasoning, long context |
+| claude-3-haiku | Anthropic | Fast, cheap, good for simple tasks |
+| gpt-4o-mini | OpenAI | Good fallback, wide tool support |
+
+For most chatbot and automation work I default to Gemini Flash because of speed and generous free tier.
+
+---
+
+## Model Fallback Chain
+
+When you have quota limits or want resilience, try models in order and fall back on errors.
+
+```typescript
+const MODEL_CHAIN = [
+  "gemini-2.5-flash",
+  "gemini-2.5-flash-lite",
+  "gemini-3.5-flash",
+  "gemini-3.1-flash-lite",
+];
+
+for (const modelId of MODEL_CHAIN) {
+  try {
+    const result = await callModel(modelId, messages);
+    return result;
+  } catch (err) {
+    const msg = (err as Error).message.toLowerCase();
+    const shouldFallback =
+      msg.includes("quota") ||
+      msg.includes("429") ||
+      msg.includes("503") ||
+      msg.includes("not found");
+    if (!shouldFallback) throw err; // hard error, don't retry
+    continue; // try next model
+  }
+}
+```
+
+---
+
+## Streaming Responses
+
+Streaming makes the UI feel fast — tokens appear as they are generated instead of waiting for the full response.
+
+```typescript
+// API route (Next.js)
+const streamResult = await chat.sendMessageStream(userMessage);
+
+const encoder = new TextEncoder();
+const stream = new ReadableStream({
+  async start(controller) {
+    controller.enqueue(
+      encoder.encode(`data: ${JSON.stringify({ model: modelId })}\n\n`)
+    );
+    for await (const chunk of streamResult.stream) {
+      const text = chunk.text();
+      if (text) {
+        controller.enqueue(
+          encoder.encode(`data: ${JSON.stringify({ token: text })}\n\n`)
+        );
+      }
+    }
+    controller.enqueue(encoder.encode("data: [DONE]\n\n"));
+    controller.close();
+  },
+});
+
+return new Response(stream, {
+  headers: { "Content-Type": "text/event-stream" },
+});
+```
+
+```typescript
+// Client side — read the stream
+const reader = res.body?.getReader();
+const decoder = new TextDecoder();
+let buffer = "";
+
+while (true) {
+  const { done, value } = await reader.read();
+  if (done) break;
+
+  buffer += decoder.decode(value, { stream: true });
+  const lines = buffer.split("\n");
+  buffer = lines.pop() ?? "";
+
+  for (const line of lines) {
+    if (!line.startsWith("data: ")) continue;
+    const payload = line.slice(6).trim();
+    if (payload === "[DONE]") break;
+
+    const parsed = JSON.parse(payload);
+    if (parsed.token) {
+      // append token to displayed message
+    }
+  }
+}
+```
+
+---
+
+## System Prompt Design
+
+The system prompt is the most important part of a knowledge-base chatbot. A few rules I follow:
+
+- Put critical constraints at the top, not buried at the bottom
+- Use `CRITICAL:` or `IMPORTANT:` prefixes for rules that must not be broken
+- Specify what NOT to do, not just what to do — "Do NOT use markdown headers" is clearer than "write in plain text"
+- Feed the model the actual data it needs — for a portfolio chatbot this means full name, work history, skills, projects, contacts
+- Set temperature to `0.7` for conversational, `0.2` for factual/structured output
+- `maxOutputTokens: 2048` is usually enough — lower values cause responses to get cut off mid-sentence
+
+---
+
+## Gemini SDK (Google)
+
+```typescript
+import { GoogleGenerativeAI } from "@google/generative-ai";
+
+const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY!);
+
+const model = genAI.getGenerativeModel({
+  model: "gemini-2.5-flash",
+  systemInstruction: "You are a helpful assistant.",
+});
+
+const chat = model.startChat({
+  history: previousMessages.map(m => ({
+    role: m.role,
+    parts: [{ text: m.content }],
+  })),
+  generationConfig: {
+    temperature: 0.7,
+    maxOutputTokens: 2048,
+  },
+});
+
+const result = await chat.sendMessage(userMessage);
+console.log(result.response.text());
+```
+
+---
+
+*Last updated: September 2026.*

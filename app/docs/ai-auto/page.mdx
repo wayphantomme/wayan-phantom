@@ -1,0 +1,56 @@
+export const metadata = {
+  title: "AI Automation | Wayan Phantom",
+  description: "Low-code AI automation with n8n — workflow design, AI agents, webhooks, and production automation patterns.",
+};
+
+# AI Automation
+
+Notes on building automation systems without writing full application code. This covers n8n workflow design, AI agent nodes, webhook integrations, and patterns I use for real client projects.
+
+---
+
+## What's Inside
+
+**n8n Workflows** — Core concepts, workflow patterns, AI agent nodes, HTTP requests, and real production examples.
+
+---
+
+## Why Low-Code Automation
+
+Not every AI use case needs a full codebase. Low-code tools like n8n are better for:
+
+- Connecting existing services (CRM, email, Sheets, Slack)
+- Running scheduled jobs without maintaining a server
+- Rapid prototyping and client deliverables
+- Non-technical teams who need to maintain workflows
+- Gluing together APIs without writing boilerplate
+
+---
+
+## My Automation Stack
+
+| Tool | Use Case |
+|------|----------|
+| n8n (self-hosted / cloud) | Main workflow engine |
+| Gemini / Claude via HTTP | AI nodes in workflows |
+| Webhook nodes | Trigger from any external event |
+| Google Sheets | Simple data store for client workflows |
+| Airtable | Structured data for more complex flows |
+| Telegram / Slack | Notification delivery |
+
+---
+
+## n8n vs Custom Code
+
+| Situation | Use n8n | Use Code |
+|-----------|---------|----------|
+| Connect 2+ SaaS tools | ✅ | |
+| Schedule recurring tasks | ✅ | |
+| Complex business logic | | ✅ |
+| Real-time high-throughput | | ✅ |
+| Client handoff needed | ✅ | |
+| Full control over infra | | ✅ |
+
+---
+
+*See also: [AI Developer](/docs/ai-dev) for API-level LLM integration.*
