@@ -100,8 +100,9 @@ const NAV_SECTIONS: Section[] = [
     label: "AI Automation",
     href: "/docs/ai-auto",
     items: [
-      { label: "Overview",       href: "/docs/ai-auto" },
-      { label: "n8n Workflows",  href: "/docs/ai-auto/n8n" },
+      { label: "Overview",          href: "/docs/ai-auto" },
+      { label: "n8n Workflows",     href: "/docs/ai-auto/n8n" },
+      { label: "Hosting & VPS",     href: "/docs/ai-auto/hosting" },
     ],
   },
   {
@@ -524,6 +525,14 @@ const TOC_MAP: Record<string, { label: string; href: string }[]> = {
     { label: "HTTP Request Node",   href: "#http-request-node" },
     { label: "Webhook + AI Agent",  href: "#webhook--ai-agent-pattern" },
   ],
+  "/docs/ai-auto/hosting": [
+    { label: "Domain",           href: "#domain" },
+    { label: "Shared vs VPS",    href: "#shared-hosting-vs-vps" },
+    { label: "Provider Compare", href: "#vps-provider-comparison" },
+    { label: "n8n Specs",        href: "#minimum-specs-for-n8n-self-hosted" },
+    { label: "Deploy n8n",       href: "#deploy-n8n-on-a-vps" },
+    { label: "Backups",          href: "#persisting-data-and-backups" },
+  ],
   "/docs/industry": [
     { label: "Why Domain Knowledge", href: "#why-domain-knowledge-matters" },
     { label: "What's Covered",       href: "#whats-covered" },
@@ -742,6 +751,7 @@ const BREADCRUMB_MAP: Record<string, string[]> = {
   "/docs/ai-dev/rag":          ["AI Developer", "RAG Pipeline"],
   "/docs/ai-auto":             ["AI Automation", "Overview"],
   "/docs/ai-auto/n8n":         ["AI Automation", "n8n Workflows"],
+  "/docs/ai-auto/hosting":     ["AI Automation", "Hosting & VPS"],
   "/docs/industry":                          ["Industry Domains", "Overview"],
   "/docs/industry/healthcare":               ["Industry Domains", "Healthcare"],
   "/docs/industry/finance":                  ["Industry Domains", "Finance"],

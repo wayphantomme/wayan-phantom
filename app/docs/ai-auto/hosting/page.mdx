@@ -1,0 +1,199 @@
+export const metadata = {
+  title: "Hosting & VPS for Automation | Wayan Phantom",
+  description: "How to choose between shared hosting and VPS for running n8n, automation tools, and AI agents — with provider comparisons for Southeast Asia.",
+};
+
+# Hosting & VPS for Automation
+
+Running automation tools like n8n self-hosted, AI agents, or custom bots requires a different infrastructure mindset than hosting a static website. This covers what you actually need and the best options for Southeast Asia.
+
+---
+
+## Domain
+
+A domain maps a human-readable name (`yourdomain.com`) to your server's IP address.
+
+### When you need one
+
+- Anything accessed via browser by external users
+- n8n instance with webhooks receiving traffic from external services (Stripe, GitHub, etc.)
+- SSL/HTTPS — certificates require a domain for validation, you can't attach one to a bare IP
+- Public-facing automation dashboards
+
+### When you don't need one
+
+- Telegram / Discord / WhatsApp bots — they connect outbound to the API, no inbound domain needed
+- Internal dashboards accessed only by you via IP + port
+- Dev/staging environments on private networks
+
+### Pricing
+
+| Extension | Price/year |
+|-----------|-----------|
+| .com / .net | ~$10–15 |
+| .io | ~$30–50 |
+| .dev | ~$12–15 |
+
+Good registrars: [Cloudflare Registrar](https://cloudflare.com) (at-cost pricing, no markup), [Namecheap](https://namecheap.com), [Niagahoster](https://niagahoster.co.id) (Indonesia).
+
+---
+
+## Shared Hosting vs VPS
+
+### Why automation tools need a VPS
+
+Shared hosting won't work for n8n or most automation tools because:
+
+- **No persistent processes** — shared hosting kills long-running Node.js processes
+- **No custom software** — you can't install n8n, custom runtimes, or databases outside what the provider offers
+- **No root access** — can't configure system-level settings, open ports, or manage services
+- **Resource sharing** — one noisy neighbor can throttle your entire instance
+
+| | Shared Hosting | VPS |
+|--|---------------|-----|
+| Install custom software | No | Yes |
+| Persistent background processes | No | Yes |
+| Root access | No | Yes |
+| Dedicated resources | No | Yes |
+| Setup complexity | Low (cPanel) | Medium (SSH + CLI) |
+| Price/month | $1–5 | $4–15 |
+| Good for | Static sites, WordPress | n8n, bots, APIs, AI agents |
+
+---
+
+## VPS Provider Comparison
+
+Prices as of September 2026. For Southeast Asia, data center location matters — prioritize Singapore nodes for low latency to Indonesia (~10–30ms vs 150–250ms+ from Europe).
+
+| Provider | vCPU | RAM | Storage | Price/mo | DC in SG | Notes |
+|----------|------|-----|---------|----------|----------|-------|
+| Hostinger KVM1 | 1 | 4 GB | 50 GB NVMe | ~$6.64 | ✅ | Easiest setup, one-click deploys |
+| Hostinger KVM2 | 2 | 8 GB | 100 GB NVMe | ~$8.86 | ✅ | Good for multiple n8n workers |
+| Contabo Cloud VPS | 4 | 8 GB | 200 GB NVMe | ~$5.20 | ✅ | Best spec/price, support is slow |
+| DigitalOcean Basic | 1 | 1 GB | 25 GB SSD | $4.00 | ✅ | Best docs, smallest entry spec |
+| Hetzner CX22 | 2 | 4 GB | 40 GB NVMe | ~$9.24 | ❌ | EU/US only, high latency to ID |
+| Hetzner CX32 | 4 | 8 GB | 80 GB NVMe | ~$13 | ❌ | Great price but no Asia DC |
+
+### Provider notes
+
+**Hostinger** — best for beginners. One-click deploy for n8n and popular apps. Singapore data center, responsive 24/7 support. Note: prices increase on renewal after the initial discount period.
+
+**Contabo** — best spec-per-dollar with Singapore DC. 200 GB storage at entry tier is unusually generous. Downside: support is ticket-only with 24–72h response time. Good for dev/staging or personal projects, not for production with strict SLA.
+
+**DigitalOcean** — best documentation and developer experience. Tutorials for almost everything (n8n, Docker, nginx, SSL) are first-class. Entry spec is small for the price but reliability and support quality are top tier.
+
+**Hetzner** — excellent price-per-spec in Europe/US, but no Asia data center. High latency (150–250ms+) from Indonesia makes it unsuitable for latency-sensitive automation or user-facing tools.
+
+### Recommendation for Indonesia
+
+- **Best spec/price + low latency** → Contabo Cloud VPS (Singapore)
+- **Easiest setup + good support** → Hostinger KVM1/KVM2 (Singapore)
+- **Best docs + reliability** → DigitalOcean (Singapore), worth the smaller entry spec
+
+---
+
+## Minimum Specs for n8n Self-Hosted
+
+| Workload | RAM | vCPU | Storage |
+|----------|-----|------|---------|
+| Personal / testing | 1 GB | 1 | 20 GB |
+| Small team (< 5 users) | 2 GB | 1–2 | 40 GB |
+| Production with many workflows | 4 GB | 2 | 80 GB+ |
+| Heavy AI agent workloads | 8 GB | 4 | 100 GB+ |
+
+n8n itself is lightweight. The bottleneck is usually the number of concurrent workflow executions and any AI model calls.
+
+---
+
+## Deploy n8n on a VPS
+
+### 1. Connect to your server
+
+```bash
+ssh root@YOUR_SERVER_IP
+```
+
+### 2. Install Docker
+
+```bash
+curl -fsSL https://get.docker.com | sh
+systemctl enable docker && systemctl start docker
+```
+
+### 3. Run n8n with Docker
+
+```bash
+docker run -d \
+  --name n8n \
+  --restart always \
+  -p 5678:5678 \
+  -e N8N_HOST=yourdomain.com \
+  -e N8N_PROTOCOL=https \
+  -e WEBHOOK_URL=https://yourdomain.com/ \
+  -v ~/.n8n:/home/node/.n8n \
+  n8nio/n8n
+```
+
+### 4. Set up Caddy as reverse proxy (auto SSL)
+
+```bash
+apt install -y debian-keyring debian-archive-keyring apt-transport-https
+curl -1sLf 'https://dl.cloudsmith.io/public/caddy/stable/gpg.key' | gpg --dearmor -o /usr/share/keyrings/caddy-stable-archive-keyring.gpg
+curl -1sLf 'https://dl.cloudsmith.io/public/caddy/stable/debian.deb.txt' > /etc/apt/sources.list.d/caddy-stable.list
+apt update && apt install caddy
+```
+
+```
+# /etc/caddy/Caddyfile
+yourdomain.com {
+    reverse_proxy localhost:5678
+}
+```
+
+```bash
+systemctl reload caddy
+```
+
+Caddy automatically provisions and renews your SSL certificate. n8n is now live at `https://yourdomain.com`.
+
+### 5. Open firewall ports
+
+```bash
+ufw allow 22    # SSH
+ufw allow 80    # HTTP (Caddy redirect)
+ufw allow 443   # HTTPS
+ufw enable
+```
+
+---
+
+## Persisting Data and Backups
+
+n8n stores workflows and credentials in `~/.n8n` by default. Back this up regularly:
+
+```bash
+# Manual backup
+tar -czf n8n-backup-$(date +%Y%m%d).tar.gz ~/.n8n
+
+# Automated daily backup with cron
+crontab -e
+# Add: 0 2 * * * tar -czf /backups/n8n-$(date +\%Y\%m\%d).tar.gz ~/.n8n
+```
+
+For production, connect n8n to an external PostgreSQL database instead of the default SQLite:
+
+```bash
+docker run -d \
+  --name n8n \
+  -e DB_TYPE=postgresdb \
+  -e DB_POSTGRESDB_HOST=your-postgres-host \
+  -e DB_POSTGRESDB_DATABASE=n8n \
+  -e DB_POSTGRESDB_USER=n8n \
+  -e DB_POSTGRESDB_PASSWORD=your-password \
+  # ... other env vars
+  n8nio/n8n
+```
+
+---
+
+*Related: [n8n Workflows](/docs/ai-auto/n8n) | [AI Automation Overview](/docs/ai-auto)*
