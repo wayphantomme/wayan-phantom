@@ -42,14 +42,14 @@ Before anything else, understand what you're actually building.
 
 <Mermaid chart={`
 flowchart TD
-    U([User / Wallet]) -->|Signs transaction| M[Mempool]
-    M -->|Picks pending txs| V[Validator / Sequencer]
+    U([User Wallet]) -->|Signs transaction| M[Mempool]
+    M -->|Picks pending txs| V[Validator Sequencer]
     V -->|Bundles into block| B[New Block]
     B -->|Broadcasts to| N1[Node 1]
     B -->|Broadcasts to| N2[Node 2]
     B -->|Broadcasts to| N3[Node 3]
-    N1 & N2 & N3 -->|Verify + add to chain| S[Chain State]
-    S -->|Updated balances / contract state| U
+    N1 & N2 & N3 -->|Verify and add to chain| S[Chain State]
+    S -->|Updated state| U
 `} />
 
 Every node runs the same software and independently verifies every block. There is no central server. The "database" is the chain itself, replicated across all nodes.
@@ -60,16 +60,16 @@ Every node runs the same software and independently verifies every block. There 
 
 <Mermaid chart={`
 flowchart LR
-    subgraph Application Layer
-        SC[Smart Contracts / Runtime Logic]
+    subgraph App["Application Layer"]
+        SC[Smart Contracts and Runtime Logic]
     end
-    subgraph Consensus Layer
-        CON[Validator Selection\nBlock Proposal\nFinality]
+    subgraph Con["Consensus Layer"]
+        CON[Validator Selection and Finality]
     end
-    subgraph Network Layer
-        P2P[Peer Discovery\nGossip Protocol\nBlock Propagation]
+    subgraph Net["Network Layer"]
+        P2P[Peer Discovery and Block Propagation]
     end
-    Application Layer --> Consensus Layer --> Network Layer
+    App --> Con --> Net
 `} />
 
 | Layer | What It Does | In Ethereum | In Substrate |
@@ -88,13 +88,13 @@ When you "build a blockchain" you're implementing all three layers — or using 
 flowchart TD
     Q{What do you need?}
     Q -->|Learn internals| PY[Python from scratch]
-    Q -->|Max performance + control| RS[Rust from scratch]
-    Q -->|Polkadot ecosystem + custom runtime| SUB[Substrate]
-    Q -->|Sovereign L1 + IBC cross-chain| COS[Cosmos SDK]
+    Q -->|Max performance| RS[Rust from scratch]
+    Q -->|Polkadot ecosystem| SUB[Substrate]
+    Q -->|Sovereign L1 with IBC| COS[Cosmos SDK]
     Q -->|EVM L3 on Arbitrum| ORB[Arbitrum Orbit]
-    Q -->|EVM L2 on Ethereum / Superchain| OPS[OP Stack]
+    Q -->|EVM L2 on Ethereum| OPS[OP Stack]
     Q -->|Enterprise permissioned| HYP[Hyperledger Fabric]
-    Q -->|Private Ethereum-based chain| QUO[GoQuorum]
+    Q -->|Private Ethereum chain| QUO[GoQuorum]
 `} />
 
 | Framework | Language | You Build | Framework Gives You | Deploy Target |
@@ -352,38 +352,35 @@ fabric-network/
 
 <Mermaid chart={`
 flowchart TD
-    A[Write chain config\n chainId, blockTime, gasToken] --> B
-    B[Deploy bridge contracts\n on parent chain L1/L2] --> C
-    C[Generate genesis block\n for your L2/L3] --> D
-    D[Start sequencer node\n on your VPS] --> E
-    E[Start RPC node\n optional, for users to connect] --> F
-    F[Add to MetaMask\n users can now send txs] --> G
-    G[Monitor via explorer\n Blockscout self-hosted or Arbiscan]
+    A[Write chain config] --> B[Deploy bridge contracts on parent chain]
+    B --> C[Generate genesis block]
+    C --> D[Start sequencer node on VPS]
+    D --> E[Start RPC node]
+    E --> F[Add to MetaMask]
+    F --> G[Monitor via block explorer]
 `} />
 
-### Substrate / Cosmos (Sovereign Chain)
+### Substrate / Cosmos
 
 <Mermaid chart={`
 flowchart TD
-    A[Write runtime logic\n pallets or modules] --> B
-    B[Compile to binary\n cargo build or make install] --> C
-    C[Generate chain spec\n genesis accounts, initial state] --> D
-    D[Start validator nodes\n on multiple VPS] --> E
-    E[Bootstrap network\n nodes find each other via seeds] --> F
-    F[Submit transactions\n via Polkadot.js or CLI] --> G
-    G[Upgrade runtime\n forkless via governance]
+    A[Write runtime logic] --> B[Compile to binary]
+    B --> C[Generate chain spec and genesis]
+    C --> D[Start validator nodes on VPS]
+    D --> E[Bootstrap peer network]
+    E --> F[Submit transactions via CLI or UI]
+    F --> G[Upgrade runtime via governance]
 `} />
 
 ### Hyperledger Fabric
 
 <Mermaid chart={`
 flowchart TD
-    A[Define orgs + policies\n configtx.yaml] --> B
-    B[Generate certs\n cryptogen] --> C
-    C[Start orderer + peers\n docker compose up] --> D
-    D[Create channel\n peer channel create] --> E
-    E[Deploy chaincode\n package → install → approve → commit] --> F
-    F[Submit transactions\n via SDK Node.js or Go]
+    A[Define orgs and policies] --> B[Generate certs with cryptogen]
+    B --> C[Start orderer and peers via Docker]
+    C --> D[Create channel]
+    D --> E[Package and deploy chaincode]
+    E --> F[Submit transactions via SDK]
 `} />
 
 ---
