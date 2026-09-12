@@ -7,6 +7,7 @@ import { useState, useRef, useEffect, useCallback } from "react";
 interface Message {
   role: "user" | "model";
   content: string;
+  image?: string; // base64 PNG from CF Workers AI
 }
 
 // ─── Suggested starter questions ─────────────────────────────────────────────
@@ -18,7 +19,29 @@ const SUGGESTIONS = [
   "Is he open to new opportunities?",
 ];
 
-// ─── URL / mailto / wa.me auto-linker ────────────────────────────────────────
+// ─── Detect image generation intent ──────────────────────────────────────────
+
+const IMAGE_TRIGGERS = [
+  /^\/image\s+/i,
+  /^generate\s+(an?\s+)?image\s+(of\s+)?/i,
+  /^create\s+(an?\s+)?image\s+(of\s+)?/i,
+  /^draw\s+(an?\s+)?/i,
+  /^make\s+(an?\s+)?image\s+(of\s+)?/i,
+  /^buatkan\s+(gambar\s+)?/i,
+  /^gambar\s+/i,
+];
+
+function detectImageIntent(text: string): string | null {
+  for (const re of IMAGE_TRIGGERS) {
+    if (re.test(text.trim())) {
+      // Strip the trigger prefix to get the actual prompt
+      return text.trim().replace(re, "").trim();
+    }
+  }
+  return null;
+}
+
+
 
 // Matches: mailto:..., https://..., http://...
 const URL_REGEX = /(mailto:[^\s,)]+|https?:\/\/[^\s,)"]+)/g;
@@ -118,7 +141,15 @@ function Bubble({ msg }: { msg: Message }) {
     <div className={`chatbot-bubble-row ${isUser ? "chatbot-bubble-row-user" : "chatbot-bubble-row-bot"}`}>
       {!isUser && <EyesAvatar size="sm" />}
       <div className={`chatbot-bubble ${isUser ? "chatbot-bubble-user" : "chatbot-bubble-bot"}`}>
-        {renderText(msg.content)}
+        {msg.image ? (
+          <img
+            src={`data:image/png;base64,${msg.image}`}
+            alt={msg.content || "Generated image"}
+            className="chatbot-generated-img"
+          />
+        ) : (
+          renderText(msg.content)
+        )}
       </div>
     </div>
   );
@@ -177,6 +208,31 @@ export default function ChatBot() {
       setLoading(true);
       setError(null);
 
+      // ── Image generation branch ──────────────────────────────────────────
+      const imagePrompt = detectImageIntent(trimmed);
+      if (imagePrompt) {
+        try {
+          const res = await fetch("/api/image", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ prompt: imagePrompt }),
+          });
+          const data = await res.json();
+          if (!res.ok) throw new Error(data.error ?? "Image generation failed");
+          setUsedModel(data.model ?? "flux-1-schnell");
+          setMessages((prev) => [
+            ...prev,
+            { role: "model", content: imagePrompt, image: data.image },
+          ]);
+        } catch (err) {
+          setError(err instanceof Error ? err.message : "Image generation failed");
+        } finally {
+          setLoading(false);
+        }
+        return;
+      }
+
+      // ── Text chat branch (Gemini streaming) ─────────────────────────────
       try {
         const res = await fetch("/api/chat", {
           method: "POST",
@@ -189,7 +245,6 @@ export default function ChatBot() {
           throw new Error(data.error ?? "Something went wrong");
         }
 
-        // Stream SSE tokens into the bot message incrementally
         const reader = res.body?.getReader();
         if (!reader) throw new Error("No response body");
 
@@ -197,7 +252,6 @@ export default function ChatBot() {
         let buffer = "";
         let accumulated = "";
 
-        // Add empty bot message to start filling
         setMessages((prev) => [...prev, { role: "model", content: "" }]);
         setLoading(false);
 
@@ -216,18 +270,13 @@ export default function ChatBot() {
 
             try {
               const parsed = JSON.parse(payload);
-              if (parsed.model) {
-                setUsedModel(parsed.model);
-              }
+              if (parsed.model) setUsedModel(parsed.model);
               if (parsed.token) {
                 accumulated += parsed.token;
                 const snap = accumulated;
                 setMessages((prev) => {
                   const updated = [...prev];
-                  updated[updated.length - 1] = {
-                    role: "model",
-                    content: snap,
-                  };
+                  updated[updated.length - 1] = { role: "model", content: snap };
                   return updated;
                 });
               }

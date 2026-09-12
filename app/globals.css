@@ -1803,6 +1803,16 @@ body {
   letter-spacing: 0.02em;
 }
 
+/* Generated image */
+.chatbot-generated-img {
+  display: block;
+  max-width: 100%;
+  width: 220px;
+  height: auto;
+  border-radius: 0.5rem;
+  margin: 0.25rem 0;
+}
+
 /* Input area */
 .chatbot-input-area {
   display: flex;
