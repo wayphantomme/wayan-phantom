@@ -1,95 +1,450 @@
 export const metadata = {
-  title: "Build Your Own Chain | Wayan Phantom",
-  description: "How to build and deploy your own blockchain — from picking a framework to going live. Covers Arbitrum Orbit, OP Stack, Substrate, Hyperledger, and Quorum.",
+  title: "Build Your Own Blockchain | Wayan Phantom",
+  description: "Complete guide to building a blockchain from scratch or with a framework. Mental model, dependencies, environment setup, deployment, and comparison with Next.js and Ethereum app development.",
 };
 
-# Build Your Own Chain
+# Build Your Own Blockchain
 
-So you want to run your own blockchain rather than just deploy contracts on someone else's. This covers the full picture: why you'd do it, how to pick the right stack, and what the deployment process looks like.
-
----
-
-## Why Build Your Own Chain?
-
-Most projects don't need their own chain. But some do:
-
-- **Gas control** — set your own gas token or eliminate gas fees entirely for users.
-- **Throughput** — a dedicated chain has no competition for blockspace.
-- **Custom rules** — modify the EVM, add precompiles, change consensus, or build something non-EVM entirely.
-- **Privacy** — permissioned chains can restrict who reads and writes data.
-- **Compliance** — enterprise requirements (KYC, data residency) that public chains can't meet.
-
-If none of those apply, just deploy on Arbitrum or Base.
+A complete mental model for building blockchains — what's different from building a web app or deploying Ethereum contracts, what you actually need to install, how the code is structured, and where it all runs.
 
 ---
 
-## Two Categories
+## The Mental Model
 
-### Public App-Chain (Rollup)
+Before anything else, understand what you're actually building.
 
-You deploy a rollup that settles to an existing public chain (Ethereum or an L2). You get Ethereum's security, your own blockspace, and full EVM compatibility.
+### Compared to a Next.js app
 
-Best for: DeFi protocols, games, exchanges, or any app that needs dedicated throughput but still wants public trust and liquidity.
+| | Next.js App | Blockchain Node |
+|--|-------------|----------------|
+| What it is | Web server that handles HTTP requests | Peer process that syncs state with other nodes |
+| State lives in | Database (Postgres, etc.) | Replicated across all nodes in the network |
+| "Deploy" means | Push code to Vercel | Run a binary on a VPS that joins/creates a network |
+| Trust model | You trust the server | No single server — consensus between nodes |
+| Users interact via | Browser → HTTP → your API | Wallet → signed transaction → mempool → block |
+| Scaling | Add servers behind a load balancer | Add validator/full nodes |
+| Updates | Redeploy to Vercel | Coordinate upgrade across all node operators |
 
-| Framework | Settles To | Type |
-|---|---|---|
-| Arbitrum Orbit | Arbitrum One / Nova | Optimistic rollup L3 |
-| OP Stack | Ethereum L1 | Optimistic rollup L2 |
-| Substrate (parachain) | Polkadot relay chain | Custom runtime |
+### Compared to deploying on Ethereum
 
-### Private / Permissioned Chain
-
-You run a chain where participants are known and access is controlled. No public token required. Much faster finality.
-
-Best for: enterprise consortiums, supply chain, banking, healthcare, CBDCs — anywhere multiple organizations need a shared ledger without trusting a single operator.
-
-| Framework | Consensus | Best For |
-|---|---|---|
-| Hyperledger Fabric | PBFT / Raft | Enterprise, modular chaincode |
-| Quorum (GoQuorum) | IBFT / Raft | Finance, private Ethereum-based chains |
+| | Deploy on Ethereum | Build Your Own Chain |
+|--|-------------------|---------------------|
+| What you control | Your smart contract logic | Everything — consensus, block time, gas, tokenomics |
+| Gas fees | Paid in ETH to validators | You define the fee structure |
+| Security | Ethereum's validator set | Your own validator set |
+| Effort | Medium (Solidity + deploy script) | Very High (full node software) |
+| Time to launch | Hours | Weeks to months |
+| When to do it | 90% of cases | App-chain, custom runtime, enterprise chain |
 
 ---
 
-## Choosing a Framework
+## How a Blockchain Actually Works
+
+<Mermaid chart={`
+flowchart TD
+    U([User / Wallet]) -->|Signs transaction| M[Mempool]
+    M -->|Picks pending txs| V[Validator / Sequencer]
+    V -->|Bundles into block| B[New Block]
+    B -->|Broadcasts to| N1[Node 1]
+    B -->|Broadcasts to| N2[Node 2]
+    B -->|Broadcasts to| N3[Node 3]
+    N1 & N2 & N3 -->|Verify + add to chain| S[Chain State]
+    S -->|Updated balances / contract state| U
+`} />
+
+Every node runs the same software and independently verifies every block. There is no central server. The "database" is the chain itself, replicated across all nodes.
+
+---
+
+## The Three Layers of Every Blockchain
+
+<Mermaid chart={`
+flowchart LR
+    subgraph Application Layer
+        SC[Smart Contracts / Runtime Logic]
+    end
+    subgraph Consensus Layer
+        CON[Validator Selection\nBlock Proposal\nFinality]
+    end
+    subgraph Network Layer
+        P2P[Peer Discovery\nGossip Protocol\nBlock Propagation]
+    end
+    Application Layer --> Consensus Layer --> Network Layer
+`} />
+
+| Layer | What It Does | In Ethereum | In Substrate |
+|-------|-------------|-------------|--------------|
+| Network | Find peers, share blocks/txs | devp2p | libp2p |
+| Consensus | Agree on which block is valid | Gasper (PoS) | BABE + GRANDPA |
+| Application | Execute transactions, update state | EVM | FRAME Pallets |
+
+When you "build a blockchain" you're implementing all three layers — or using a framework that gives you 2 of them pre-built.
+
+---
+
+## Framework Comparison
+
+<Mermaid chart={`
+flowchart TD
+    Q{What do you need?}
+    Q -->|Learn internals| PY[Python from scratch]
+    Q -->|Max performance + control| RS[Rust from scratch]
+    Q -->|Polkadot ecosystem + custom runtime| SUB[Substrate]
+    Q -->|Sovereign L1 + IBC cross-chain| COS[Cosmos SDK]
+    Q -->|EVM L3 on Arbitrum| ORB[Arbitrum Orbit]
+    Q -->|EVM L2 on Ethereum / Superchain| OPS[OP Stack]
+    Q -->|Enterprise permissioned| HYP[Hyperledger Fabric]
+    Q -->|Private Ethereum-based chain| QUO[GoQuorum]
+`} />
+
+| Framework | Language | You Build | Framework Gives You | Deploy Target |
+|-----------|----------|-----------|---------------------|---------------|
+| Python scratch | Python | Everything | Nothing | Your VPS |
+| Rust scratch | Rust | Everything | Nothing | Your VPS |
+| Substrate | Rust | Pallets (business logic) | Network + consensus + runtime | Your VPS or Polkadot relay |
+| Cosmos SDK | Go | Modules (business logic) | Network + consensus (Tendermint) | Your VPS |
+| Arbitrum Orbit | Solidity + Go config | Chain config + bridge contracts | Full rollup stack (Nitro) | Arbitrum One / Nova |
+| OP Stack | Solidity + Go config | Chain config + L1 contracts | Full rollup stack | Ethereum L1 |
+| Hyperledger Fabric | Go or Node.js | Chaincode (smart contracts) | Network + ordering + MSP | Your VPS / cloud |
+| GoQuorum | Go + Solidity | Smart contracts + network config | Modified Geth + Tessera | Your VPS |
+
+---
+
+## Dependencies to Install
+
+### Python (from scratch)
+
+```bash
+pip install flask cryptography requests ecdsa
+```
+
+No special toolchain. Just Python 3.10+.
+
+### Rust (from scratch or Substrate)
+
+```bash
+# Install Rust
+curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
+source $HOME/.cargo/env
+
+# For Substrate — add WASM target
+rustup target add wasm32-unknown-unknown
+rustup component add rust-src
+
+# Substrate node template
+git clone https://github.com/substrate-developer-hub/substrate-node-template
+cd substrate-node-template
+cargo build --release   # takes 15-30 min first time
+```
+
+### Cosmos SDK (Go)
+
+```bash
+# Install Go 1.21+
+brew install go   # macOS
+# or: https://go.dev/dl/
+
+# Install Ignite CLI (scaffold tool)
+curl https://get.ignite.com/cli | bash
+
+# Scaffold a new chain
+ignite scaffold chain mychain
+cd mychain
+ignite chain serve
+```
+
+### Arbitrum Orbit
+
+```bash
+# Node.js 18+ required
+node --version
+
+# Clone the orbit setup scripts
+git clone https://github.com/OffchainLabs/orbit-setup-script
+cd orbit-setup-script
+npm install
+
+# Docker for running the nitro node
+brew install --cask docker
+```
+
+### OP Stack
+
+```bash
+# Foundry (for contracts)
+curl -L https://foundry.paradigm.xyz | bash && foundryup
+
+# Go 1.21+ (for op-node and op-geth)
+brew install go
+
+# Clone the monorepo
+git clone https://github.com/ethereum-optimism/optimism
+cd optimism
+pnpm install
+make op-node op-geth
+```
+
+### Hyperledger Fabric
+
+```bash
+# Docker + Docker Compose required
+brew install --cask docker
+
+# Download Fabric binaries + Docker images
+curl -sSL https://bit.ly/2ysbOFE | bash -s -- 2.5.0 1.5.0
+# Downloads: peer, orderer, configtxgen, cryptogen, fabric-ca-client
+
+# Node.js for chaincode (optional)
+node --version  # 18+
+```
+
+---
+
+## Environment Variables
+
+### Substrate / Cosmos / Rust scratch
+
+Minimal — mostly CLI flags, not env vars. Key config files instead:
+
+```bash
+# Substrate: chain_spec.rs defines genesis
+# Runtime behavior configured via pallets in code
+
+# Cosmos: config/config.toml + config/app.toml
+[rpc]
+laddr = "tcp://0.0.0.0:26657"
+
+[p2p]
+laddr = "tcp://0.0.0.0:26656"
+seeds = "node1_id@node1_ip:26656,node2_id@node2_ip:26656"
+```
+
+### Arbitrum Orbit
+
+```bash
+# .env
+PARENT_CHAIN_RPC="https://arb-sepolia.g.alchemy.com/v2/YOUR_KEY"
+DEPLOYER_PRIVATE_KEY="0xYOUR_DEPLOYER_KEY"
+CHAIN_OWNER_ADDRESS="0xYOUR_OWNER_ADDRESS"
+CHAIN_ID=412346
+```
+
+### OP Stack
+
+```bash
+# .envrc
+export L1_RPC_URL="https://eth-sepolia.g.alchemy.com/v2/YOUR_KEY"
+export L1_RPC_KIND="alchemy"
+export GS_ADMIN_PRIVATE_KEY="0x..."
+export GS_BATCHER_PRIVATE_KEY="0x..."
+export GS_PROPOSER_PRIVATE_KEY="0x..."
+export GS_SEQUENCER_PRIVATE_KEY="0x..."
+export L1_CHAIN_ID=11155111
+export L2_CHAIN_ID=42069
+```
+
+OP Stack needs 4 separate wallets (admin, batcher, proposer, sequencer) — each funded with testnet ETH.
+
+### Hyperledger Fabric
+
+No `.env` file — config is in YAML files:
+
+```yaml
+# config/configtx.yaml (key fields)
+Organizations:
+  - Name: Org1MSP
+    ID: Org1MSP
+    MSPDir: organizations/peerOrganizations/org1/msp
+    Policies:
+      Readers: { Type: Signature, Rule: "OR('Org1MSP.member')" }
+      Writers: { Type: Signature, Rule: "OR('Org1MSP.member')" }
+      Admins:  { Type: Signature, Rule: "OR('Org1MSP.admin')" }
+```
+
+---
+
+## Folder Structures
+
+### Substrate
 
 ```
-Need EVM + public trust?
-  ├─ Want to stay in Arbitrum ecosystem? → Arbitrum Orbit
-  ├─ Want to join the Superchain?        → OP Stack
-  └─ Want Polkadot interop?              → Substrate (parachain)
+my-chain/
+  node/src/
+    main.rs           # Binary entrypoint
+    service.rs        # Node services (network, RPC, consensus)
+    chain_spec.rs     # Genesis config
+  runtime/src/
+    lib.rs            # construct_runtime! — wires all pallets
+  pallets/
+    my-pallet/src/
+      lib.rs          # Your business logic (#[pallet::*] macros)
+  Cargo.toml
+```
 
-Need permissioned / enterprise?
-  ├─ Modular, non-EVM, complex org?      → Hyperledger Fabric
-  └─ Ethereum-based, finance?            → Quorum
+### Cosmos SDK
+
+```
+my-chain/
+  app/
+    app.go            # Module wiring
+  cmd/mychaind/
+    main.go           # CLI entry
+  x/mymodule/         # Custom module (like a pallet)
+    keeper/
+      keeper.go       # State read/write
+      msg_server.go   # Tx handlers
+    types/
+      msgs.go
+    module.go
+  proto/              # Protobuf message definitions
+  config/
+    app.toml
+    config.toml
+```
+
+### Arbitrum Orbit
+
+```
+orbit-chain/
+  contracts/          # Solidity — deployed on parent chain
+    scripts/
+      deployOrbit.ts
+    hardhat.config.ts
+  nitro-node/
+    nodeConfig.json   # Your chain config
+    docker-compose.yml
+```
+
+### OP Stack
+
+```
+op-chain/
+  packages/contracts-bedrock/
+    deploy-config/
+      my-chain.json   # L2 chain config
+    scripts/
+      Deploy.s.sol    # Foundry deploy
+  op-node/
+    rollup.json       # Rollup config
+  op-geth/
+    genesis.json      # L2 genesis
+```
+
+### Hyperledger Fabric
+
+```
+fabric-network/
+  organizations/      # Certs + keys per org
+  chaincode/          # Smart contracts (Go or Node.js)
+  config/
+    configtx.yaml
+    crypto-config.yaml
+  docker-compose.yml
+  scripts/
+    deployCC.sh
 ```
 
 ---
 
-## High-Level Deployment Path
+## Deploy Flow
 
-Regardless of the framework, the process follows a similar arc:
+### Rollup (Orbit / OP Stack)
 
-1. **Design** — pick consensus, gas token, EVM vs non-EVM, block time.
-2. **Configure** — set genesis block, chain ID, initial validators, bridge config.
-3. **Run locally** — spin up local nodes, test your config.
-4. **Testnet** — deploy to the target testnet (Arbitrum Sepolia, Ethereum Sepolia, etc.).
-5. **Audit** — security review of any custom contracts or runtime modules.
-6. **Mainnet** — deploy sequencer/nodes, fund the bridge, go live.
+<Mermaid chart={`
+flowchart TD
+    A[Write chain config\n chainId, blockTime, gasToken] --> B
+    B[Deploy bridge contracts\n on parent chain L1/L2] --> C
+    C[Generate genesis block\n for your L2/L3] --> D
+    D[Start sequencer node\n on your VPS] --> E
+    E[Start RPC node\n optional, for users to connect] --> F
+    F[Add to MetaMask\n users can now send txs] --> G
+    G[Monitor via explorer\n Blockscout self-hosted or Arbiscan]
+`} />
 
-The pages below cover each framework in detail.
+### Substrate / Cosmos (Sovereign Chain)
+
+<Mermaid chart={`
+flowchart TD
+    A[Write runtime logic\n pallets or modules] --> B
+    B[Compile to binary\n cargo build or make install] --> C
+    C[Generate chain spec\n genesis accounts, initial state] --> D
+    D[Start validator nodes\n on multiple VPS] --> E
+    E[Bootstrap network\n nodes find each other via seeds] --> F
+    F[Submit transactions\n via Polkadot.js or CLI] --> G
+    G[Upgrade runtime\n forkless via governance]
+`} />
+
+### Hyperledger Fabric
+
+<Mermaid chart={`
+flowchart TD
+    A[Define orgs + policies\n configtx.yaml] --> B
+    B[Generate certs\n cryptogen] --> C
+    C[Start orderer + peers\n docker compose up] --> D
+    D[Create channel\n peer channel create] --> E
+    E[Deploy chaincode\n package → install → approve → commit] --> F
+    F[Submit transactions\n via SDK Node.js or Go]
+`} />
 
 ---
 
-## What's Covered
+## Where Does It Run?
 
-| Page | Framework | Type |
-|---|---|---|
-| [Arbitrum Orbit](/docs/chains/build/orbit) | Arbitrum Orbit | Public rollup L3 |
-| [OP Stack](/docs/chains/build/op-stack) | OP Stack | Public rollup L2 |
-| [Substrate](/docs/chains/build/substrate) | Substrate | Custom / Polkadot parachain |
-| [Hyperledger Fabric](/docs/chains/build/hyperledger) | Hyperledger | Private / enterprise |
-| [Quorum](/docs/chains/build/quorum) | GoQuorum | Private / finance |
+This is the biggest difference from Vercel-hosted Next.js apps.
+
+| | Next.js on Vercel | Blockchain Node |
+|--|-------------------|----------------|
+| Hosting | Vercel manages everything | You manage VPS(es) |
+| Uptime | Vercel's SLA | Your responsibility |
+| Scaling | Automatic | Add more nodes manually |
+| Cost | Free tier available | $5–50/mo per node on VPS |
+| Access | HTTPS via domain | TCP ports (P2P + RPC) |
+
+### Minimum VPS per node type
+
+| Node Type | RAM | vCPU | Storage | Why |
+|-----------|-----|------|---------|-----|
+| Substrate validator | 4 GB | 2 | 80 GB | WASM runtime execution |
+| Cosmos validator | 4 GB | 2 | 100 GB | State + Tendermint consensus |
+| Orbit sequencer | 8 GB | 4 | 200 GB | L2 execution + L1 posting |
+| OP Stack sequencer | 8 GB | 4 | 200 GB | op-geth + op-node |
+| Fabric peer | 2 GB | 2 | 50 GB | Per-org peer node |
+
+You typically need **at least 3 validator nodes** on separate machines for real Byzantine fault tolerance. One node = centralized = not a real blockchain.
+
+### Ports to open
+
+| Protocol | Port | Used By |
+|----------|------|---------|
+| P2P / gossip | 30303 (Geth), 26656 (Cosmos) | Node-to-node communication |
+| RPC (HTTP) | 8545 (EVM), 26657 (Cosmos) | Wallets, dApps connecting to your chain |
+| WebSocket | 8546 | Real-time subscriptions |
+| Substrate P2P | 30333 | Substrate nodes |
+| Substrate RPC | 9944 | Polkadot.js, frontends |
+
+```bash
+# Open ports on Ubuntu VPS
+ufw allow 30303/tcp   # P2P
+ufw allow 8545/tcp    # RPC (restrict to trusted IPs in prod)
+ufw allow 8546/tcp    # WS
+ufw enable
+```
 
 ---
 
-*Last updated: September 2026.*
+## Side-by-Side Summary
+
+| | Python Scratch | Rust Scratch | Substrate | Cosmos SDK | Orbit | OP Stack | Fabric | Quorum |
+|--|----------------|--------------|-----------|------------|-------|----------|--------|--------|
+| Language | Python | Rust | Rust | Go | Solidity+Go | Solidity+Go | Go/Node.js | Go |
+| Setup time | 1 hour | Days | Hours (template) | Hours (Ignite) | Hours | Hours | Hours | Hours |
+| Production-ready | No | Yes | Yes | Yes | Yes | Yes | Yes | Yes |
+| EVM compatible | No | No | Optional | Optional | Yes | Yes | No | Yes |
+| Permissioned | Optional | Optional | Optional | Optional | No | No | Yes | Yes |
+| Nodes needed | 1 (demo) | 3+ | 3+ | 3+ | 1 sequencer | 1 sequencer | 3+ peers | 3+ |
+| Settle to L1 | No | No | Polkadot | No | Arbitrum | Ethereum | No | No |
+| Best for | Learning | Research | Polkadot parachain | Sovereign L1 | App-chain | App-chain | Enterprise | Finance |
+
+---
+
+*Related: [EVM L2s](/docs/chains/evm-l2s) | [Frameworks](/docs/chains/frameworks) | [Private Chains](/docs/chains/private) | [Deploy Testnet → Mainnet](/docs/web3/ethereum/deploy)*
