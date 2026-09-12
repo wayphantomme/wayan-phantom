@@ -617,21 +617,16 @@ const TOC_MAP: Record<string, { label: string; href: string }[]> = {
     { label: "What's Covered",     href: "#whats-covered-here" },
   ],
   "/docs/chains/build": [
-    { label: "Quick Comparison",   href: "#quick-comparison" },
-    { label: "When to Use What",   href: "#when-to-use-what" },
-    { label: "Python Scratch",     href: "#from-scratch--python-learning" },
-    { label: "Rust Scratch",       href: "#from-scratch--rust-production-grade" },
-    { label: "Substrate",          href: "#substrate-rust" },
-    { label: "Cosmos SDK",         href: "#cosmos-sdk-go" },
-    { label: "Arbitrum Orbit",     href: "#arbitrum-orbit-solidity--go" },
-    { label: "OP Stack",           href: "#op-stack-solidity--go" },
-    { label: "Hyperledger Fabric", href: "#hyperledger-fabric-go--nodejs" },
-    { label: "GoQuorum",           href: "#goquorum-go" },
-    { label: "Folder Complexity",  href: "#side-by-side-folder-complexity" },
-  ],
-    { label: "Choosing a Framework", href: "#choosing-a-framework" },
-    { label: "Deployment Path",    href: "#high-level-deployment-path" },
-    { label: "What's Covered",     href: "#whats-covered" },
+    { label: "Mental Model",       href: "#the-mental-model" },
+    { label: "How It Works",       href: "#how-a-blockchain-actually-works" },
+    { label: "Three Layers",       href: "#the-three-layers-of-every-blockchain" },
+    { label: "Framework Compare",  href: "#framework-comparison" },
+    { label: "Dependencies",       href: "#dependencies-to-install" },
+    { label: "Env Variables",      href: "#environment-variables" },
+    { label: "Folder Structures",  href: "#folder-structures" },
+    { label: "Deploy Flow",        href: "#deploy-flow" },
+    { label: "Where It Runs",      href: "#where-does-it-run" },
+    { label: "Summary Table",      href: "#side-by-side-summary" },
   ],
   "/docs/chains/evm-l2s": [
     { label: "Why L2s Exist",      href: "#why-l2s-exist" },
@@ -921,7 +916,7 @@ function Sidebar() {
       </nav>
 
       <div className="docs-sidebar-footer">
-        <a href="https://github.com/wayphantomme" target="_blank" rel="noopener noreferrer" className="docs-sidebar-gh">
+        <a href="https://github.com/wayphantomme/wayan-phantom" target="_blank" rel="noopener noreferrer" className="docs-sidebar-gh">
           <svg width="13" height="13" fill="currentColor" viewBox="0 0 24 24">
             <path fillRule="evenodd" d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.53 1.032 1.53 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z" clipRule="evenodd" />
           </svg>
