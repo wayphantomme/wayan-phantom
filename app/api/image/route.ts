@@ -30,10 +30,7 @@ export async function POST(request: NextRequest) {
       Authorization: `Bearer ${apiToken}`,
       "Content-Type": "application/json",
     },
-    body: JSON.stringify({
-      prompt,
-      seed: Math.floor(Math.random() * 1_000_000),
-    }),
+    body: JSON.stringify({ prompt }),
   });
 
   if (!cfRes.ok) {
