@@ -497,6 +497,7 @@ const TOC_MAP: Record<string, { label: string; href: string }[]> = {
     { label: "Model Guide",      href: "#model-selection-guide" },
     { label: "AI Gateway",       href: "#ai-gateway-optional" },
   ],
+  "/docs/ai-dev": [
     { label: "My AI Stack",      href: "#my-ai-stack" },
     { label: "Quick Start",      href: "#quick-start" },
   ],
