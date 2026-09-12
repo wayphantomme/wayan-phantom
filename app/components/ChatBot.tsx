@@ -143,7 +143,7 @@ function Bubble({ msg }: { msg: Message }) {
       <div className={`chatbot-bubble ${isUser ? "chatbot-bubble-user" : "chatbot-bubble-bot"}`}>
         {msg.image ? (
           <img
-            src={`data:image/png;base64,${msg.image}`}
+            src={`data:image/jpeg;base64,${msg.image}`}
             alt={msg.content || "Generated image"}
             className="chatbot-generated-img"
           />

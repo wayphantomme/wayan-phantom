@@ -30,7 +30,10 @@ export async function POST(request: NextRequest) {
       Authorization: `Bearer ${apiToken}`,
       "Content-Type": "application/json",
     },
-    body: JSON.stringify({ prompt, num_steps: 4 }),
+    body: JSON.stringify({
+      prompt,
+      seed: Math.floor(Math.random() * 1_000_000),
+    }),
   });
 
   if (!cfRes.ok) {
@@ -42,9 +45,13 @@ export async function POST(request: NextRequest) {
     );
   }
 
-  // Response is raw binary PNG
-  const buffer = await cfRes.arrayBuffer();
-  const base64 = Buffer.from(buffer).toString("base64");
+  // CF REST API returns JSON: { result: { image: "<base64>" }, success: true }
+  const json = await cfRes.json() as { success: boolean; result?: { image: string }; errors?: unknown[] };
 
-  return Response.json({ image: base64, model: CF_MODEL });
+  if (!json.success || !json.result?.image) {
+    console.error("CF unexpected response:", JSON.stringify(json));
+    return Response.json({ error: "No image in response" }, { status: 502 });
+  }
+
+  return Response.json({ image: json.result.image, model: CF_MODEL });
 }
