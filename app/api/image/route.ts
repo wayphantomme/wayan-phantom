@@ -40,7 +40,7 @@ export async function POST(request: NextRequest) {
     const text = await cfRes.text();
     console.error("CF Workers AI error:", cfRes.status, text);
     return Response.json(
-      { error: `Image generation failed (${cfRes.status})` },
+      { error: `Image generation failed (${cfRes.status}): ${text.slice(0, 200)}` },
       { status: 502 }
     );
   }
