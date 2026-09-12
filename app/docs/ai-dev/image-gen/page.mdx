@@ -1,0 +1,196 @@
+export const metadata = {
+  title: "Image Generation — Cloudflare Workers AI | Wayan Phantom",
+  description: "Text-to-image generation via Cloudflare Workers AI. Model comparison, Neuron pricing, free tier limits, and how to call the REST API from Next.js.",
+};
+
+# Image Generation — Cloudflare Workers AI
+
+Cloudflare Workers AI provides text-to-image generation through several models. Billing is based on **Neurons** — not tokens, not request count.
+
+---
+
+## Free Tier & Pricing
+
+| Plan | Free daily quota | Over quota |
+|------|-----------------|------------|
+| Workers Free | 10,000 Neurons/day | Fails until next reset |
+| Workers Paid ($5/mo) | 10,000 Neurons/day | $0.011 per 1,000 Neurons |
+
+- Quota resets daily at **00:00 UTC**
+- On the free plan, requests fail once quota is exhausted — no charges, just errors
+
+---
+
+## Available Models
+
+| Model | Provider | Best For | Neuron Cost |
+|-------|----------|----------|-------------|
+| `@cf/black-forest-labs/flux-1-schnell` | Black Forest Labs | Fastest, cheapest | 4.80/tile (512×512) + 9.60/step |
+| `@cf/black-forest-labs/flux-2-klein-4b` | Black Forest Labs | FLUX.2 small variant | 5.37/input tile + 26.05/output tile |
+| `@cf/black-forest-labs/flux-2-klein-9b` | Black Forest Labs | Supports up to 4 reference images | 1,363/MP first (1024×1024) + 181/MP extra |
+| `@cf/black-forest-labs/flux-2-dev` | Black Forest Labs | Higher quality output | 18.75/input tile-step + 37.50/output tile-step |
+| `@cf/leonardo/phoenix-1.0` | Leonardo | Strong prompt adherence, coherent text | 530/tile (512×512) + 10/step |
+| `@cf/leonardo/lucid-origin` | Leonardo | Sharp graphic design, full-HD | 636/tile (512×512) + 12/step |
+| `@cf/stabilityai/stable-diffusion-xl-base-1.0` | Stability AI | Standard SDXL | — |
+| `@cf/stabilityai/stable-diffusion-xl-lightning` | ByteDance | Fast SDXL, 1024px in few steps | — |
+| `openai/gpt-image-1.5` | OpenAI (BYOK) | Bring your own API key | — |
+
+### Daily quota estimates (free tier, 10,000 Neurons)
+
+| Model | Neurons per image | Images/day |
+|-------|------------------|-----------|
+| `flux-1-schnell` (512×512, 4 steps) | ~43 | ~230 |
+| `leonardo/lucid-origin` (512×512, 4 steps) | ~684 | ~14 |
+| `flux-2-dev` (512×512, 4 steps) | ~300 | ~33 |
+
+---
+
+## How It Works in This Portfolio
+
+This site's chatbot uses `flux-1-schnell` for image generation. When you type `generate image of ...` or `/image ...`, the request goes to a Next.js Route Handler which calls the Cloudflare REST API and returns the base64 image to render in the chat bubble.
+
+<Mermaid chart={`
+flowchart LR
+    U[User types generate image] --> D[detectImageIntent in ChatBot]
+    D --> R[POST /api/image]
+    R --> CF[Cloudflare Workers AI]
+    CF --> B[base64 JPEG response]
+    B --> IMG[img rendered in chat bubble]
+`} />
+
+---
+
+## REST API
+
+```bash
+curl -X POST \
+  "https://api.cloudflare.com/client/v4/accounts/$CLOUDFLARE_ACCOUNT_ID/ai/run/@cf/black-forest-labs/flux-1-schnell" \
+  -H "Authorization: Bearer $CLOUDFLARE_API_TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{ "prompt": "a sunset over the ocean" }'
+```
+
+Response:
+
+```json
+{
+  "result": {
+    "image": "/9j/4AAQSkZJRgABAQ..."
+  },
+  "success": true,
+  "errors": [],
+  "messages": []
+}
+```
+
+`result.image` is a base64-encoded JPEG. Use it directly as a data URI:
+
+```html
+<img src="data:image/jpeg;base64,/9j/4AAQ..." alt="Generated" />
+```
+
+---
+
+## Next.js Route Handler
+
+```typescript
+// app/api/image/route.ts
+import { NextRequest } from "next/server";
+
+const CF_MODEL = "@cf/black-forest-labs/flux-1-schnell";
+
+export async function POST(request: NextRequest) {
+  const accountId = process.env.CLOUDFLARE_ACCOUNT_ID;
+  const apiToken = process.env.CLOUDFLARE_API_TOKEN;
+
+  if (!accountId || !apiToken) {
+    return Response.json({ error: "Cloudflare credentials not configured" }, { status: 500 });
+  }
+
+  const { prompt } = await request.json();
+
+  const cfRes = await fetch(
+    `https://api.cloudflare.com/client/v4/accounts/${accountId}/ai/run/${CF_MODEL}`,
+    {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${apiToken}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ prompt }),
+    }
+  );
+
+  const json = await cfRes.json() as { success: boolean; result?: { image: string } };
+
+  if (!json.success || !json.result?.image) {
+    return Response.json({ error: "Image generation failed" }, { status: 502 });
+  }
+
+  return Response.json({ image: json.result.image, model: CF_MODEL });
+}
+```
+
+---
+
+## Workers AI Binding (inside a Worker)
+
+If you're running this inside a Cloudflare Worker instead of a Next.js app:
+
+```typescript
+// worker.ts
+export default {
+  async fetch(request: Request, env: { AI: Ai }): Promise<Response> {
+    const response = await env.AI.run(
+      "@cf/black-forest-labs/flux-1-schnell",
+      { prompt: "a cyberpunk city at night" }
+    );
+    // response.image is already base64
+    return Response.json({
+      image: `data:image/jpeg;base64,${response.image}`,
+    });
+  },
+};
+```
+
+---
+
+## Environment Variables
+
+```bash
+# .env.local
+CLOUDFLARE_ACCOUNT_ID="your-account-id"     # from dash.cloudflare.com → Workers & Pages → Overview
+CLOUDFLARE_API_TOKEN="your-api-token"       # from dash.cloudflare.com/profile/api-tokens
+```
+
+Required token permissions: `Workers AI — Read` (or `Edit`).
+
+---
+
+## Model Selection Guide
+
+```
+Need fastest + most images/day?   → flux-1-schnell (~230/day free)
+Need better quality?              → flux-2-dev (~33/day free)
+Need text in image?               → leonardo/phoenix-1.0
+Need graphic design / full-HD?    → leonardo/lucid-origin
+Need image-to-image?              → flux-2-klein-9b (supports reference images)
+Have OpenAI API key?              → openai/gpt-image-1.5 (BYOK)
+```
+
+---
+
+## AI Gateway (Optional)
+
+Route requests through Cloudflare AI Gateway for caching, rate limiting, and analytics:
+
+```bash
+# Instead of direct API endpoint, use:
+https://gateway.ai.cloudflare.com/v1/{account_id}/{gateway_id}/workers-ai/{model}
+```
+
+Useful for production — caches identical prompts, logs all requests, adds retry logic.
+
+---
+
+*Sources: [Workers AI Models](https://developers.cloudflare.com/workers-ai/models/) | [Pricing](https://developers.cloudflare.com/workers-ai/platform/pricing/)*
