@@ -22,20 +22,25 @@ const SUGGESTIONS = [
 // ─── Detect image generation intent ──────────────────────────────────────────
 
 const IMAGE_TRIGGERS = [
-  /^\/image\s+/i,
-  /^generate\s+(an?\s+)?image\s+(of\s+)?/i,
-  /^create\s+(an?\s+)?image\s+(of\s+)?/i,
-  /^draw\s+(an?\s+)?/i,
-  /^make\s+(an?\s+)?image\s+(of\s+)?/i,
-  /^buatkan\s+(gambar\s+)?/i,
+  /^\/image\b/i,
+  /\bgenerate\s+(an?\s+)?(image|gambar|foto|picture|photo)\b/i,
+  /\bcreate\s+(an?\s+)?(image|gambar|foto|picture|photo)\b/i,
+  /\bdraw\s+(an?\s+)?/i,
+  /\bmake\s+(an?\s+)?(image|gambar|foto|picture|photo)\b/i,
+  /\bbuatkan\s+(gambar|foto|image)?\s*/i,
   /^gambar\s+/i,
+  /\bgenerate\s+gambar\b/i,
+  /\bbikin\s+(gambar|foto|image)\b/i,
 ];
 
 function detectImageIntent(text: string): string | null {
+  const t = text.trim();
   for (const re of IMAGE_TRIGGERS) {
-    if (re.test(text.trim())) {
+    if (re.test(t)) {
       // Strip the trigger prefix to get the actual prompt
-      return text.trim().replace(re, "").trim();
+      const prompt = t.replace(re, "").trim();
+      // Return the full original text as prompt if stripping leaves nothing
+      return prompt || t;
     }
   }
   return null;
