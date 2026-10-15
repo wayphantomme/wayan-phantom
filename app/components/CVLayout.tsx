@@ -253,6 +253,10 @@ function ProfileCard() {
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img src="https://cdn.simpleicons.org/n8n/EA4B22" alt="n8n" width={16} height={16} style={{ display: "block" }} />
         </a>
+        <a href="https://superteam.fun/earn/t/wayphantomme/" aria-label="Superteam Earn" className="cv-social-btn" target="_blank" rel="noopener noreferrer">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src="https://superteam.fun/favicon.ico" alt="Superteam" width={16} height={16} style={{ display: "block", borderRadius: "3px" }} />
+        </a>
       </div>
 
       {/* Stats */}
