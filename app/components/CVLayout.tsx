@@ -562,6 +562,7 @@ export default function CVLayout() {
           <div className="cv-panel">
             <AboutTab />
           </div>
+          <TechStackPanel />
         </div>
 
         {/* ── Right column ─────────────────────────────────────── */}
@@ -582,12 +583,7 @@ export default function CVLayout() {
           </div>
 
           <HackathonPanel />
-          <TechStackPanel />
-
-          {/* ── What I Build ── */}
           <WhatIBuild />
-
-          {/* ── Certifications ── */}
           <CertificationsPanel />
         </div>
       </div>
