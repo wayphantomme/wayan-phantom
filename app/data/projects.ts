@@ -246,7 +246,9 @@ The whole flow runs without human intervention. A meeting happens, a transcript 
 This was built in response to a real operational challenge: fast-growing companies lose a significant amount of execution speed because meeting outcomes don't make it into the systems where work actually happens. The workflow solves exactly that.
 
 It is published as a public n8n workflow template and can be adapted to route tasks to different Monday boards, replace Slack with Telegram or email, or add approval steps before tasks are created.`,
-    mockups: [],
+    mockups: [
+      "https://res.cloudinary.com/dwsapeq3m/image/upload/v1792078345/8c0f7a3f-b1c6-45f4-a973-6e884a045717.png",
+    ],
     web: "https://n8n.io/workflows/20797-create-mondaycom-tasks-from-fireflies-transcripts-with-gemini-and-slack/",
     github: undefined,
     client: {
