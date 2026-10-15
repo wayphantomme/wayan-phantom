@@ -132,7 +132,7 @@ export const education = [
     degree: "Digital Business Bootcamp",
     school: "Lithan Academy",
     location: "Singapore",
-    period: "2023 – 2024",
+    period: "2022 – 2023",
     notes: "12-month bootcamp in digital business.",
   },
   {
