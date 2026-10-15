@@ -51,19 +51,19 @@ export const works = [
     id: "web",
     title: "Full-Stack Web Apps",
     tags: ["Next.js", "React", "TypeScript", "Node.js", "PostgreSQL", "API Integration"],
-    desc: "End-to-end web applications built for real business scale — from pixel-perfect UI to robust backend infrastructure. Every project ships with clean architecture, optimized performance, and a full deployment pipeline on Vercel via GitHub.",
+    desc: "End-to-end web applications built for real business scale from pixel-perfect UI to robust backend infrastructure. Every project ships with clean architecture, optimized performance, and a full deployment pipeline on Vercel via GitHub.",
   },
   {
     id: "web3",
     title: "Web3 & Blockchain Engineer",
     tags: ["Ethereum", "Solana", "Solidity", "DeFi", "DEX", "Smart Contracts", "ethers.js"],
-    desc: "Building production DeFi protocols on Ethereum and Solana — token swaps, liquidity pools, faucets, and on-chain integrations. From Solidity smart contracts to full-stack frontends like Bulldex Finance and Neko Singa AI.",
+    desc: "Building production DeFi protocols on Ethereum and Solana token swaps, liquidity pools, faucets, and on-chain integrations. From Solidity smart contracts to full-stack frontends like Bulldex Finance and Neko Singa AI.",
   },
   {
     id: "ai",
     title: "AI Apps & Automation",
     tags: ["Claude", "Gemini", "OpenAI", "n8n", "RAG", "Automation"],
-    desc: "Designing and deploying intelligent systems that automate workflows, eliminate manual work, and connect your entire stack into one seamless ecosystem — running 24/7.",
+    desc: "Designing and deploying intelligent systems that automate workflows, eliminate manual work, and connect your entire stack into one seamless ecosystem running 24/7.",
   },
 ];
 

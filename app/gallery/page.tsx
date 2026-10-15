@@ -34,7 +34,7 @@ export default function JourneyPage() {
 
         {/* Places & Communities */}
         <div className="gallery-header">
-          <h1 className="page-title">Journey</h1>
+          <h1 className="page-title">Gallery</h1>
           <p className="gallery-subtitle">Places and communities along the way.</p>
         </div>
 
