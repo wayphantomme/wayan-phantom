@@ -83,13 +83,14 @@ export default function BottomNav() {
   }, [pathname, mounted]);
 
   return (
-    <motion.nav
-      className="bottom-nav"
-      aria-label="Main navigation"
-      initial={{ y: 80, opacity: 0 }}
-      animate={{ y: 0, opacity: 1 }}
-      transition={{ type: "spring", stiffness: 260, damping: 24, delay: 0.1 }}
-    >
+    <div className="bottom-nav-wrap">
+      <motion.nav
+        className="bottom-nav"
+        aria-label="Main navigation"
+        initial={{ y: 80, opacity: 0 }}
+        animate={{ y: 0, opacity: 1 }}
+        transition={{ type: "spring", stiffness: 260, damping: 24, delay: 0.1 }}
+      >
       {/* Sliding pill background */}
       <motion.div
         className="bottom-nav-pill"
@@ -131,6 +132,7 @@ export default function BottomNav() {
           </Link>
         );
       })}
-    </motion.nav>
+      </motion.nav>
+    </div>
   );
 }

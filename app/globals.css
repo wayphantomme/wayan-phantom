@@ -2698,13 +2698,18 @@ body {
 }
 
 /* ─── Bottom Nav ─────────────────────────────────────────────────────────── */
-.bottom-nav {
-  display: flex;
+.bottom-nav-wrap {
   position: fixed;
   bottom: 1.5rem;
-  left: 50%;
-  transform: translateX(-50%);
+  left: 0;
+  right: 0;
+  display: flex;
+  justify-content: center;
   z-index: 100;
+  pointer-events: none;
+}
+.bottom-nav {
+  display: flex;
   background: #111;
   border-radius: 9999px;
   padding: 0.5rem 0.625rem;
@@ -2712,8 +2717,8 @@ body {
   align-items: center;
   box-shadow: 0 8px 32px rgba(0,0,0,0.18), 0 2px 8px rgba(0,0,0,0.12);
   white-space: nowrap;
-  position: fixed;
-  /* let framer-motion handle the transform for mount animation */
+  pointer-events: all;
+  position: relative;
 }
 body {
   padding-bottom: 5rem;
