@@ -76,7 +76,12 @@ The project started as a hackathon build and grew from there. The main engineeri
       "https://res.cloudinary.com/dwsapeq3m/image/upload/v1792072418/1bfffa3d-bf8c-47c8-9a95-db99a7807db8.png",
       "https://res.cloudinary.com/dwsapeq3m/image/upload/v1792072421/30251d09-7a45-435f-a2ed-2ac24e2b0396.png",
     ],
+    web: "https://nekosinga.vercel.app/",
     github: "https://github.com/nekosinga",
+    client: {
+      name: "Inspired by: Elfa AI",
+      web: "https://www.elfa.ai/careers/full-stack-engineer",
+    },
   },
   {
     id: "pohenhillscamp",
@@ -244,7 +249,10 @@ It is published as a public n8n workflow template and can be adapted to route ta
     mockups: [],
     web: "https://n8n.io/workflows/20797-create-mondaycom-tasks-from-fireflies-transcripts-with-gemini-and-slack/",
     github: undefined,
-    client: undefined,
+    client: {
+      name: "Inspired by: Bali Estate Group — IT Automation Engineer",
+      web: "https://bali-estate-group.homerun.co/it-automation-engineer/en",
+    },
   },
   {
     id: "mainstreet-global",
