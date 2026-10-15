@@ -4,65 +4,59 @@ import type { Metadata } from "next";
 
 export const metadata: Metadata = {
   title: "Portfolio — Wayan Phantom",
-  description: "Projects built by Wayan Phantom Megaditha — Web3, AI, fullstack.",
+  description: "Projects and case studies by Wayan Phantom Megaditha — Web3, AI, Fullstack.",
+};
+
+const AUTHOR = {
+  name: "Wayan Phantom Megaditha",
+  avatar: "https://res.cloudinary.com/dwsapeq3m/image/upload/v1782827137/Phantom_Profile_PNG_tj3wpz.png",
 };
 
 export default function PortfolioPage() {
   return (
     <div className="blog-page">
-      <div className="blog-wrap">
+      <div className="blog-wrap-wide">
 
         {/* Header */}
-        <div className="blog-header">
-          <Link href="/" className="blog-back">
-            <svg width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" d="M19 12H5m7-7-7 7 7 7" />
-            </svg>
-            Back
-          </Link>
-          <h1 className="blog-title">Works</h1>
-          <p className="blog-subtitle">Things I have built — shipped products, client work, and experiments.</p>
+        <div className="blog-header-center">
+          <h1 className="blog-title-lg">Portfolio</h1>
+          <p className="blog-subtitle-center">Case studies and projects shipped.</p>
         </div>
 
-        {/* Post list */}
-        <div className="blog-list">
+        {/* Grid */}
+        <div className="blog-grid">
           {projects.map((p) => (
-            <Link key={p.id} href={`/portfolio/${p.id}`} className="blog-card">
-              {/* Cover image */}
+            <Link key={p.id} href={`/portfolio/${p.id}`} className="blog-card-v2">
+              {/* Cover */}
               {p.mockups[0] && (
                 // eslint-disable-next-line @next/next/no-img-element
-                <img
-                  src={p.mockups[0]}
-                  alt={p.name}
-                  className="blog-card-cover"
-                />
+                <img src={p.mockups[0]} alt={p.name} className="blog-card-v2-cover" />
               )}
 
-              <div className="blog-card-body">
-                {/* Meta */}
-                <div className="blog-card-meta">
-                  <span className="blog-card-category">{p.category}</span>
-                  <span className="blog-card-year">{p.year}</span>
-                </div>
+              <div className="blog-card-v2-body">
+                {/* Category */}
+                <span className="blog-card-v2-cat">{p.category}</span>
 
                 {/* Title */}
-                <h2 className="blog-card-name">{p.name}</h2>
+                <h2 className="blog-card-v2-title">{p.name}</h2>
 
                 {/* Excerpt */}
-                <p className="blog-card-excerpt">{p.excerpt}</p>
+                <p className="blog-card-v2-excerpt">{p.excerpt}</p>
 
-                {/* Tags */}
-                <div className="blog-card-tags">
-                  {p.tags.slice(0, 4).map((t) => (
-                    <span key={t} className="blog-tag">{t}</span>
-                  ))}
+                {/* Author + year */}
+                <div className="blog-card-v2-meta">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img src={AUTHOR.avatar} alt={AUTHOR.name} className="blog-card-v2-avatar" />
+                  <span className="blog-card-v2-author">{AUTHOR.name}</span>
+                  <span className="blog-card-v2-dot">·</span>
+                  <span className="blog-card-v2-year">{p.year}</span>
                 </div>
 
                 {/* Read more */}
-                <span className="blog-card-read">
-                  Read case study
-                  <svg width="13" height="13" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M7 17L17 7M7 7h10v10" />
+                <span className="blog-card-v2-read">
+                  Read More
+                  <svg width="12" height="12" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
                   </svg>
                 </span>
               </div>
@@ -70,13 +64,7 @@ export default function PortfolioPage() {
           ))}
         </div>
 
-        {/* Footer */}
-        <div className="blog-footer">
-          <a href="https://wayan-phantom.vercel.app/" className="blog-footer-link">
-            wayan-phantom.vercel.app
-          </a>
-        </div>
-
+        <p className="blog-footer-attr">wayan-phantom.vercel.app</p>
       </div>
     </div>
   );
