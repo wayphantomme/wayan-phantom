@@ -364,7 +364,7 @@ function AboutTab() {
         />
       </div>
       <p className="cv-video-caption">
-        Archive (2024) — Application video submission for the Apple Developer Academy.
+        Archive (2024) : Application video submission for the Apple Developer Academy.
       </p>
 
       <div className="cv-about-body">
@@ -372,10 +372,10 @@ function AboutTab() {
           Most technical problems are actually people problems in disguise. Before writing a single line of code, I try to understand who is affected, why the current situation is not working, and what a better outcome actually looks like for them.
         </p>
         <p className="cv-about-muted">
-          When a client came in with a restaurant running on paper tickets and a whiteboard for table status, the surface problem was &ldquo;we need software.&rdquo; The real problem was that staff were making decisions without shared context — orders got lost, tables sat empty while guests waited. The solution was not just digitizing the workflow, it was designing around how information actually moves during a busy service.
+          When a client came in with a restaurant running on paper tickets and a whiteboard for table status, the surface problem was &ldquo;we need software.&rdquo; The real problem was that staff were making decisions without shared context orders got lost, tables sat empty while guests waited. The solution was not just digitizing the workflow, it was designing around how information actually moves during a busy service.
         </p>
         <p className="cv-about-muted">
-          I use the same pattern on every project: clarify the situation first, define what success looks like before touching the implementation, then work backwards from the outcome to the architecture. Documentation — BRD, PRD, TRD — is how I externalize that thinking so the whole team is solving the same problem.
+          I use the same pattern on every project: clarify the situation first, define what success looks like before touching the implementation, then work backwards from the outcome to the architecture. Documentation BRD, PRD, TRD is how I externalize that thinking so the whole team is solving the same problem.
         </p>
         <p className="cv-about-muted">
           The hardest part is usually not the code. It is knowing which problem is worth solving and which requirements are symptoms of a deeper issue. That clarity is what separates a working product from a technically correct one that nobody uses.
@@ -531,7 +531,7 @@ function ContactTab() {
       <h3 className="cv-tab-section-title">✉️ Get In Touch</h3>
       <div className="cv-contact-body">
         <p className="cv-about-muted">
-          Book a free 30-minute call and I&apos;ll identify exactly what to automate first — and what it will take to build it. Zero obligation.
+          Book a free 30-minute call and I&apos;ll identify exactly what to automate first and what it will take to build it. Zero obligation.
         </p>
         <div className="cv-contact-links">
           <a href="mailto:wayanphantomme@gmail.com" className="cv-contact-link">
