@@ -178,7 +178,7 @@ The frontend is designed for touch on a 10-inch tablet with large tap targets an
 
 Offline resilience was a requirement from the start. Restaurant WiFi is not always reliable. The app caches current order state locally so a network drop does not lose an order mid-service.`,
     mockups: [
-      "https://raw.githubusercontent.com/wayphantomme/megatha-restaurant-app/main/public/megatha-home.png",
+      "https://res.cloudinary.com/dwsapeq3m/image/upload/v1792071440/c578dfd4-14e1-4564-8544-b122225b7d88.png",
       "https://raw.githubusercontent.com/wayphantomme/megatha-restaurant-app/main/public/megatha-pos.png",
       "https://raw.githubusercontent.com/wayphantomme/megatha-restaurant-app/main/public/megatha-tables.png",
     ],
