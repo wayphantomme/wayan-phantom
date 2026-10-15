@@ -187,9 +187,14 @@ The frontend is designed for touch on a 10-inch tablet with large tap targets an
 
 Offline resilience was a requirement from the start. Restaurant WiFi is not always reliable. The app caches current order state locally so a network drop does not lose an order mid-service.`,
     mockups: [
+      "https://res.cloudinary.com/dwsapeq3m/image/upload/v1792071326/3e2347fd-ed98-4bc8-b7c5-38bc5ff3951a.png",
       "https://res.cloudinary.com/dwsapeq3m/image/upload/v1792071440/c578dfd4-14e1-4564-8544-b122225b7d88.png",
-      "https://raw.githubusercontent.com/wayphantomme/megatha-restaurant-app/main/public/megatha-pos.png",
-      "https://raw.githubusercontent.com/wayphantomme/megatha-restaurant-app/main/public/megatha-tables.png",
+      "https://res.cloudinary.com/dwsapeq3m/image/upload/v1792071380/2e352cb0-de61-4c11-80bc-2577f0a6a17b.png",
+      "https://res.cloudinary.com/dwsapeq3m/image/upload/v1792071320/35405e74-4d65-4f79-a921-ca6d1a71cba6.png",
+      "https://res.cloudinary.com/dwsapeq3m/image/upload/v1792071317/55e372d4-6b2e-4f75-a50f-2897749cc5f5.png",
+      "https://res.cloudinary.com/dwsapeq3m/image/upload/v1792071312/209f8897-1cb7-42a5-90da-c9fda61a9792.png",
+      "https://res.cloudinary.com/dwsapeq3m/image/upload/v1792071208/c9ce7183-4b7a-42c2-9789-476471eba615.png",
+      "https://res.cloudinary.com/dwsapeq3m/image/upload/v1792071145/81e78d3a-c8ae-49fd-84b3-a563e54f534f.png",
     ],
     web: "https://megatha-resto.vercel.app/",
     github: "https://github.com/wayphantomme/megatha-restaurant-app",
