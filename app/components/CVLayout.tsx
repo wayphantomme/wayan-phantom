@@ -98,9 +98,9 @@ const skillTree = [
     id: "ai",
     label: "ai-automation",
     children: [
-      { id: "aidev", label: "ai-development", items: ["Gemini", "Claude", "OpenAI", "RAG", "Streaming"] },
-      { id: "n8n", label: "n8n-workflows", items: ["Webhooks", "HTTP Nodes", "AI Agent", "Telegram Bot"] },
-      { id: "img", label: "image-generation", items: ["Cloudflare Workers AI", "Flux", "DALL-E"] },
+      { id: "ai-apps", label: "apps", items: ["Chatbot", "Meeting-to-Task", "Internal Dashboard", "Content Automation"] },
+      { id: "ai-stack", label: "stack", items: ["Gemini", "Claude", "OpenAI", "n8n", "RAG", "Streaming"] },
+      { id: "ai-integrations", label: "integrations", items: ["Airtable", "Notion", "Telegram", "WhatsApp", "Google Workspace"] },
     ],
   },
   {
