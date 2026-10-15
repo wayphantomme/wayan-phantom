@@ -13,7 +13,7 @@ export default function ContactPage() {
 
         <section className="page-section">
           <p className="cv-about-muted">
-            Book a free 30-minute call and I&apos;ll identify exactly what to automate first — and what it will take to build it. Zero obligation.
+            Book a free 30-minute call and I&apos;ll identify exactly what to automate first, and what it will take to build it. Zero obligation.
           </p>
 
           <div className="contact-links">
