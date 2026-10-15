@@ -65,7 +65,7 @@ export default function BottomNav() {
         className="bottom-nav"
         aria-label="Main navigation"
         initial={{ y: 80, opacity: 0 }}
-        animate={mounted ? { y: 0, opacity: 1 } : { y: 80, opacity: 0 }}
+        animate={{ y: 0, opacity: 1 }}
         transition={{ type: "spring", stiffness: 260, damping: 24, delay: 0.15 }}
       >
         {NAV_ITEMS.map((item) => {
