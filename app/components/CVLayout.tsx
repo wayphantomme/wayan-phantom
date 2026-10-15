@@ -118,44 +118,40 @@ const skillTree = [
 ];
 
 function WhatIBuild() {
-  const [open, setOpen] = useState<Record<string, boolean>>({ fullstack: true, ai: false, blockchain: false });
-  const toggle = (id: string) => setOpen((prev) => ({ ...prev, [id]: !prev[id] }));
+  const [open, setOpen] = useState<string | null>("fullstack");
+  const toggle = (id: string) => setOpen((prev) => prev === id ? null : id);
 
   return (
     <div className="cv-hackathon-panel">
       <h2 className="cv-hackathon-title">⚡ What I Build</h2>
       <div className="wib-tree">
-        {skillTree.map((cat, ci) => (
+        {skillTree.map((cat) => (
           <div key={cat.id} className="wib-category">
             <button
-              className="wib-cat-btn"
+              className={`wib-cat-btn${open === cat.id ? " wib-cat-open" : ""}`}
               onClick={() => toggle(cat.id)}
-              aria-expanded={open[cat.id]}
+              aria-expanded={open === cat.id}
             >
-              <span className="wib-cat-left">
-                <span className="wib-cat-icon">{cat.icon}</span>
-                <span className="wib-cat-label">{cat.label}</span>
-              </span>
+              <span className="wib-cat-icon">{cat.icon}</span>
+              <span className="wib-cat-label">{cat.label}</span>
               <svg
                 width="12" height="12" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24"
-                style={{ transform: open[cat.id] ? "rotate(0deg)" : "rotate(-90deg)", transition: "transform 0.2s", flexShrink: 0 }}
+                className="wib-chevron"
+                style={{ transform: open === cat.id ? "rotate(180deg)" : "rotate(0deg)" }}
               >
                 <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
               </svg>
             </button>
 
-            {open[cat.id] && (
+            {open === cat.id && (
               <div className="wib-children">
-                {cat.children.map((child, i) => (
-                  <div key={child.id} className="wib-row">
-                    <span className="wib-tree-line">{i < cat.children.length - 1 ? "├" : "└"}</span>
-                    <div className="wib-child">
-                      <span className="wib-child-label">{child.label}</span>
-                      <div className="wib-child-tags">
-                        {child.tags.map((t) => (
-                          <span key={t} className="wib-tag">{t}</span>
-                        ))}
-                      </div>
+                {cat.children.map((child) => (
+                  <div key={child.id} className="wib-child">
+                    <span className="wib-child-label">{child.label}</span>
+                    <div className="wib-child-tags">
+                      {child.tags.map((t) => (
+                        <span key={t} className="wib-tag">{t}</span>
+                      ))}
                     </div>
                   </div>
                 ))}
