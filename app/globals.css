@@ -3651,3 +3651,16 @@ body {
   color: rgba(255,255,255,0.6);
   text-align: center;
 }
+
+/* ─── Gallery cert section ───────────────────────────────────────────────── */
+.gallery-cert-section {
+  margin-top: 3rem;
+  padding-top: 2rem;
+  border-top: 1px solid #e2e8f0;
+}
+.gallery-cert-title {
+  font-size: 1rem;
+  font-weight: 700;
+  color: #111;
+  margin: 0 0 1.25rem;
+}
