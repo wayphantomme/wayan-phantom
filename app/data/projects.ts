@@ -209,6 +209,8 @@ It is published as a public n8n workflow template and can be adapted to route ta
     github: undefined,
     client: undefined,
   },
+  {
+    id: "mainstreet-global",
     name: "Mainstreet Global Inc",
     logo: "https://raw.githubusercontent.com/megathatech/mainstreetglobal/main/public/mainstreet-logo.png",
     category: "Web / Corporate",
