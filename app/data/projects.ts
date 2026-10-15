@@ -184,7 +184,31 @@ Offline resilience was a requirement from the start. Restaurant WiFi is not alwa
     github: "https://github.com/wayphantomme/megatha-restaurant-app",
   },
   {
-    id: "mainstreet-global",
+    id: "meeting-to-task",
+    name: "Meeting to Task Automation",
+    logo: "https://cdn.simpleicons.org/n8n/EA4B22",
+    category: "AI Automation",
+    tags: ["n8n", "Gemini", "Monday.com", "Fireflies", "Slack", "Workflow"],
+    year: "2025",
+    role: "Automation Architect",
+    excerpt: "An n8n workflow that turns meeting transcripts into structured Monday.com tasks automatically, with a Slack recap after every meeting.",
+    desc: "Automated pipeline: Fireflies transcript ready → Gemini extracts action items → Monday.com tasks created → Slack recap posted.",
+    content: `Most teams walk out of meetings with a good conversation and no clear record of who does what by when. Notes sit in someone's inbox. Tasks never make it into the project board. Follow-ups happen manually, or not at all.
+
+This workflow removes that gap entirely. When a meeting ends, Fireflies processes the transcript and fires a webhook. The workflow picks it up, pulls the full transcript via the Fireflies GraphQL API, and sends it to Gemini with a prompt that extracts structured action items: task title, assignee, deadline, priority, and notes.
+
+Each action item gets created as a task in Monday.com via its GraphQL API. Then the workflow builds a formatted recap listing every task that was created and posts it to the designated Slack channel, so the whole team sees what came out of the meeting before anyone has left their desk.
+
+The whole flow runs without human intervention. A meeting happens, a transcript is ready, and within a minute the board is updated and Slack has the summary.
+
+This was built in response to a real operational challenge: fast-growing companies lose a significant amount of execution speed because meeting outcomes don't make it into the systems where work actually happens. The workflow solves exactly that.
+
+It is published as a public n8n workflow template and can be adapted to route tasks to different Monday boards, replace Slack with Telegram or email, or add approval steps before tasks are created.`,
+    mockups: [],
+    web: "https://n8n.io/workflows/20797-create-mondaycom-tasks-from-fireflies-transcripts-with-gemini-and-slack/",
+    github: undefined,
+    client: undefined,
+  },
     name: "Mainstreet Global Inc",
     logo: "https://raw.githubusercontent.com/megathatech/mainstreetglobal/main/public/mainstreet-logo.png",
     category: "Web / Corporate",
