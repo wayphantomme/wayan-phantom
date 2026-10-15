@@ -8,7 +8,7 @@ export const metadata: Metadata = {
 
 export default function WorksPage() {
   return (
-    <div className="page-shell">
+    <div style={{ minHeight: "100vh", background: "#f5f5f5" }}>
       <div className="wk-wrap">
 
         <h1 className="wk-page-title">Works</h1>
