@@ -3856,3 +3856,67 @@ body {
   object-fit: contain;
   opacity: 0.85;
 }
+
+/* ─── Portfolio screenshot lightbox ────────────────────────────────────── */
+.post-gallery-btn {
+  position: relative;
+  display: block;
+  border: none;
+  padding: 0;
+  background: none;
+  cursor: zoom-in;
+  border-radius: 0.625rem;
+  overflow: hidden;
+}
+.post-gallery-btn:hover .post-gallery-zoom {
+  opacity: 1;
+}
+.post-gallery-zoom {
+  position: absolute;
+  inset: 0;
+  background: rgba(0,0,0,0.35);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  transition: opacity 0.18s;
+  color: #fff;
+  border-radius: 0.625rem;
+}
+.post-lightbox {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  background: rgba(0,0,0,0.92);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1.5rem;
+  cursor: zoom-out;
+}
+.post-lightbox-close {
+  position: absolute;
+  top: 1.25rem;
+  right: 1.25rem;
+  background: rgba(255,255,255,0.12);
+  border: none;
+  color: #fff;
+  width: 2.25rem;
+  height: 2.25rem;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: background 0.15s;
+  z-index: 1;
+}
+.post-lightbox-close:hover { background: rgba(255,255,255,0.22); }
+.post-lightbox-img {
+  max-width: 92vw;
+  max-height: 88vh;
+  object-fit: contain;
+  border-radius: 0.625rem;
+  cursor: default;
+  box-shadow: 0 24px 64px rgba(0,0,0,0.5);
+}

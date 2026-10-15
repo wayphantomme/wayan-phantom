@@ -2,6 +2,7 @@ import { projects } from "../../data/projects";
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import type { Metadata } from "next";
+import ScreenshotGallery from "../../components/ScreenshotGallery";
 
 interface Props {
   params: Promise<{ slug: string }>;
@@ -130,18 +131,8 @@ export default async function ProjectPage({ params }: Props) {
           ))}
         </div>
 
-        {/* Gallery */}
-        {project.mockups.length > 1 && (
-          <div className="post-blog-gallery">
-            <p className="post-blog-gallery-label">Screenshots</p>
-            <div className="post-blog-gallery-grid">
-              {project.mockups.map((m, i) => (
-                // eslint-disable-next-line @next/next/no-img-element
-                <img key={i} src={m} alt={`${project.name} ${i + 1}`} className="post-blog-gallery-img" />
-              ))}
-            </div>
-          </div>
-        )}
+        {/* Gallery with lightbox */}
+        <ScreenshotGallery mockups={project.mockups} name={project.name} />
 
         {/* Footer tags */}
         <div className="post-blog-footer">

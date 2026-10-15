@@ -69,8 +69,12 @@ Wallet integration uses the Solana wallet adapter. Users connect their existing 
 
 The project started as a hackathon build and grew from there. The main engineering challenge was keeping response times fast when the underlying data sources have inconsistent latency.`,
     mockups: [
-      "https://raw.githubusercontent.com/nekosinga/app/main/public/nekosinga-screen.png",
-      "https://raw.githubusercontent.com/nekosinga/app/main/public/nekosinga-cta.png",
+      "https://res.cloudinary.com/dwsapeq3m/image/upload/v1792072392/113c7baf-6cc6-4d28-986a-0544b18d58d0.png",
+      "https://res.cloudinary.com/dwsapeq3m/image/upload/v1792072398/6debd458-6b97-4535-b796-5f0ff30cafa4.png",
+      "https://res.cloudinary.com/dwsapeq3m/image/upload/v1792072411/272eecad-6ebd-4d0b-b172-76e0aac62e08.png",
+      "https://res.cloudinary.com/dwsapeq3m/image/upload/v1792072414/b4f8e053-9219-4c74-840d-8ce42cf558c2.png",
+      "https://res.cloudinary.com/dwsapeq3m/image/upload/v1792072418/1bfffa3d-bf8c-47c8-9a95-db99a7807db8.png",
+      "https://res.cloudinary.com/dwsapeq3m/image/upload/v1792072421/30251d09-7a45-435f-a2ed-2ac24e2b0396.png",
     ],
     github: "https://github.com/nekosinga",
   },
