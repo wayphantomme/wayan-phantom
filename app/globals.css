@@ -2712,46 +2712,36 @@ body {
   display: flex;
   background: #111;
   border-radius: 9999px;
-  padding: 0.5rem 0.625rem;
-  gap: 0.25rem;
+  padding: 0.375rem 0.5rem;
+  gap: 0.125rem;
   align-items: center;
   box-shadow: 0 8px 32px rgba(0,0,0,0.18), 0 2px 8px rgba(0,0,0,0.12);
-  white-space: nowrap;
   pointer-events: all;
   position: relative;
-  overflow: visible;
+  overflow: hidden;
 }
 body {
   padding-bottom: 5rem;
 }
-/* Sliding pill background */
-.bottom-nav-pill {
-  position: absolute;
-  top: 0.5rem;
-  height: calc(100% - 1rem);
-  background: #fff;
-  border-radius: 9999px;
-  pointer-events: none;
-  z-index: 0;
-}
 .bottom-nav-item {
   display: flex;
   align-items: center;
-  gap: 0.4rem;
-  padding: 0.5rem 0.875rem;
+  gap: 0.35rem;
+  padding: 0.5rem 0.75rem;
   text-decoration: none;
-  color: rgba(255,255,255,0.45);
+  color: rgba(255,255,255,0.4);
   border-radius: 9999px;
-  transition: color 0.15s;
-  font-size: 0.82rem;
-  font-weight: 500;
-  position: relative;
-  z-index: 1;
+  transition: background 0.2s, color 0.15s;
+  font-size: 0.8rem;
+  font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
 }
 .bottom-nav-item:hover {
-  color: rgba(255,255,255,0.75);
+  color: rgba(255,255,255,0.7);
 }
 .bottom-nav-item-active {
+  background: #fff;
   color: #111;
 }
 .bottom-nav-item-active:hover {
@@ -2763,9 +2753,11 @@ body {
   flex-shrink: 0;
 }
 .bottom-nav-label {
-  font-size: 0.82rem;
+  font-size: 0.8rem;
   font-weight: 600;
-  line-height: 1;
+  overflow: hidden;
+  white-space: nowrap;
+  display: inline-block;
 }
 
 /* ─── Blog / Portfolio list ──────────────────────────────────────────────── */
