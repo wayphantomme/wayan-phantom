@@ -12,6 +12,13 @@ export interface Project {
   github?: string;
   year: string;
   role: string;
+  client?: {
+    name: string;
+    web?: string;
+    github?: string;
+    instagram?: string;
+    linkedin?: string;
+  };
 }
 
 export const projects: Project[] = [
@@ -92,6 +99,11 @@ This was a client project delivered through Megatha Tech.`,
     ],
     web: "https://pohenhillscamp.vercel.app/",
     github: "https://github.com/wayphantomme/pohenhillscamp",
+    client: {
+      name: "Pohen Hills Camp",
+      web: "https://pohenhillscamp.vercel.app/",
+      instagram: "https://www.instagram.com/pohenhillscamp/",
+    },
   },
   {
     id: "impact-stories-blog",
@@ -170,5 +182,32 @@ Offline resilience was a requirement from the start. Restaurant WiFi is not alwa
     ],
     web: "https://megatha-resto.vercel.app/",
     github: "https://github.com/wayphantomme/megatha-restaurant-app",
+  },
+  {
+    id: "mainstreet-global",
+    name: "Mainstreet Global Inc",
+    logo: "https://cdn.simpleicons.org/wordpress/21759B",
+    category: "Web / Corporate",
+    tags: ["WordPress", "UI/UX", "Performance", "SEO", "Corporate"],
+    year: "2024",
+    role: "WordPress Developer",
+    excerpt: "Three corporate websites for an international business consulting firm, optimized to 99/100 Google PageSpeed.",
+    desc: "Developed and optimized 3 corporate websites for Mainstreet Global Inc, an international business consulting company based in Canada.",
+    content: `Mainstreet Global needed a web presence that matched the quality of their consulting work. The existing sites were slow, inconsistent in design, and not converting visitors into leads.
+
+The engagement covered three separate corporate websites. Each one needed to perform well on mobile, load fast, and communicate clearly to an international audience.
+
+Performance was the core metric. Slow corporate websites lose credibility before the first scroll. Every site was optimized for speed: images compressed and served in next-gen formats, unnecessary plugins removed, caching configured correctly, and render-blocking resources eliminated.
+
+The result was a 99/100 Google PageSpeed score across all three properties. The sites also became easier for the internal team to maintain, with a clear content structure and no fragile custom code.`,
+    mockups: [],
+    web: "http://mainstreetglobal.ca/",
+    github: "https://github.com/megathatech/mainstreetglobal",
+    client: {
+      name: "Mainstreet Global Inc",
+      web: "http://mainstreetglobal.ca/",
+      github: "https://github.com/megathatech/mainstreetglobal",
+      linkedin: "https://www.linkedin.com/company/mainstreetglobalca/",
+    },
   },
 ];

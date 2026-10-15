@@ -82,6 +82,36 @@ export default async function ProjectPage({ params }: Props) {
           </div>
         </div>
 
+        {/* Client info */}
+        {project.client && (
+          <div className="post-blog-client">
+            <span className="post-blog-client-label">Client</span>
+            <span className="post-blog-client-name">{project.client.name}</span>
+            <div className="post-blog-client-links">
+              {project.client.web && (
+                <a href={project.client.web} target="_blank" rel="noopener noreferrer" className="post-blog-client-link">
+                  Website ↗
+                </a>
+              )}
+              {project.client.instagram && (
+                <a href={project.client.instagram} target="_blank" rel="noopener noreferrer" className="post-blog-client-link">
+                  Instagram ↗
+                </a>
+              )}
+              {project.client.linkedin && (
+                <a href={project.client.linkedin} target="_blank" rel="noopener noreferrer" className="post-blog-client-link">
+                  LinkedIn ↗
+                </a>
+              )}
+              {project.client.github && (
+                <a href={project.client.github} target="_blank" rel="noopener noreferrer" className="post-blog-client-link">
+                  GitHub ↗
+                </a>
+              )}
+            </div>
+          </div>
+        )}
+
         {/* Hero image */}
         {project.mockups[0] && (
           // eslint-disable-next-line @next/next/no-img-element

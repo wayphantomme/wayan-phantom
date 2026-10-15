@@ -3741,3 +3741,46 @@ body {
   border-radius: 0.25rem;
   font-weight: 500;
 }
+
+/* ─── Post client info ───────────────────────────────────────────────────── */
+.post-blog-client {
+  display: flex;
+  align-items: center;
+  gap: 0.625rem;
+  flex-wrap: wrap;
+  padding: 0.625rem 0.875rem;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 0.625rem;
+  margin-bottom: 1.75rem;
+}
+.post-blog-client-label {
+  font-size: 0.68rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: #94a3b8;
+  flex-shrink: 0;
+}
+.post-blog-client-name {
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: #111;
+}
+.post-blog-client-links {
+  display: flex;
+  gap: 0.5rem;
+  margin-left: auto;
+  flex-wrap: wrap;
+}
+.post-blog-client-link {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #6366f1;
+  text-decoration: none;
+  padding: 0.2rem 0.5rem;
+  background: #eef2ff;
+  border-radius: 0.3rem;
+  transition: opacity 0.15s;
+}
+.post-blog-client-link:hover { opacity: 0.75; }
