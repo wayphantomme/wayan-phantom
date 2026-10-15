@@ -304,6 +304,15 @@ body {
 .cv-social-row {
   display: flex;
   gap: 0.5rem;
+  align-items: center;
+  flex-wrap: wrap;
+}
+.cv-social-divider {
+  width: 1px;
+  height: 20px;
+  background: #e5e5e5;
+  margin: 0 0.125rem;
+  flex-shrink: 0;
 }
 .cv-social-btn {
   display: flex;
@@ -441,19 +450,19 @@ body {
   display: flex;
   flex-direction: column;
   gap: 0.85rem;
-  text-align: justify;
+  text-align: left;
 }
 .cv-about-lead {
-  font-size: 0.82rem;
-  font-weight: 600;
-  color: #111;
-  line-height: 1.65;
+  font-size: 0.88rem;
+  font-weight: 500;
+  color: #222;
+  line-height: 1.7;
   margin: 0;
 }
 .cv-about-muted {
-  font-size: 0.82rem;
-  color: #777;
-  line-height: 1.65;
+  font-size: 0.85rem;
+  color: #666;
+  line-height: 1.7;
   margin: 0;
 }
 .cv-highlight-red  { color: #ef4444; font-style: italic; }
@@ -2694,7 +2703,7 @@ body {
   display: flex;
   align-items: center;
   gap: 0.4rem;
-  padding: 0.5rem 0.75rem;
+  padding: 0.5rem 0.875rem;
   text-decoration: none;
   color: rgba(255,255,255,0.45);
   border-radius: 9999px;
