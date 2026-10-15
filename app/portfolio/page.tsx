@@ -53,8 +53,6 @@ export default function PortfolioPage() {
                   {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img src={AUTHOR.avatar} alt={AUTHOR.name} className="blog-card-v2-avatar" />
                   <span className="blog-card-v2-author">{AUTHOR.name}</span>
-                  <span className="blog-card-v2-dot">·</span>
-                  <span className="blog-card-v2-year">{p.year}</span>
                 </div>
 
                 {/* Read more */}

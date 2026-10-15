@@ -125,9 +125,9 @@ The editing pass was the most important piece to get right. Raw LLM output tends
 
 The frontend is a clean Next.js reading experience. Posts are statically generated at publish time so they load fast and index well in search.`,
     mockups: [
-      "https://raw.githubusercontent.com/wayphantomme/impact-stories-blog-automation/main/public/images/home-page.png",
-      "https://raw.githubusercontent.com/wayphantomme/impact-stories-blog-automation/main/public/images/blog-page.png",
-      "https://raw.githubusercontent.com/wayphantomme/impact-stories-blog-automation/main/public/images/post.png",
+      "https://res.cloudinary.com/dwsapeq3m/image/upload/v1792070890/b4b796a4-d0e7-4c16-8ce0-9ca4f704ca70.png",
+      "https://res.cloudinary.com/dwsapeq3m/image/upload/v1792070907/4237ddcc-b839-415f-91f1-8209a3dfc439.png",
+      "https://res.cloudinary.com/dwsapeq3m/image/upload/v1792070924/d88f1836-047f-4f95-8169-8bb559ab19e6.png",
     ],
     web: "https://impact-stories-blog.vercel.app/",
     github: "https://github.com/wayphantomme/impact-stories-blog-automation",
@@ -206,8 +206,14 @@ The AI layer is what makes data entry practical. Upload a bank screenshot or typ
 The chart of accounts follows Indonesian accounting conventions with 62 default accounts structured across Assets, Liabilities, Equity, Revenue, and Expenses. Amounts are stored as integer cents to avoid floating-point rounding errors.
 
 The audit log records every create, update, and delete with a timestamp and source — manual, screenshot AI, or chat AI. Soft deletes only. Nothing is ever permanently removed.`,
-    mockups: [],
-    web: "https://laby-wayphantomme.vercel.app/login",
+    mockups: [
+      "https://res.cloudinary.com/dwsapeq3m/image/upload/v1792070723/8c257e7e-7bde-48f4-9ade-b4735347c3b4.png",
+      "https://res.cloudinary.com/dwsapeq3m/image/upload/v1792070720/8c0198a0-a1fb-4615-82b5-c0428c7b8296.png",
+      "https://res.cloudinary.com/dwsapeq3m/image/upload/v1792070714/8688f4bd-27db-4fa2-8809-4a4170a5cd6c.png",
+      "https://res.cloudinary.com/dwsapeq3m/image/upload/v1792070705/014456e3-8811-4da1-93c2-0b1ab920d98a.png",
+      "https://res.cloudinary.com/dwsapeq3m/image/upload/v1792070689/6c91773a-c732-4cef-8bcb-001c60085f43.png",
+      "https://res.cloudinary.com/dwsapeq3m/image/upload/v1792070725/b54759f7-8d9c-4b09-9535-966dd2824624.png",
+    ],
     github: "https://github.com/wayphantomme/laby-finance",
   },
   {

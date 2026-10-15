@@ -66,7 +66,7 @@ export default async function ProjectPage({ params }: Props) {
           <img src={AUTHOR.avatar} alt={AUTHOR.name} className="post-blog-avatar" />
           <div>
             <p className="post-blog-author-name">{AUTHOR.name}</p>
-            <p className="post-blog-author-meta">{project.role} · {project.year}</p>
+            <p className="post-blog-author-meta">{project.role}</p>
           </div>
           <div className="post-blog-links">
             {project.web && (
