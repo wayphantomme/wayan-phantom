@@ -2675,7 +2675,7 @@ body {
 .bottom-nav {
   display: none;
 }
-@media (max-width: 768px) {
+@media (max-width: 1024px) {
   .bottom-nav {
     display: flex;
     position: fixed;
@@ -2699,7 +2699,7 @@ body {
   flex-direction: column;
   align-items: center;
   gap: 0.2rem;
-  padding: 0.25rem 1.25rem;
+  padding: 0.25rem 0.5rem;
   text-decoration: none;
   color: #94a3b8;
   transition: color 0.15s;
@@ -2709,7 +2709,7 @@ body {
   color: #111;
 }
 .bottom-nav-label {
-  font-size: 0.65rem;
+  font-size: 0.62rem;
   font-weight: 500;
   letter-spacing: 0.01em;
 }

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { projects } from "../data/projects";
 
 // ─── Data ───────────────────────────────────────────────────────────────────
@@ -481,6 +481,18 @@ export default function CVLayout() {
 
   const tabs: Tab[] = ["About", "Works", "Journey", "Contact"];
 
+  // Sync active tab with URL hash (for BottomNav integration)
+  useEffect(() => {
+    const syncFromHash = () => {
+      const hash = window.location.hash.replace("#", "");
+      const match = tabs.find((t) => t.toLowerCase() === hash.toLowerCase());
+      if (match) setActiveTab(match);
+    };
+    syncFromHash();
+    window.addEventListener("hashchange", syncFromHash);
+    return () => window.removeEventListener("hashchange", syncFromHash);
+  }, []);
+
   return (
     <div className="cv-page">
       {/* Top announcement bar */}
@@ -496,20 +508,7 @@ export default function CVLayout() {
         <div className="cv-left-col">
           <ProfileCard />
 
-          {/* Tabs */}
-          <nav className="cv-tabs" aria-label="Page sections">
-            {tabs.map((tab) => (
-              <button
-                key={tab}
-                onClick={() => setActiveTab(tab)}
-                className={`cv-tab-btn ${activeTab === tab ? "cv-tab-active" : ""}`}
-              >
-                {tab}
-              </button>
-            ))}
-          </nav>
-
-          {/* Tab panels */}
+          {/* Tab panels — controlled by BottomNav hash */}
           <div className="cv-panel">
             {activeTab === "About" && <AboutTab />}
             {activeTab === "Works" && <WorksTab />}
