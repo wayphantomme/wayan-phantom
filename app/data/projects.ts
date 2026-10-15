@@ -24,16 +24,16 @@ export const projects: Project[] = [
     year: "2025",
     role: "Fullstack Engineer & Smart Contract Developer",
     excerpt: "A full-stack DeFi platform on Ethereum with a Jupiter-style token swap, faucet, and real-time liquidity pool interface.",
-    desc: "A full-stack DeFi platform on Ethereum — featuring a Jupiter-style token swap, faucet, and real-time liquidity pool interface. Built with Next.js, Solidity smart contracts, and ethers.js.",
-    content: `Bulldex Finance started as a personal challenge: build a real DeFi product end-to-end, from smart contracts to UI, without cutting corners.
+    desc: "A full-stack DeFi platform on Ethereum featuring a Jupiter-style token swap, faucet, and real-time liquidity pool interface. Built with Next.js, Solidity smart contracts, and ethers.js.",
+    content: `Most DeFi tools are either too complex for new users or too minimal to be useful for builders who want to understand how things work. I wanted to build something that sat in between: a complete, well-structured DeFi platform that showed the full stack from contract to UI.
 
-The platform runs entirely on Ethereum and includes three core features. First, a token swap interface modeled after Jupiter on Solana — users can swap ERC-20 tokens directly from their wallet with slippage control and price impact warnings. Second, a faucet that lets developers claim test tokens on Sepolia to interact with the protocol. Third, a real-time liquidity pool dashboard showing reserves, your LP position, and impermanent loss calculations.
+The platform has three core features. The swap interface is modeled after Jupiter on Solana: users pick input and output tokens, see price impact, set slippage tolerance, and execute. The faucet lets developers claim test tokens on Sepolia directly from the UI. The pool dashboard shows live reserves, LP positions, and impermanent loss in real time.
 
-The smart contracts are written in Solidity using OpenZeppelin standards. The frontend communicates with them through ethers.js v6, with full wallet integration via MetaMask and WalletConnect. Every state change goes through a proper transaction flow — approval, execution, confirmation.
+Each contract was written in Solidity using OpenZeppelin standards. The frontend communicates with them through ethers.js v6, with full wallet integration via MetaMask and WalletConnect.
 
-One of the harder parts was making the UI feel responsive even though blockchain reads can be slow. The solution was aggressive optimistic UI — show the expected state immediately, then reconcile when the transaction confirms.
+The hardest problem was latency. Blockchain reads are slow, and a UI that blocks on every call feels broken. The solution was optimistic UI: show the expected outcome immediately, then reconcile with the confirmed on-chain state once the transaction settles.
 
-This project was built for the Lisk Spark Incubator 2025 and received $4,000 in grants.`,
+This project was built as part of the Web3 ecosystem exploration that led to the Lisk Spark Incubator entry with Krono Finance.`,
     mockups: [
       "https://raw.githubusercontent.com/wayphantomme/bulldex-finance/main/frontend/public/bulldex-portrait.png",
       "https://raw.githubusercontent.com/wayphantomme/bulldex-finance/main/frontend/public/bulldex-swap.png",
@@ -51,15 +51,15 @@ This project was built for the Lisk Spark Incubator 2025 and received $4,000 in 
     role: "Lead Engineer",
     excerpt: "AI-native crypto market tools with real-time data, wallet integrations, and agent workflows for on-chain analysis.",
     desc: "Building AI-native crypto market tools exploring real-time data, wallet integrations, and agent workflows.",
-    content: `Neko Singa AI is built on a simple observation: most crypto tools give you raw data, but not intelligence. Price feeds, order books, wallet trackers — they surface numbers but don't tell you what to do with them.
+    content: `Most crypto tools surface raw data but provide no intelligence on top of it. Price feeds, order books, and wallet trackers show numbers but leave interpretation entirely to the user. Neko Singa started from a simple question: what if you could just ask?
 
-The platform combines real-time on-chain data with LLM-powered analysis. You can ask questions in natural language — "which wallets bought more than 10 SOL of this token in the last hour?" — and get actionable answers, not just a spreadsheet.
+The platform combines real-time on-chain data with LLM-powered analysis. Users can ask questions in natural language and get actionable answers, not just tables. Something like "which wallets have been accumulating this token in the last 24 hours" routes through a set of AI agents, gets aggregated, and comes back as a clean answer.
 
-The architecture is a Next.js frontend talking to a series of AI agent workflows. Each workflow handles a specific task: price monitoring, wallet behavior analysis, sentiment scoring from social data. The agents communicate through a shared context so they can collaborate on complex queries.
+The architecture is a Next.js frontend backed by specialized agent workflows. Each agent handles a domain: price monitoring, wallet behavior, sentiment scoring from social data. They share context so they can collaborate on queries that cross multiple data sources.
 
-Wallet integration uses the Solana wallet adapter, so users connect their existing wallet and the agent can see their holdings and suggest relevant signals without ever touching their private keys.
+Wallet integration uses the Solana wallet adapter. Users connect their existing wallet and the agents can reference their holdings without ever touching private keys. The AI backbone runs on Gemini with a fallback chain to handle rate limits gracefully.
 
-This project started as a hackathon build and grew into something we continue developing. The AI backbone runs on Gemini with a fallback chain to handle rate limits gracefully.`,
+The project started as a hackathon build and grew from there. The main engineering challenge was keeping response times fast when the underlying data sources have inconsistent latency.`,
     mockups: [
       "https://raw.githubusercontent.com/nekosinga/app/main/public/nekosinga-screen.png",
       "https://raw.githubusercontent.com/nekosinga/app/main/public/nekosinga-cta.png",
@@ -75,15 +75,15 @@ This project started as a hackathon build and grew into something we continue de
     tags: ["Next.js", "Tailwind CSS", "UI/UX", "Bali"],
     year: "2024",
     role: "Fullstack Developer & Designer",
-    excerpt: "A nature resort and glamping website for a Bali destination — built for bookings, discovery, and a strong first impression.",
-    desc: "A nature resort and glamping destination in Bali — featuring cozy rooms, camping tents, and outdoor activities. Built with Next.js and Tailwind CSS.",
-    content: `Pohen Hills Camp is a glamping and nature resort tucked in the hills of Bali. The client needed a website that could do two things well: make people want to visit, and make it easy to book.
+    excerpt: "A nature resort and glamping website for a Bali destination, built for bookings, discovery, and a strong first impression.",
+    desc: "A nature resort and glamping destination in Bali featuring cozy rooms, camping tents, and outdoor activities. Built with Next.js and Tailwind CSS.",
+    content: `Pohen Hills Camp is a glamping and nature resort in the hills of Bali. The experience was already good. The problem was that people could not find it, and when they did, the online presence did not match the quality of the place itself.
 
-The design direction was intentional — natural colors, generous white space, full-bleed photography. The goal was to let the location sell itself rather than compete with a busy layout.
+The design direction was simple: let the location sell itself. Natural colors, generous white space, and full-bleed photography. No clutter competing with the images. Room pages are generated from a structured data layer so the client can update availability and descriptions without touching code.
 
-On the technical side, the site is a Next.js app with static generation for fast load times. Room pages are dynamically generated from a data layer so the client can update availability and descriptions without touching code. The booking flow integrates with their existing reservation system via a lightweight API wrapper.
+A lot of the target audience browses on mobile with inconsistent connectivity, so performance was a hard requirement from the start. Images are served as WebP with lazy loading, fonts are subset and preloaded, and client-side JavaScript is kept minimal. The site hit 99/100 on Google PageSpeed.
 
-Performance was a priority because a lot of the target audience is on mobile in areas with variable connectivity. The site scores 99/100 on Google PageSpeed — images are WebP with lazy loading, fonts are subset and preloaded, and there are no unnecessary client-side JavaScript bundles.
+The booking flow connects to their existing reservation system via a lightweight API wrapper, keeping the implementation simple while giving the client flexibility to swap systems later.
 
 This was a client project delivered through Megatha Tech.`,
     mockups: [
@@ -101,17 +101,17 @@ This was a client project delivered through Megatha Tech.`,
     tags: ["Next.js", "AI", "n8n", "Content Automation", "LLM"],
     year: "2025",
     role: "Developer & Automation Architect",
-    excerpt: "An automated blog platform that uses AI to generate and publish impact stories — zero manual writing required.",
-    desc: "An automated blog platform that generates and publishes impact stories using AI. Built with Next.js, with content pipeline automation for streamlined story creation and publishing.",
-    content: `Most content operations are bottlenecked by writing. You have the data, the insights, the stories worth telling — but turning them into published articles takes time and people.
+    excerpt: "An automated blog platform that uses AI to generate and publish impact stories with zero manual writing required.",
+    desc: "An automated blog platform that generates and publishes impact stories using AI. Built with Next.js, with a content pipeline automation for streamlined story creation and publishing.",
+    content: `Most content operations are bottlenecked by writing. The data exists, the outcomes are real, but turning them into published articles takes time and people that most teams do not have spare.
 
-Impact Stories is a proof of concept for what happens when you remove that bottleneck entirely. The system takes structured inputs — a project summary, key metrics, stakeholder quotes — and outputs a fully written, formatted, and published blog post.
+Impact Stories is a pipeline that removes that bottleneck. The system takes structured inputs like a project summary, key metrics, and stakeholder context, and produces a fully written, formatted, and published blog post.
 
-The content pipeline runs on n8n. A trigger fires when new data lands in a connected Airtable base. n8n passes the data through a series of AI nodes: first a planning step that outlines the story structure, then a writing step that generates the full article, then an editing pass that checks tone and consistency. The final output gets published directly to the Next.js blog via a webhook.
+The pipeline runs on n8n. A trigger fires when new data lands in a connected Airtable base. The workflow passes the data through three AI nodes in sequence: a planning step that outlines the story structure, a writing step that drafts the full article, and an editing pass that reviews tone and consistency before anything goes live.
 
-The frontend is a clean reading experience — no visual noise, just the story. Posts are statically generated at publish time so they load instantly and index well.
+The editing pass was the most important piece to get right. Raw LLM output tends to be verbose and repetitive. The editor node reads the draft as a critical reader rather than a writer, which catches most of the common problems automatically.
 
-The most interesting engineering problem was the editing pass. Raw LLM output tends to be verbose and formulaic. The editor node uses a different prompt strategy — it reads the draft as a critical reader, not a writer — which catches most of the common issues before anything goes live.`,
+The frontend is a clean Next.js reading experience. Posts are statically generated at publish time so they load fast and index well in search.`,
     mockups: [
       "https://raw.githubusercontent.com/wayphantomme/impact-stories-blog-automation/main/public/images/home-2.png",
       "https://raw.githubusercontent.com/wayphantomme/impact-stories-blog-automation/main/public/images/blog-2.png",
@@ -128,16 +128,16 @@ The most interesting engineering problem was the editing pass. Raw LLM output te
     year: "2024",
     role: "Fullstack Developer",
     excerpt: "An online learning platform with course management, video lessons, and student progress tracking.",
-    desc: "An online learning platform for tech education — featuring course management, video lessons, and student progress tracking. Built with Next.js, TypeScript, and modern web technologies.",
-    content: `Tech with Phantom is a learning platform built to teach practical tech skills to beginners in Southeast Asia. The goal was to make it feel approachable — not like a corporate LMS, but like learning from a friend who knows their stuff.
+    desc: "An online learning platform for tech education featuring course management, video lessons, and student progress tracking. Built with Next.js and TypeScript.",
+    content: `Teaching tech skills to beginners in Southeast Asia is harder when the platform itself gets in the way. Most LMS tools feel like enterprise software: heavy, complex, and designed for administrators rather than learners.
 
-The platform has three main surfaces. The course catalog lets students browse by topic and see what they'll learn before committing. The lesson view is clean and distraction-free, with video and text content side by side. The progress dashboard shows where students are in each course and what's next.
+The goal with Tech with Phantom was a platform that felt like learning from a friend. Simple to navigate, focused on one concept at a time, with the next step always visible.
 
-Under the hood, courses and lessons are managed through a structured data layer. Adding a new course means updating a config file — no database required for the initial version, which kept the deployment simple and the load times fast.
+The course catalog lets students browse by topic and see exactly what they will cover before committing. The lesson view keeps video and text side by side without distraction. The progress dashboard surfaces where a student is in each course and what comes next.
 
-Authentication uses NextAuth.js with email magic links — no passwords to manage. Progress is tracked per-user in a lightweight Postgres instance.
+Courses are managed through a structured data layer. Adding new content means updating a config file, which kept the deployment simple and gave instructors a way to manage content without developer involvement.
 
-The hardest design decision was pacing. Putting too much on one page overwhelms beginners. The lesson UI went through several iterations before landing on the current layout — one concept per screen, with clear next steps always visible.`,
+The hardest design decision was pacing. The lesson UI went through several iterations before landing on the current layout: one concept per screen, clear progression, no cognitive overload.`,
     mockups: [
       "https://raw.githubusercontent.com/wayphantomme/tech-with-phantom/main/public/screenshots/twp-landing-page.png",
       "https://raw.githubusercontent.com/wayphantomme/tech-with-phantom/main/public/screenshots/twp-courses.png",
@@ -155,15 +155,15 @@ The hardest design decision was pacing. Putting too much on one page overwhelms 
     role: "Fullstack Developer",
     excerpt: "A full-stack restaurant management app with POS system, table management, and digital menu ordering.",
     desc: "A full-stack restaurant management app with POS system, table management, and menu ordering. Built with Next.js and Tailwind CSS.",
-    content: `Megatha Restaurant App came from a real problem: the restaurant was running on paper tickets and a whiteboard for table status. Staff were walking back and forth to check what was available, and orders were getting lost during busy service.
+    content: `The restaurant was running on paper tickets and a whiteboard for table status. Staff were making decisions without shared context. During busy service, orders got lost, tables sat empty while guests waited, and the kitchen had no reliable view of what was coming.
 
-The app replaces all of that. The POS screen lets staff take orders directly from a tablet — browse the menu, add items, apply modifiers, and send to the kitchen in one flow. Table management shows a live floor plan with color-coded status: available, occupied, bill requested. The kitchen display shows incoming orders in real time.
+The problem was not that they lacked a system. It was that everyone on the floor was working from different information at the same time.
 
-The frontend is a Next.js app optimized for touch — large tap targets, no tiny controls, designed to work on a 10-inch tablet in a bright kitchen. State management is done with Zustand for fast, predictable updates without unnecessary re-renders.
+The app gives every role a single shared view. The POS lets staff take orders from a tablet, browse the menu, add modifiers, and send to the kitchen in one flow. The floor plan shows live table status with color coding: available, occupied, bill requested. The kitchen display shows incoming orders in sequence.
 
-The backend is a set of Next.js API routes backed by a simple Postgres schema. WebSocket connections keep the kitchen display and POS in sync without polling.
+The frontend is designed for touch on a 10-inch tablet with large tap targets and no small controls. State is managed with Zustand for fast, predictable updates. WebSocket connections keep the kitchen display and POS in sync without polling.
 
-One thing that mattered a lot here was offline resilience. Restaurant WiFi can be unreliable. The app caches the current order state locally so a network blip doesn't lose an order mid-service.`,
+Offline resilience was a requirement from the start. Restaurant WiFi is not always reliable. The app caches current order state locally so a network drop does not lose an order mid-service.`,
     mockups: [
       "https://raw.githubusercontent.com/wayphantomme/megatha-restaurant-app/main/public/megatha-home.png",
       "https://raw.githubusercontent.com/wayphantomme/megatha-restaurant-app/main/public/megatha-pos.png",

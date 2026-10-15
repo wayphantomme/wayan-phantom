@@ -1,5 +1,6 @@
 import { projects } from "../../data/projects";
 import { notFound } from "next/navigation";
+import Link from "next/link";
 import type { Metadata } from "next";
 
 interface Props {
@@ -27,14 +28,28 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
 export default async function ProjectPage({ params }: Props) {
   const { slug } = await params;
-  const project = projects.find((p) => p.id === slug);
-  if (!project) notFound();
+  const idx = projects.findIndex((p) => p.id === slug);
+  if (idx === -1) notFound();
+
+  const project = projects[idx];
+  const prev = idx > 0 ? projects[idx - 1] : null;
+  const next = idx < projects.length - 1 ? projects[idx + 1] : null;
 
   return (
     <article className="post-page">
       <div className="post-wrap-blog">
 
-        {/* Category */}
+        {/* Top nav */}
+        <div className="post-blog-topnav">
+          <Link href="/portfolio" className="post-blog-back">
+            <svg width="14" height="14" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M19 12H5m7-7-7 7 7 7" />
+            </svg>
+            All works
+          </Link>
+        </div>
+
+        {/* Category + tags */}
         <div className="post-blog-meta-top">
           <span className="post-blog-cat">{project.category}</span>
           {project.tags.slice(0, 3).map((t) => (
@@ -93,7 +108,7 @@ export default async function ProjectPage({ params }: Props) {
           </div>
         )}
 
-        {/* Footer */}
+        {/* Footer tags */}
         <div className="post-blog-footer">
           <div className="post-blog-author post-blog-author-footer">
             {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -109,6 +124,33 @@ export default async function ProjectPage({ params }: Props) {
             ))}
           </div>
         </div>
+
+        {/* Prev / Next */}
+        <nav className="post-blog-prevnext">
+          {prev ? (
+            <Link href={`/portfolio/${prev.id}`} className="post-blog-prevnext-item post-blog-prevnext-prev">
+              <span className="post-blog-prevnext-label">
+                <svg width="13" height="13" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M19 12H5m7-7-7 7 7 7" />
+                </svg>
+                Previous
+              </span>
+              <span className="post-blog-prevnext-title">{prev.name}</span>
+            </Link>
+          ) : <div />}
+
+          {next ? (
+            <Link href={`/portfolio/${next.id}`} className="post-blog-prevnext-item post-blog-prevnext-next">
+              <span className="post-blog-prevnext-label">
+                Next
+                <svg width="13" height="13" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M5 12h14m-7-7 7 7-7 7" />
+                </svg>
+              </span>
+              <span className="post-blog-prevnext-title">{next.name}</span>
+            </Link>
+          ) : <div />}
+        </nav>
 
       </div>
     </article>
