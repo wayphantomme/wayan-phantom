@@ -9,53 +9,55 @@ export const metadata: Metadata = {
 export default function WorksPage() {
   return (
     <div className="page-shell">
-      <div className="page-wrap cv-page-wrap">
+      <div className="wk-wrap">
+
+        <h1 className="wk-page-title">Works</h1>
 
         {/* Work Experience */}
-        <section className="cv-section">
-          <div className="cv-section-header">
-            <h2 className="cv-section-label">Work Experience</h2>
-            <div className="cv-section-line" />
+        <section className="wk-section">
+          <div className="wk-section-header">
+            <span className="wk-section-label">Work Experience</span>
+            <span className="wk-section-rule" />
           </div>
-          <div className="cv-entries">
+          <div className="wk-list">
             {experience.map((exp, i) => (
-              <div key={exp.id} className="cv-entry">
-                <div className="cv-entry-header">
-                  <div className="cv-entry-left">
-                    <span className="cv-entry-role">{exp.role}</span>
-                    <span className="cv-entry-company">{exp.company} · {exp.type}</span>
+              <div key={exp.id} className="wk-item">
+                <div className="wk-item-top">
+                  <div>
+                    <p className="wk-role">{exp.role}</p>
+                    <p className="wk-company">{exp.company} · {exp.type}</p>
                   </div>
-                  <span className="cv-entry-period">{exp.period}</span>
+                  <p className="wk-period">{exp.period}</p>
                 </div>
-                <ul className="cv-entry-bullets">
+                <ul className="wk-bullets">
                   {exp.bullets.map((b, j) => (
                     <li key={j}>{b}</li>
                   ))}
                 </ul>
-                {i < experience.length - 1 && <div className="cv-entry-divider" />}
+                {i < experience.length - 1 && <hr className="wk-rule" />}
               </div>
             ))}
           </div>
         </section>
 
         {/* Education */}
-        <section className="cv-section">
-          <div className="cv-section-header">
-            <h2 className="cv-section-label">Education</h2>
-            <div className="cv-section-line" />
+        <section className="wk-section">
+          <div className="wk-section-header">
+            <span className="wk-section-label">Education</span>
+            <span className="wk-section-rule" />
           </div>
-          <div className="cv-entries">
+          <div className="wk-list">
             {education.map((edu, i) => (
-              <div key={edu.id} className="cv-entry">
-                <div className="cv-entry-header">
-                  <div className="cv-entry-left">
-                    <span className="cv-entry-role">{edu.degree}</span>
-                    <span className="cv-entry-company">{edu.school} · {edu.location}</span>
+              <div key={edu.id} className="wk-item">
+                <div className="wk-item-top">
+                  <div>
+                    <p className="wk-role">{edu.degree}</p>
+                    <p className="wk-company">{edu.school} · {edu.location}</p>
                   </div>
-                  <span className="cv-entry-period">{edu.period}</span>
+                  <p className="wk-period">{edu.period}</p>
                 </div>
-                <p className="cv-entry-note">{edu.notes}</p>
-                {i < education.length - 1 && <div className="cv-entry-divider" />}
+                <p className="wk-note">{edu.notes}</p>
+                {i < education.length - 1 && <hr className="wk-rule" />}
               </div>
             ))}
           </div>

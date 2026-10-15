@@ -4023,3 +4023,109 @@ body {
   background: #f1f5f9;
   margin-top: 0.25rem;
 }
+
+/* ─── Works page (wk- prefix) ───────────────────────────────────────────── */
+.wk-wrap {
+  max-width: 52rem;
+  margin: 0 auto;
+  padding: 2.5rem 1.25rem 5rem;
+  font-family: var(--font-inter), system-ui, sans-serif;
+}
+.wk-page-title {
+  font-size: 1.75rem;
+  font-weight: 800;
+  color: #111;
+  letter-spacing: -0.02em;
+  margin: 0 0 2.5rem;
+}
+.wk-section {
+  margin-bottom: 3rem;
+}
+.wk-section-header {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 0.25rem;
+}
+.wk-section-label {
+  font-size: 0.65rem;
+  font-weight: 800;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: #94a3b8;
+  white-space: nowrap;
+}
+.wk-section-rule {
+  display: block;
+  flex: 1;
+  height: 1px;
+  background: #e2e8f0;
+}
+.wk-list {
+  display: flex;
+  flex-direction: column;
+}
+.wk-item {
+  padding: 1.25rem 0;
+}
+.wk-item-top {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 0.625rem;
+}
+.wk-role {
+  font-size: 0.92rem;
+  font-weight: 700;
+  color: #111;
+  margin: 0 0 0.2rem;
+  letter-spacing: -0.01em;
+}
+.wk-company {
+  font-size: 0.8rem;
+  color: #64748b;
+  margin: 0;
+}
+.wk-period {
+  font-size: 0.73rem;
+  color: #94a3b8;
+  font-weight: 500;
+  white-space: nowrap;
+  flex-shrink: 0;
+  margin: 0.1rem 0 0;
+}
+.wk-bullets {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+}
+.wk-bullets li {
+  font-size: 0.83rem;
+  color: #475569;
+  line-height: 1.65;
+  padding-left: 1rem;
+  position: relative;
+}
+.wk-bullets li::before {
+  content: "·";
+  position: absolute;
+  left: 0.25rem;
+  color: #94a3b8;
+  font-weight: 700;
+}
+.wk-note {
+  font-size: 0.83rem;
+  color: #64748b;
+  line-height: 1.65;
+  margin: 0;
+  font-style: italic;
+}
+.wk-rule {
+  border: none;
+  border-top: 1px solid #f1f5f9;
+  margin: 0;
+}
