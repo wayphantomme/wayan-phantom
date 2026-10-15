@@ -210,6 +210,8 @@ The audit log records every create, update, and delete with a timestamp and sour
     web: "https://laby-wayphantomme.vercel.app/login",
     github: "https://github.com/wayphantomme/laby-finance",
   },
+  {
+    id: "meeting-to-task",
     name: "Meeting to Task Automation",
     logo: "https://cdn.simpleicons.org/n8n/EA4B22",
     category: "AI Automation",
