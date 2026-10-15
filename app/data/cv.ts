@@ -120,20 +120,20 @@ export const experience = [
 
 export const education = [
   {
-    id: "unud",
-    degree: "Bachelor of Information Technology",
-    school: "Universitas Udayana",
+    id: "stikom",
+    degree: "Bachelor of Digital Business",
+    school: "Institute of Technology and Business STIKOM Bali",
     location: "Bali, Indonesia",
-    period: "2022 – Present",
-    notes: "Focusing on software engineering, data structures, and systems design.",
+    period: "2022 – 2026",
+    notes: "Focusing on digital business, software engineering, AI automation, and systems design.",
   },
   {
-    id: "apple",
-    degree: "Apple Developer Academy Applicant",
-    school: "Apple Developer Academy",
-    location: "Indonesia",
-    period: "2024",
-    notes: "Applied to the program — produced a product pitch and submission video.",
+    id: "lithan",
+    degree: "Digital Business Bootcamp",
+    school: "Lithan Academy",
+    location: "Singapore",
+    period: "2023 – 2024",
+    notes: "12-month bootcamp in digital business.",
   },
   {
     id: "mandala",
