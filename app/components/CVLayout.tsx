@@ -255,8 +255,8 @@ function TechStackPanel() {
 function AboutTab() {
   return (
     <div className="cv-tab-content">
-      <h3 className="cv-tab-section-title">I Build Products, Not Just Code</h3>
-      
+      <h3 className="cv-tab-section-title">How I Think About Problems</h3>
+
       {/* YouTube Video Embed */}
       <div className="cv-video-container">
         <iframe
@@ -273,16 +273,16 @@ function AboutTab() {
 
       <div className="cv-about-body">
         <p className="cv-about-lead">
-          Turning real user problems and business ideas into working products, from architecture and development all the way to deployment and handoff.
+          Most technical problems are actually people problems in disguise. Before writing a single line of code, I try to understand who is affected, why the current situation is not working, and what a better outcome actually looks like for them.
         </p>
         <p className="cv-about-muted">
-          Every project starts with BRD, PRD, and TRD before a single line of code is written. Built across Web3, AI, and full-stack, including Bulldex Finance (a DeFi monorepo on Ethereum) and Neko Singa AI (an AI-native crypto platform).
+          When a client came in with a restaurant running on paper tickets and a whiteboard for table status, the surface problem was &ldquo;we need software.&rdquo; The real problem was that staff were making decisions without shared context — orders got lost, tables sat empty while guests waited. The solution was not just digitizing the workflow, it was designing around how information actually moves during a busy service.
         </p>
         <p className="cv-about-muted">
-          Talking directly with users at events like Coinfest Asia and CatLumpur in Malaysia helps understand what real problems actually look like, not just how they are described in a brief.
+          I use the same pattern on every project: clarify the situation first, define what success looks like before touching the implementation, then work backwards from the outcome to the architecture. Documentation — BRD, PRD, TRD — is how I externalize that thinking so the whole team is solving the same problem.
         </p>
         <p className="cv-about-muted">
-          The goal is never just to build what is requested. Understanding why it is needed, who needs it, and how to make it actually work — that is what matters.
+          The hardest part is usually not the code. It is knowing which problem is worth solving and which requirements are symptoms of a deeper issue. That clarity is what separates a working product from a technically correct one that nobody uses.
         </p>
       </div>
     </div>
