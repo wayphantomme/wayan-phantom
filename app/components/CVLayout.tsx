@@ -560,33 +560,37 @@ export default function CVLayout() {
       <div className="cv-main">
         {/* ── Left column ──────────────────────────────────────── */}
         <div className="cv-left-col">
-          <ProfileCard />
-          <div className="cv-panel">
-            <AboutTab />
+          <div className="cv-mobile-order-1"><ProfileCard /></div>
+          <div className="cv-mobile-order-4">
+            <div className="cv-panel">
+              <AboutTab />
+            </div>
           </div>
-          <TechStackPanel />
+          <div className="cv-mobile-order-6"><TechStackPanel /></div>
         </div>
 
         {/* ── Right column ─────────────────────────────────────── */}
         <div className="cv-right-col">
           {/* ── Video Intro ── */}
-          <div className="cv-hackathon-panel cv-video-card">
-            <h2 className="cv-hackathon-title">🎬 Introduction</h2>
-            <div className="cv-video-container">
-              <iframe
-                className="cv-video-iframe"
-                src="https://www.youtube.com/embed/DLLj7CZmHco"
-                title="Wayan Phantom Introduction"
-                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                allowFullScreen
-              />
+          <div className="cv-mobile-order-2">
+            <div className="cv-hackathon-panel cv-video-card">
+              <h2 className="cv-hackathon-title">🎬 Introduction</h2>
+              <div className="cv-video-container">
+                <iframe
+                  className="cv-video-iframe"
+                  src="https://www.youtube.com/embed/DLLj7CZmHco"
+                  title="Wayan Phantom Introduction"
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                  allowFullScreen
+                />
+              </div>
+              <p className="cv-video-card-caption">Archive (2024) : Application video for the Apple Developer Academy.</p>
             </div>
-            <p className="cv-video-card-caption">Archive (2024) : Application video for the Apple Developer Academy.</p>
           </div>
 
-          <HackathonPanel />
-          <WhatIBuild />
-          <CertificationsPanel />
+          <div className="cv-mobile-order-3"><WhatIBuild /></div>
+          <div className="cv-mobile-order-5"><HackathonPanel /></div>
+          <div className="cv-mobile-order-7"><CertificationsPanel /></div>
         </div>
       </div>
     </div>
