@@ -28,9 +28,14 @@ export default function PortfolioPage() {
           {projects.map((p) => (
             <Link key={p.id} href={`/portfolio/${p.id}`} className="blog-card-v2">
               {/* Cover */}
-              {p.mockups[0] && (
+              {p.mockups[0] ? (
                 // eslint-disable-next-line @next/next/no-img-element
                 <img src={p.mockups[0]} alt={p.name} className="blog-card-v2-cover" />
+              ) : (
+                <div className="blog-card-v2-cover blog-card-v2-placeholder">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img src={p.logo} alt={p.name} className="blog-card-v2-placeholder-logo" />
+                </div>
               )}
 
               <div className="blog-card-v2-body">

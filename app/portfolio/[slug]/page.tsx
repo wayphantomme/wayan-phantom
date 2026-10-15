@@ -113,9 +113,14 @@ export default async function ProjectPage({ params }: Props) {
         )}
 
         {/* Hero image */}
-        {project.mockups[0] && (
+        {project.mockups[0] ? (
           // eslint-disable-next-line @next/next/no-img-element
           <img src={project.mockups[0]} alt={project.name} className="post-blog-hero" />
+        ) : (
+          <div className="post-blog-hero post-blog-hero-placeholder">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src={project.logo} alt={project.name} className="post-blog-hero-placeholder-logo" />
+          </div>
         )}
 
         {/* Content */}

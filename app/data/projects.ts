@@ -186,7 +186,7 @@ Offline resilience was a requirement from the start. Restaurant WiFi is not alwa
   {
     id: "mainstreet-global",
     name: "Mainstreet Global Inc",
-    logo: "https://cdn.simpleicons.org/wordpress/21759B",
+    logo: "https://raw.githubusercontent.com/megathatech/mainstreetglobal/main/public/mainstreet-logo.png",
     category: "Web / Corporate",
     tags: ["WordPress", "UI/UX", "Performance", "SEO", "Corporate"],
     year: "2024",
@@ -200,7 +200,9 @@ The engagement covered three separate corporate websites. Each one needed to per
 Performance was the core metric. Slow corporate websites lose credibility before the first scroll. Every site was optimized for speed: images compressed and served in next-gen formats, unnecessary plugins removed, caching configured correctly, and render-blocking resources eliminated.
 
 The result was a 99/100 Google PageSpeed score across all three properties. The sites also became easier for the internal team to maintain, with a clear content structure and no fragile custom code.`,
-    mockups: [],
+    mockups: [
+      "https://raw.githubusercontent.com/megathatech/mainstreetglobal/main/public/mainstreet-logo.png",
+    ],
     web: "http://mainstreetglobal.ca/",
     github: "https://github.com/megathatech/mainstreetglobal",
     client: {

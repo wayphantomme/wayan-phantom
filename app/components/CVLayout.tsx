@@ -87,74 +87,111 @@ const certifications = [
 const skillTree = [
   {
     id: "fullstack",
-    label: "Fullstack",
-    icon: "🖥️",
+    label: "fullstack",
     children: [
-      { id: "fe", label: "Frontend", tags: ["Next.js", "React", "TypeScript", "Tailwind CSS", "Framer Motion"] },
-      { id: "be", label: "Backend", tags: ["Node.js", "PostgreSQL", "REST API", "Prisma", "Supabase"] },
-      { id: "hosting", label: "Hosting & DevOps", tags: ["Vercel", "GitHub CI/CD", "Docker", "VPS", "Nginx"] },
+      { id: "fe", label: "frontend", items: ["Next.js", "React", "TypeScript", "Tailwind CSS"] },
+      { id: "be", label: "backend", items: ["Node.js", "PostgreSQL", "REST API", "Prisma"] },
+      { id: "hosting", label: "hosting-devops", items: ["Vercel", "GitHub CI/CD", "VPS", "Docker"] },
     ],
   },
   {
     id: "ai",
-    label: "AI & Automation",
-    icon: "🤖",
+    label: "ai-automation",
     children: [
-      { id: "aidev", label: "AI Development", tags: ["Gemini", "Claude", "OpenAI", "RAG", "Embeddings", "Streaming"] },
-      { id: "n8n", label: "n8n Workflows", tags: ["Webhooks", "HTTP Nodes", "AI Agent", "Airtable", "Telegram Bot"] },
-      { id: "img", label: "Image Generation", tags: ["Cloudflare Workers AI", "Flux", "DALL-E"] },
+      { id: "aidev", label: "ai-development", items: ["Gemini", "Claude", "OpenAI", "RAG", "Streaming"] },
+      { id: "n8n", label: "n8n-workflows", items: ["Webhooks", "HTTP Nodes", "AI Agent", "Telegram Bot"] },
+      { id: "img", label: "image-generation", items: ["Cloudflare Workers AI", "Flux", "DALL-E"] },
     ],
   },
   {
     id: "blockchain",
-    label: "Blockchain",
-    icon: "⛓️",
+    label: "blockchain",
     children: [
-      { id: "eth", label: "Ethereum", tags: ["Solidity", "ethers.js", "ERC-20", "ERC-721", "Hardhat", "OpenZeppelin"] },
-      { id: "sol", label: "Solana", tags: ["Rust", "Anchor", "SPL Token", "Metaplex", "Web3.js", "Phantom"] },
-      { id: "dapp", label: "DApps", tags: ["DEX", "Liquidity Pool", "NFT Marketplace", "DeFi", "RWA", "Wallet Connect"] },
+      { id: "eth", label: "ethereum", items: ["Solidity", "ethers.js", "ERC-20", "ERC-721", "Hardhat"] },
+      { id: "sol", label: "solana", items: ["Rust", "Anchor", "SPL Token", "Metaplex", "Web3.js"] },
+      { id: "dapp", label: "dapps", items: ["DEX", "Liquidity Pool", "NFT Marketplace", "DeFi", "RWA"] },
     ],
   },
 ];
 
+function FolderIcon({ open }: { open: boolean }) {
+  return (
+    <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor" style={{ flexShrink: 0 }}>
+      {open
+        ? <path d="M2 6a2 2 0 012-2h5l2 2h7a2 2 0 012 2v1H2V6zm0 4h20v8a2 2 0 01-2 2H4a2 2 0 01-2-2v-8z" />
+        : <path d="M2 6a2 2 0 012-2h5l2 2h7a2 2 0 012 2v8a2 2 0 01-2 2H4a2 2 0 01-2-2V6z" />
+      }
+    </svg>
+  );
+}
+
+function FileIcon() {
+  return (
+    <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" style={{ flexShrink: 0 }}>
+      <path strokeLinecap="round" strokeLinejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+    </svg>
+  );
+}
+
 function WhatIBuild() {
-  const [open, setOpen] = useState<string | null>("fullstack");
-  const toggle = (id: string) => setOpen((prev) => prev === id ? null : id);
+  const [open, setOpen] = useState<Record<string, boolean>>({
+    fullstack: true,
+    ai: false,
+    blockchain: false,
+    fe: true,
+    be: false,
+    hosting: false,
+  });
+  const toggle = (id: string) => setOpen((prev) => ({ ...prev, [id]: !prev[id] }));
 
   return (
     <div className="cv-hackathon-panel">
       <h2 className="cv-hackathon-title">⚡ What I Build</h2>
-      <div className="wib-tree">
-        {skillTree.map((cat) => (
-          <div key={cat.id} className="wib-category">
-            <button
-              className={`wib-cat-btn${open === cat.id ? " wib-cat-open" : ""}`}
-              onClick={() => toggle(cat.id)}
-              aria-expanded={open === cat.id}
-            >
-              <span className="wib-cat-icon">{cat.icon}</span>
-              <span className="wib-cat-label">{cat.label}</span>
-              <svg
-                width="12" height="12" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24"
-                className="wib-chevron"
-                style={{ transform: open === cat.id ? "rotate(180deg)" : "rotate(0deg)" }}
-              >
-                <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
-              </svg>
+      <div className="ftree-root">
+        {skillTree.map((cat, ci) => (
+          <div key={cat.id} className="ftree-node">
+            {/* Root folder */}
+            <button className="ftree-row ftree-folder" onClick={() => toggle(cat.id)}>
+              <span className="ftree-indent" />
+              <span className={`ftree-folder-icon${open[cat.id] ? " ftree-folder-open" : ""}`}>
+                <FolderIcon open={open[cat.id]} />
+              </span>
+              <span className="ftree-label">{cat.label}</span>
             </button>
 
-            {open === cat.id && (
-              <div className="wib-children">
-                {cat.children.map((child) => (
-                  <div key={child.id} className="wib-child">
-                    <span className="wib-child-label">{child.label}</span>
-                    <div className="wib-child-tags">
-                      {child.tags.map((t) => (
-                        <span key={t} className="wib-tag">{t}</span>
-                      ))}
+            {open[cat.id] && (
+              <div className="ftree-children">
+                {cat.children.map((child, gi) => {
+                  const isLast = gi === cat.children.length - 1;
+                  return (
+                    <div key={child.id} className="ftree-node">
+                      {/* Sub folder */}
+                      <button className="ftree-row ftree-subfolder" onClick={() => toggle(child.id)}>
+                        <span className="ftree-connector">{isLast ? "└" : "├"}</span>
+                        <span className={`ftree-folder-icon ftree-folder-sub${open[child.id] ? " ftree-folder-open" : ""}`}>
+                          <FolderIcon open={open[child.id]} />
+                        </span>
+                        <span className="ftree-label">{child.label}</span>
+                      </button>
+
+                      {open[child.id] && (
+                        <div className="ftree-files">
+                          {child.items.map((item, fi) => {
+                            const fileLast = fi === child.items.length - 1;
+                            return (
+                              <div key={item} className="ftree-row ftree-file">
+                                <span className="ftree-pipe">{isLast ? " " : "│"}</span>
+                                <span className="ftree-connector">{fileLast ? "└" : "├"}</span>
+                                <span className="ftree-file-icon"><FileIcon /></span>
+                                <span className="ftree-file-label">{item}</span>
+                              </div>
+                            );
+                          })}
+                        </div>
+                      )}
                     </div>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
             )}
           </div>
