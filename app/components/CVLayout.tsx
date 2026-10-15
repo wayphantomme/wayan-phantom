@@ -352,21 +352,6 @@ function AboutTab() {
   return (
     <div className="cv-tab-content">
       <h3 className="cv-tab-section-title">How I Think About Problems</h3>
-
-      {/* YouTube Video Embed */}
-      <div className="cv-video-container">
-        <iframe
-          className="cv-video-iframe"
-          src="https://www.youtube.com/embed/DLLj7CZmHco"
-          title="YouTube video"
-          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-          allowFullScreen
-        />
-      </div>
-      <p className="cv-video-caption">
-        Archive (2024) : Application video submission for the Apple Developer Academy.
-      </p>
-
       <div className="cv-about-body">
         <p className="cv-about-lead">
           Most technical problems are actually people problems in disguise. Before writing a single line of code, I try to understand who is affected, why the current situation is not working, and what a better outcome actually looks like for them.
@@ -581,6 +566,21 @@ export default function CVLayout() {
 
         {/* ── Right column ─────────────────────────────────────── */}
         <div className="cv-right-col">
+          {/* ── Video Intro ── */}
+          <div className="cv-hackathon-panel cv-video-card">
+            <h2 className="cv-hackathon-title">🎬 Introduction</h2>
+            <div className="cv-video-container">
+              <iframe
+                className="cv-video-iframe"
+                src="https://www.youtube.com/embed/DLLj7CZmHco"
+                title="Wayan Phantom Introduction"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                allowFullScreen
+              />
+            </div>
+            <p className="cv-video-card-caption">Archive (2024) : Application video for the Apple Developer Academy.</p>
+          </div>
+
           <HackathonPanel />
           <TechStackPanel />
 
