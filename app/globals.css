@@ -3665,3 +3665,86 @@ body {
   color: #111;
   margin: 0 0 1.25rem;
 }
+
+/* ─── What I Build tree ─────────────────────────────────────────────────── */
+.wib-tree {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+.wib-category {
+  border-radius: 0.5rem;
+  overflow: hidden;
+}
+.wib-cat-btn {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  padding: 0.5rem 0.625rem;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 0.5rem;
+  cursor: pointer;
+  transition: background 0.15s;
+  gap: 0.5rem;
+}
+.wib-cat-btn:hover { background: #f1f5f9; }
+.wib-cat-left {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+.wib-cat-icon {
+  font-size: 0.9rem;
+  line-height: 1;
+}
+.wib-cat-label {
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: #111;
+}
+.wib-children {
+  padding: 0.375rem 0 0.375rem 0.75rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin-top: 0.25rem;
+}
+.wib-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.5rem;
+}
+.wib-tree-line {
+  font-size: 0.75rem;
+  color: #cbd5e1;
+  font-family: monospace;
+  flex-shrink: 0;
+  margin-top: 0.1rem;
+  user-select: none;
+}
+.wib-child {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  flex: 1;
+}
+.wib-child-label {
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: #334155;
+}
+.wib-child-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.3rem;
+}
+.wib-tag {
+  font-size: 0.68rem;
+  color: #475569;
+  background: #f1f5f9;
+  border: 1px solid #e2e8f0;
+  padding: 0.1rem 0.4rem;
+  border-radius: 0.25rem;
+}

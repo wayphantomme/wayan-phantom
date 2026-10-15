@@ -84,26 +84,89 @@ const certifications = [
 ];
 
 
-const works = [
+const skillTree = [
   {
-    id: "web",
-    title: "Full-Stack Web Apps",
-    tags: ["Next.js", "React", "TypeScript", "Node.js", "PostgreSQL", "API Integration"],
-    desc: "End-to-end web applications built for real business scale — from pixel-perfect UI to robust backend infrastructure. Every project ships with clean architecture, optimized performance, and a full deployment pipeline on Vercel via GitHub.",
-  },
-  {
-    id: "web3",
-    title: "Web3 & Blockchain Engineer",
-    tags: ["Ethereum", "Solana", "Solidity", "DeFi", "DEX", "Smart Contracts", "ethers.js"],
-    desc: "Building production DeFi protocols on Ethereum and Solana — token swaps, liquidity pools, faucets, and on-chain integrations. From Solidity smart contracts to full-stack frontends like Bulldex Finance and Neko Singa AI.",
+    id: "fullstack",
+    label: "Fullstack",
+    icon: "🖥️",
+    children: [
+      { id: "fe", label: "Frontend", tags: ["Next.js", "React", "TypeScript", "Tailwind CSS", "Framer Motion"] },
+      { id: "be", label: "Backend", tags: ["Node.js", "PostgreSQL", "REST API", "Prisma", "Supabase"] },
+      { id: "hosting", label: "Hosting & DevOps", tags: ["Vercel", "GitHub CI/CD", "Docker", "VPS", "Nginx"] },
+    ],
   },
   {
     id: "ai",
-    title: "AI Apps & Automation",
-    tags: ["Claude", "Gemini", "OpenAI", "n8n", "RAG", "Automation"],
-    desc: "Designing and deploying intelligent systems that automate workflows, eliminate manual work, and connect your entire stack into one seamless ecosystem — running 24/7.",
+    label: "AI & Automation",
+    icon: "🤖",
+    children: [
+      { id: "aidev", label: "AI Development", tags: ["Gemini", "Claude", "OpenAI", "RAG", "Embeddings", "Streaming"] },
+      { id: "n8n", label: "n8n Workflows", tags: ["Webhooks", "HTTP Nodes", "AI Agent", "Airtable", "Telegram Bot"] },
+      { id: "img", label: "Image Generation", tags: ["Cloudflare Workers AI", "Flux", "DALL-E"] },
+    ],
+  },
+  {
+    id: "blockchain",
+    label: "Blockchain",
+    icon: "⛓️",
+    children: [
+      { id: "eth", label: "Ethereum", tags: ["Solidity", "ethers.js", "ERC-20", "ERC-721", "Hardhat", "OpenZeppelin"] },
+      { id: "sol", label: "Solana", tags: ["Rust", "Anchor", "SPL Token", "Metaplex", "Web3.js", "Phantom"] },
+      { id: "dapp", label: "DApps", tags: ["DEX", "Liquidity Pool", "NFT Marketplace", "DeFi", "RWA", "Wallet Connect"] },
+    ],
   },
 ];
+
+function WhatIBuild() {
+  const [open, setOpen] = useState<Record<string, boolean>>({ fullstack: true, ai: false, blockchain: false });
+  const toggle = (id: string) => setOpen((prev) => ({ ...prev, [id]: !prev[id] }));
+
+  return (
+    <div className="cv-hackathon-panel">
+      <h2 className="cv-hackathon-title">⚡ What I Build</h2>
+      <div className="wib-tree">
+        {skillTree.map((cat, ci) => (
+          <div key={cat.id} className="wib-category">
+            <button
+              className="wib-cat-btn"
+              onClick={() => toggle(cat.id)}
+              aria-expanded={open[cat.id]}
+            >
+              <span className="wib-cat-left">
+                <span className="wib-cat-icon">{cat.icon}</span>
+                <span className="wib-cat-label">{cat.label}</span>
+              </span>
+              <svg
+                width="12" height="12" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24"
+                style={{ transform: open[cat.id] ? "rotate(0deg)" : "rotate(-90deg)", transition: "transform 0.2s", flexShrink: 0 }}
+              >
+                <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
+              </svg>
+            </button>
+
+            {open[cat.id] && (
+              <div className="wib-children">
+                {cat.children.map((child, i) => (
+                  <div key={child.id} className="wib-row">
+                    <span className="wib-tree-line">{i < cat.children.length - 1 ? "├" : "└"}</span>
+                    <div className="wib-child">
+                      <span className="wib-child-label">{child.label}</span>
+                      <div className="wib-child-tags">
+                        {child.tags.map((t) => (
+                          <span key={t} className="wib-tag">{t}</span>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
 
 // ─── Tab types ──────────────────────────────────────────────────────────────
 
@@ -490,22 +553,7 @@ export default function CVLayout() {
           <TechStackPanel />
 
           {/* ── What I Build ── */}
-          <div className="cv-hackathon-panel">
-            <h2 className="cv-hackathon-title">⚡ What I Build</h2>
-            <div className="cv-works-grid-right">
-              {works.map((w) => (
-                <div key={w.id} className="cv-works-card-right">
-                  <h4 className="cv-works-title-right">{w.title}</h4>
-                  <p className="cv-works-desc-right">{w.desc}</p>
-                  <div className="cv-works-tags">
-                    {w.tags.map((t) => (
-                      <span key={t} className="cv-tag">{t}</span>
-                    ))}
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
+          <WhatIBuild />
 
           {/* ── Certifications ── */}
           <CertificationsPanel />
