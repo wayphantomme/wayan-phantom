@@ -42,8 +42,9 @@ The hardest problem was latency. Blockchain reads are slow, and a UI that blocks
 
 This project was built as part of the Web3 ecosystem exploration that led to the Lisk Spark Incubator entry with Krono Finance.`,
     mockups: [
-      "https://raw.githubusercontent.com/wayphantomme/bulldex-finance/main/frontend/public/bulldex-portrait.png",
+      "https://raw.githubusercontent.com/wayphantomme/bulldex-finance/main/frontend/public/bulldex-landing.png",
       "https://raw.githubusercontent.com/wayphantomme/bulldex-finance/main/frontend/public/bulldex-swap.png",
+      "https://raw.githubusercontent.com/wayphantomme/bulldex-finance/main/frontend/public/bulldex-faucet.png",
     ],
     web: "https://bulldex-finance.vercel.app/",
     github: "https://github.com/wayphantomme/bulldex-finance",
@@ -71,7 +72,6 @@ The project started as a hackathon build and grew from there. The main engineeri
       "https://raw.githubusercontent.com/nekosinga/app/main/public/nekosinga-screen.png",
       "https://raw.githubusercontent.com/nekosinga/app/main/public/nekosinga-cta.png",
     ],
-    web: "https://nekosinga.vercel.app/",
     github: "https://github.com/nekosinga",
   },
   {
@@ -125,8 +125,9 @@ The editing pass was the most important piece to get right. Raw LLM output tends
 
 The frontend is a clean Next.js reading experience. Posts are statically generated at publish time so they load fast and index well in search.`,
     mockups: [
-      "https://raw.githubusercontent.com/wayphantomme/impact-stories-blog-automation/main/public/images/home-2.png",
-      "https://raw.githubusercontent.com/wayphantomme/impact-stories-blog-automation/main/public/images/blog-2.png",
+      "https://raw.githubusercontent.com/wayphantomme/impact-stories-blog-automation/main/public/images/home-page.png",
+      "https://raw.githubusercontent.com/wayphantomme/impact-stories-blog-automation/main/public/images/blog-page.png",
+      "https://raw.githubusercontent.com/wayphantomme/impact-stories-blog-automation/main/public/images/post.png",
     ],
     web: "https://impact-stories-blog.vercel.app/",
     github: "https://github.com/wayphantomme/impact-stories-blog-automation",
@@ -179,12 +180,36 @@ Offline resilience was a requirement from the start. Restaurant WiFi is not alwa
     mockups: [
       "https://raw.githubusercontent.com/wayphantomme/megatha-restaurant-app/main/public/megatha-home.png",
       "https://raw.githubusercontent.com/wayphantomme/megatha-restaurant-app/main/public/megatha-pos.png",
+      "https://raw.githubusercontent.com/wayphantomme/megatha-restaurant-app/main/public/megatha-tables.png",
     ],
     web: "https://megatha-resto.vercel.app/",
     github: "https://github.com/wayphantomme/megatha-restaurant-app",
   },
   {
-    id: "meeting-to-task",
+    id: "laby-finance",
+    name: "Laby Finance",
+    logo: "https://raw.githubusercontent.com/wayphantomme/laby-finance/main/app/public/logo.png",
+    category: "Full-stack / Fintech",
+    tags: ["Next.js", "Prisma", "PostgreSQL", "Gemini AI", "Auth.js", "Recharts"],
+    year: "2025",
+    role: "Fullstack Developer",
+    excerpt: "A personal finance app with double-entry bookkeeping, three standard financial reports, and Gemini AI for screenshot parsing and chat assistance.",
+    desc: "Personal finance app with double-entry accounting, Income Statement, Balance Sheet, Cash Flow reports, and Gemini AI for screenshot parsing.",
+    content: `Most personal finance apps treat money like a list of expenses. Laby treats it like a company's books: proper double-entry bookkeeping, a structured chart of accounts, and three standard financial reports built for one person.
+
+The problem it solves is simple. Tracking where your money goes is easy. Understanding your actual financial position — net worth, cash flow trends, income versus expenses over twelve months — requires the same tools companies use. Those tools have never been packaged cleanly for individuals.
+
+Laby gives you an Income Statement, Balance Sheet, and Cash Flow Statement. Every transaction creates balanced journal entries automatically. You pick a category and enter an amount; the system handles the accounting logic. The reports are calculated in real time from raw journal lines, so they are always consistent with the underlying data.
+
+The AI layer is what makes data entry practical. Upload a bank screenshot or type in natural language and Gemini parses it into a structured entry. No AI result ever auto-commits — every draft requires explicit user confirmation before hitting the database. For financial data, silent automation is not acceptable.
+
+The chart of accounts follows Indonesian accounting conventions with 62 default accounts structured across Assets, Liabilities, Equity, Revenue, and Expenses. Amounts are stored as integer cents to avoid floating-point rounding errors.
+
+The audit log records every create, update, and delete with a timestamp and source — manual, screenshot AI, or chat AI. Soft deletes only. Nothing is ever permanently removed.`,
+    mockups: [],
+    web: "https://laby-wayphantomme.vercel.app/login",
+    github: "https://github.com/wayphantomme/laby-finance",
+  },
     name: "Meeting to Task Automation",
     logo: "https://cdn.simpleicons.org/n8n/EA4B22",
     category: "AI Automation",
