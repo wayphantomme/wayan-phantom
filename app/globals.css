@@ -3135,3 +3135,24 @@ body {
     grid-template-columns: repeat(3, 1fr);
   }
 }
+
+/* ─── Works page extras ─────────────────────────────────────────────────── */
+.cv-exp-excerpt {
+  font-size: 0.83rem;
+  color: #64748b;
+  line-height: 1.6;
+  margin: 0.375rem 0 0.5rem;
+}
+.cv-exp-project-links {
+  display: flex;
+  gap: 0.75rem;
+  margin-top: 0.25rem;
+}
+.cv-exp-link {
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: #6366f1;
+  text-decoration: none;
+  transition: opacity 0.15s;
+}
+.cv-exp-link:hover { opacity: 0.7; }

@@ -117,3 +117,30 @@ export const experience = [
     ],
   },
 ];
+
+export const education = [
+  {
+    id: "unud",
+    degree: "Bachelor of Information Technology",
+    school: "Universitas Udayana",
+    location: "Bali, Indonesia",
+    period: "2022 – Present",
+    notes: "Focusing on software engineering, data structures, and systems design.",
+  },
+  {
+    id: "apple",
+    degree: "Apple Developer Academy Applicant",
+    school: "Apple Developer Academy",
+    location: "Indonesia",
+    period: "2024",
+    notes: "Applied to the program — produced a product pitch and submission video.",
+  },
+  {
+    id: "mandala",
+    degree: "Blockchain Development Bootcamp",
+    school: "Mandala Blockchain Academy",
+    location: "Indonesia",
+    period: "2024",
+    notes: "Completed full blockchain development curriculum.",
+  },
+];
