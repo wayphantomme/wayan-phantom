@@ -3920,3 +3920,106 @@ body {
   cursor: default;
   box-shadow: 0 24px 64px rgba(0,0,0,0.5);
 }
+
+/* ─── CV / Works page ────────────────────────────────────────────────────── */
+.cv-page-wrap {
+  max-width: 52rem;
+  font-family: var(--font-inter), system-ui, sans-serif;
+}
+.cv-section {
+  margin-bottom: 3rem;
+}
+.cv-section-header {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+.cv-section-label {
+  font-size: 0.68rem;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: #111;
+  white-space: nowrap;
+  margin: 0;
+}
+.cv-section-line {
+  flex: 1;
+  height: 1px;
+  background: #e2e8f0;
+}
+.cv-entries {
+  display: flex;
+  flex-direction: column;
+}
+.cv-entry {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  padding: 1.125rem 0;
+}
+.cv-entry-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+}
+.cv-entry-left {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+}
+.cv-entry-role {
+  font-size: 0.92rem;
+  font-weight: 700;
+  color: #111;
+  letter-spacing: -0.01em;
+}
+.cv-entry-company {
+  font-size: 0.8rem;
+  color: #64748b;
+  font-weight: 400;
+}
+.cv-entry-period {
+  font-size: 0.75rem;
+  color: #94a3b8;
+  font-weight: 500;
+  white-space: nowrap;
+  flex-shrink: 0;
+  margin-top: 0.1rem;
+}
+.cv-entry-bullets {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+}
+.cv-entry-bullets li {
+  font-size: 0.83rem;
+  color: #475569;
+  line-height: 1.6;
+  padding-left: 1rem;
+  position: relative;
+}
+.cv-entry-bullets li::before {
+  content: "·";
+  position: absolute;
+  left: 0.25rem;
+  color: #94a3b8;
+  font-weight: 700;
+}
+.cv-entry-note {
+  font-size: 0.83rem;
+  color: #64748b;
+  line-height: 1.6;
+  margin: 0;
+  font-style: italic;
+}
+.cv-entry-divider {
+  height: 1px;
+  background: #f1f5f9;
+  margin-top: 0.25rem;
+}
