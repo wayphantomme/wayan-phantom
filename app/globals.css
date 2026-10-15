@@ -2712,9 +2712,21 @@ body {
   align-items: center;
   box-shadow: 0 8px 32px rgba(0,0,0,0.18), 0 2px 8px rgba(0,0,0,0.12);
   white-space: nowrap;
+  position: fixed;
+  /* let framer-motion handle the transform for mount animation */
 }
 body {
   padding-bottom: 5rem;
+}
+/* Sliding pill background */
+.bottom-nav-pill {
+  position: absolute;
+  top: 0.5rem;
+  height: calc(100% - 1rem);
+  background: #fff;
+  border-radius: 9999px;
+  pointer-events: none;
+  z-index: 0;
 }
 .bottom-nav-item {
   display: flex;
@@ -2724,25 +2736,30 @@ body {
   text-decoration: none;
   color: rgba(255,255,255,0.45);
   border-radius: 9999px;
-  transition: color 0.15s, background 0.15s;
+  transition: color 0.15s;
   font-size: 0.82rem;
   font-weight: 500;
+  position: relative;
+  z-index: 1;
 }
 .bottom-nav-item:hover {
   color: rgba(255,255,255,0.75);
 }
 .bottom-nav-item-active {
-  background: #fff;
   color: #111;
 }
 .bottom-nav-item-active:hover {
   color: #111;
 }
-.bottom-nav-label {
-  display: none;
+.bottom-nav-icon {
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
 }
-.bottom-nav-item-active .bottom-nav-label {
-  display: inline;
+.bottom-nav-label {
+  font-size: 0.82rem;
+  font-weight: 600;
+  line-height: 1;
 }
 
 /* ─── Blog / Portfolio list ──────────────────────────────────────────────── */

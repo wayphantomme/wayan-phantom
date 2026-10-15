@@ -3,6 +3,7 @@ import { Inter, Plus_Jakarta_Sans } from "next/font/google";
 import "./globals.css";
 import ChatBot from "./components/ChatBot";
 import BottomNav from "./components/BottomNav";
+import PageTransition from "./components/PageTransition";
 
 const inter = Inter({
   variable: "--font-inter",
@@ -49,7 +50,7 @@ export default function RootLayout({
       className={`${inter.variable} ${plusJakarta.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col bg-[#f5f5f5] text-[#111111]">
-        {children}
+        <PageTransition>{children}</PageTransition>
         <ChatBot />
         <BottomNav />
       </body>
