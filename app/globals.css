@@ -1524,7 +1524,7 @@ body {
 .chatbot-window {
   position: fixed;
   bottom: 5.5rem;
-  right: 1.5rem;
+  right: 5rem;
   z-index: 9998;
   width: 22rem;
   max-width: calc(100vw - 2rem);
@@ -1902,9 +1902,10 @@ body {
 
 @media (max-width: 480px) {
   .chatbot-window {
-    right: 0.75rem;
-    bottom: 5rem;
-    width: calc(100vw - 1.5rem);
+    right: 0.5rem;
+    left: 0.5rem;
+    width: auto;
+    bottom: 6rem;
     height: calc(100vh - 8rem);
   }
   .chatbot-fab-wrap {
@@ -1916,9 +1917,10 @@ body {
 /* Mobile adjustments */
 @media (max-width: 480px) {
   .chatbot-window {
-    right: 0.75rem;
-    bottom: 5rem;
-    width: calc(100vw - 1.5rem);
+    right: 0.5rem;
+    left: 0.5rem;
+    width: auto;
+    bottom: 6rem;
     height: calc(100vh - 8rem);
   }
   .chatbot-fab-wrap {
