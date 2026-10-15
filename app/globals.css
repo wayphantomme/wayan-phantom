@@ -3545,6 +3545,7 @@ body {
 .gallery-grid {
   columns: 3;
   column-gap: 0.75rem;
+  column-fill: balance;
 }
 @media (max-width: 768px) {
   .gallery-grid { columns: 2; }
