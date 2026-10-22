@@ -39,3 +39,9 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# personal skills notes (local only)
+skills/
+
+# local task tracking
+TASKS.md
