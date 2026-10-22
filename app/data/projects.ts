@@ -419,7 +419,7 @@ The current workflow creates tasks from all detected action items without filter
     mainCategory: "Apps",
     subCategory: "Corporate",
     tags: ["WordPress", "UI/UX", "Performance", "SEO", "Corporate"],
-    businessTags: ["Logistics"],
+    businessTags: ["Corporate", "B2B Services"],
     techTags: ["WordPress", "Performance Optimization"],
     year: "2024",
     role: "WordPress Developer",
