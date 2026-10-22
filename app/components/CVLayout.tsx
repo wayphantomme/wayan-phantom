@@ -266,12 +266,12 @@ function ProfileCard() {
           <span className="cv-stat-label">Projects Shipped</span>
         </div>
         <div className="cv-stat">
-          <span className="cv-stat-num">{projects.filter((p) => p.client).length}+</span>
-          <span className="cv-stat-label">Satisfied Clients</span>
+          <span className="cv-stat-num">5</span>
+          <span className="cv-stat-label">Hackathon Wins</span>
         </div>
         <div className="cv-stat">
-          <span className="cv-stat-num">{new Date().getFullYear() - 2022}+</span>
-          <span className="cv-stat-label">Years of Journey</span>
+          <span className="cv-stat-num">{[...new Set(projects.map(p => p.subCategory))].length}</span>
+          <span className="cv-stat-label">Industries</span>
         </div>
       </div>
     </div>

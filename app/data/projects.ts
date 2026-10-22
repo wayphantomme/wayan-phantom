@@ -441,9 +441,90 @@ The three sites share design patterns but are maintained separately. Consolidati
     },
   },
   {
+    id: "lead-scoring-ghl",
+    name: "Lead Scoring & Routing",
+    logo: "https://cdn.simpleicons.org/n8n/EA4B22",
+    category: "AI",
+    mainCategory: "AI",
+    subCategory: "Workflow Automation",
+    tags: ["n8n", "GoHighLevel", "Gemini", "Slack", "Monday.com"],
+    year: "2026",
+    role: "Automation Architect",
+    excerpt: "Sales teams waste time on cold leads. This workflow scores every incoming lead with Gemini and routes hot ones instantly.",
+    desc: "n8n workflow that scores GoHighLevel leads with Gemini AI and routes them to Slack and Monday.com based on tier.",
+    content: `The Problem
+
+Sales teams spend the same amount of time on every lead regardless of quality. A cold lead from a casual enquiry gets the same follow-up effort as a hot prospect ready to buy. Without a scoring system, high-value leads get lost in the queue and response times on the best opportunities are too slow.
+
+How It Works
+
+1. Receives a POST webhook from GoHighLevel when a contact is created or a pipeline stage changes, and immediately returns OK.
+2. Loads workflow configuration and normalizes the incoming lead fields including name, source, budget, timeline, interest, and message.
+3. Sends the normalized lead profile to Gemini and requests a strict JSON response containing a score from 1 to 10, reasoning, and a recommended next step.
+4. Parses the Gemini output, clamps the score to the 1 to 10 range, and assigns the lead tier as Hot, Warm, or Cold.
+5. For Hot leads, posts an urgent alert to Slack, applies hot and priority tags in GoHighLevel, and creates a follow-up item in Monday.com.
+6. For Warm leads, posts a nurture notification to Slack and applies warm and nurture tags.
+7. For Cold leads, applies low-priority tags only.
+
+Tech Stack
+
+n8n | Webhook ingestion, branching logic, and all API calls without custom server infrastructure
+GoHighLevel | Source CRM for lead data and destination for tag updates
+Gemini API | Scores and reasons about lead quality with structured JSON output
+Slack | Instant notification channel for the sales team
+Monday.com | Task board for hot lead follow-up tracking
+
+What I Would Improve
+
+Adding a feedback loop where sales reps can mark outcomes in Monday.com and feed that data back into a fine-tuned scoring prompt would improve accuracy over time. The current scoring criteria are prompt-based and could be augmented with historical deal data for better calibration.`,
+    mockups: ["https://res.cloudinary.com/dwsapeq3m/image/upload/v1792672238/Screenshot_2026-10-22_at_20.30.31_tgdr5w.png"],
+    web: "https://n8n.io/workflows/20866-score-and-route-gohighlevel-leads-with-gemini-slack-and-mondaycom/",
+  },
+  {
+    id: "executive-briefing",
+    name: "Daily Executive Briefing",
+    logo: "https://cdn.simpleicons.org/n8n/EA4B22",
+    category: "AI",
+    mainCategory: "AI",
+    subCategory: "Workflow Automation",
+    tags: ["n8n", "Gemini", "Monday.com", "GoHighLevel", "Slack", "Outlook"],
+    year: "2026",
+    role: "Automation Architect",
+    excerpt: "Executives spend 30 minutes every morning collecting status from different tools. This delivers a single AI briefing at 8am.",
+    desc: "n8n workflow that pulls data from Monday.com, GoHighLevel, and PandaDoc daily, generates an executive briefing with Gemini, and delivers it via Slack and email.",
+    content: `The Problem
+
+Executives at fast-growing companies start every day by manually pulling reports from three or four different tools. Tasks in Monday.com, leads in GoHighLevel, proposals in PandaDoc. By the time they have assembled a complete picture it is 9am and the team is already asking questions. The information exists but no one has time to aggregate it.
+
+How It Works
+
+1. Runs every day at 8:00 AM on a schedule trigger.
+2. Loads configuration values including board IDs, thresholds, company name, Slack channel, and email recipient.
+3. Fetches the latest 100 tasks from Monday.com, 100 contacts from GoHighLevel, and 100 documents from PandaDoc via their APIs in parallel.
+4. Aggregates the three datasets to calculate task completion and overdue counts, lead totals and tier breakdowns, estimated pipeline value, and proposal status totals.
+5. Sends the computed metrics to Gemini to generate a three-paragraph executive summary with red, yellow, or green status indicators and one priority action.
+6. Formats the briefing as a Slack message, an HTML email, and a Monday.com board item.
+7. Posts to Slack, sends via Microsoft Outlook, and creates the item on the Monday.com dashboard board.
+
+Tech Stack
+
+n8n | Orchestrates all data fetching, aggregation, and delivery without custom server code
+Gemini API | Writes the executive summary and assigns status colors from raw metrics
+Monday.com GraphQL API | Source for task data and destination for the briefing item
+GoHighLevel API | Source for lead and pipeline data
+PandaDoc API | Source for proposal status and document metrics
+Slack and Outlook | Delivery channels for the final briefing
+
+What I Would Improve
+
+The current run is limited to 100 records per source, which works for most teams but would miss data at scale. Adding a pagination loop would make this production-safe for larger operations. Allowing executives to reply to the Slack message with questions that get answered by Gemini in context would turn this from a one-way report into an interactive briefing.`,
+    mockups: ["https://res.cloudinary.com/dwsapeq3m/image/upload/v1792672266/Screenshot_2026-10-22_at_20.31.00_d5o5dh.png"],
+    web: "https://n8n.io/workflows/21040-send-daily-executive-briefings-from-mondaycom-gohighlevel-pandadoc-with-gemini/",
+  },
+  {
     id: "naries-eatery",
     name: "Narie's Eatery & Coffee",
-    logo: "https://cdn.simpleicons.org/foodpanda/D70F64",
+    logo: "https://res.cloudinary.com/dwsapeq3m/image/upload/v1792671667/3614308a-2f3f-4e41-9921-9e13969df6fa.png",
     category: "Apps",
     mainCategory: "Apps",
     subCategory: "Hospitality",
@@ -472,7 +553,7 @@ Responsive layout | Optimized for mobile since most restaurant searches happen o
 What I Would Improve
 
 Adding online reservation or pre-order functionality would turn the site from a brochure into a conversion tool. A structured data markup for the restaurant schema would also improve how the listing appears in Google search results, including star ratings and opening hours.`,
-    mockups: [],
+    mockups: ["https://res.cloudinary.com/dwsapeq3m/image/upload/v1792671733/Screenshot_2026-10-22_at_20.22.05_tqvvoy.png"],
     web: "https://naries.id/",
     client: {
       name: "Narie's Eatery & Coffee",
@@ -483,7 +564,7 @@ Adding online reservation or pre-order functionality would turn the site from a 
   {
     id: "devisa-global",
     name: "Devisa Global Services",
-    logo: "https://cdn.simpleicons.org/googlemaps/4285F4",
+    logo: "https://res.cloudinary.com/dwsapeq3m/image/upload/v1792671668/770d331c-07d9-40b2-8c02-2669289cefb8.png",
     category: "Apps",
     mainCategory: "Apps",
     subCategory: "Corporate",
@@ -512,7 +593,7 @@ Performance optimization | Image compression and caching to maintain fast load t
 What I Would Improve
 
 Adding a case study or testimonials section from corporate clients would significantly increase conversion. An FAQ section addressing common visa questions would also reduce pre-consultation inquiries and position the firm as a knowledge authority in the immigration space.`,
-    mockups: [],
+    mockups: ["https://res.cloudinary.com/dwsapeq3m/image/upload/v1792671846/Screenshot_2026-10-22_at_20.22.51_kftew7.png"],
     web: "https://devisaglobalservices.com/",
     client: {
       name: "Devisa Global Services",

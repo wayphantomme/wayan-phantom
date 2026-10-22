@@ -12,11 +12,23 @@ interface Message {
 
 // ─── Suggested starter questions ─────────────────────────────────────────────
 
-const SUGGESTIONS = [
+const SUGGESTION_POOL = [
   "What tech stack does Wayan use?",
-  "Tell me about his Web3 experience",
-  "What projects has he built?",
-  "Is he open to new opportunities?",
+  "What automation workflows has he built?",
+  "Tell me about his blockchain projects",
+  "What AI tools does he work with?",
+  "Has he worked with real clients?",
+  "What is Laby Finance?",
+  "How does his meeting automation work?",
+  "What is his experience with n8n?",
+  "Tell me about Bulldex Finance",
+  "Is he available for freelance work?",
+  "What industries has he worked in?",
+  "How can I hire Wayan?",
+  "What payment systems has he built?",
+  "Tell me about Neko Singa AI",
+  "What is his approach to problem solving?",
+  "How does he work with clients?",
 ];
 
 // ─── Detect image generation intent ──────────────────────────────────────────
@@ -171,6 +183,15 @@ export default function ChatBot() {
   const [usedModel, setUsedModel] = useState<string | null>(null);
   const [showTooltip, setShowTooltip] = useState(false);
   const [tooltipDismissed, setTooltipDismissed] = useState(false);
+  const [suggestions] = useState<string[]>(() => {
+    const pool = [...SUGGESTION_POOL];
+    const picked: string[] = [];
+    while (picked.length < 4 && pool.length > 0) {
+      const idx = Math.floor(Math.random() * pool.length);
+      picked.push(pool.splice(idx, 1)[0]);
+    }
+    return picked;
+  });
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
@@ -352,7 +373,7 @@ export default function ChatBot() {
           {/* Suggestion chips */}
           {showSuggestions && (
             <div className="chatbot-suggestions" role="list">
-              {SUGGESTIONS.map((s) => (
+              {suggestions.map((s) => (
                 <button
                   key={s}
                   role="listitem"
