@@ -272,15 +272,29 @@ export default async function ProjectPage({ params }: Props) {
               </div>
             </div>
 
-            {/* Tags */}
-            <div className="post-sidebar-card">
-              <p className="post-sidebar-section-title">Tags</p>
-              <div className="post-sidebar-tags">
-                {project.tags.map((t) => (
-                  <span key={t} className="post-blog-tag">{t}</span>
-                ))}
+            {/* Business Tags */}
+            {project.businessTags && project.businessTags.length > 0 && (
+              <div className="post-sidebar-card">
+                <p className="post-sidebar-section-title">Business</p>
+                <div className="post-sidebar-tags">
+                  {project.businessTags.map((t) => (
+                    <span key={t} className="post-sidebar-tag post-sidebar-tag-business">{t}</span>
+                  ))}
+                </div>
               </div>
-            </div>
+            )}
+
+            {/* Tech Tags */}
+            {project.techTags && project.techTags.length > 0 && (
+              <div className="post-sidebar-card">
+                <p className="post-sidebar-section-title">Tech</p>
+                <div className="post-sidebar-tags">
+                  {project.techTags.map((t) => (
+                    <span key={t} className="post-sidebar-tag post-sidebar-tag-tech">{t}</span>
+                  ))}
+                </div>
+              </div>
+            )}
 
             {/* Prev / Next in sidebar */}
             <div className="post-sidebar-card">

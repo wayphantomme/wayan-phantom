@@ -4417,3 +4417,22 @@ body {
   color: #111;
   line-height: 1.3;
 }
+
+/* ─── Sidebar audience tags ─────────────────────────────────────────────── */
+.post-sidebar-tag {
+  font-size: 0.7rem;
+  font-weight: 500;
+  padding: 0.2rem 0.5rem;
+  border-radius: 0.3rem;
+  display: inline-block;
+}
+.post-sidebar-tag-business {
+  background: #f0fdf4;
+  color: #166534;
+  border: 1px solid #bbf7d0;
+}
+.post-sidebar-tag-tech {
+  background: #eff6ff;
+  color: #1d4ed8;
+  border: 1px solid #bfdbfe;
+}
