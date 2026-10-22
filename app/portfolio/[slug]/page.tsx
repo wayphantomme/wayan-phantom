@@ -282,26 +282,34 @@ export default async function ProjectPage({ params }: Props) {
               </div>
             </div>
 
-            {/* Related projects */}
-            {related.length > 0 && (
-              <div className="post-sidebar-card">
-                <p className="post-sidebar-section-title">Related Projects</p>
-                <div className="post-sidebar-related-list">
-                  {related.map((rel) => (
-                    <Link key={rel.id} href={`/portfolio/${rel.id}`} className="post-sidebar-related-item">
-                      {/* eslint-disable-next-line @next/next/no-img-element */}
-                      <img src={rel.logo} alt={rel.name} className="post-sidebar-related-logo" />
-                      <div>
-                        <p className="post-sidebar-related-name">{rel.name}</p>
-                        <p className="post-sidebar-related-excerpt">
-                          {rel.excerpt.slice(0, 60)}{rel.excerpt.length > 60 ? "…" : ""}
-                        </p>
-                      </div>
-                    </Link>
-                  ))}
-                </div>
+            {/* Prev / Next in sidebar */}
+            <div className="post-sidebar-card">
+              <p className="post-sidebar-section-title">Navigation</p>
+              <div className="post-sidebar-prevnext">
+                {prev && (
+                  <Link href={`/portfolio/${prev.id}`} className="post-sidebar-nav-item">
+                    <span className="post-sidebar-nav-dir">
+                      <svg width="12" height="12" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M19 12H5m7-7-7 7 7 7" />
+                      </svg>
+                      Prev
+                    </span>
+                    <span className="post-sidebar-nav-name">{prev.name}</span>
+                  </Link>
+                )}
+                {next && (
+                  <Link href={`/portfolio/${next.id}`} className="post-sidebar-nav-item">
+                    <span className="post-sidebar-nav-dir">
+                      Next
+                      <svg width="12" height="12" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M5 12h14m-7-7 7 7-7 7" />
+                      </svg>
+                    </span>
+                    <span className="post-sidebar-nav-name">{next.name}</span>
+                  </Link>
+                )}
               </div>
-            )}
+            </div>
 
           </aside>
           {/* ── end sidebar ── */}

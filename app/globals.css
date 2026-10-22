@@ -4333,3 +4333,87 @@ body {
   padding: 0.15rem 0.5rem;
   border-radius: 0.3rem;
 }
+
+/* ─── Portfolio filter tabs ─────────────────────────────────────────────── */
+.pf-filter-row {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  justify-content: center;
+  margin-bottom: 2rem;
+}
+.pf-filter-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  font-size: 0.82rem;
+  font-weight: 600;
+  padding: 0.4rem 1rem;
+  border-radius: 9999px;
+  border: 1px solid #e2e8f0;
+  background: #fff;
+  color: #64748b;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.pf-filter-btn:hover {
+  border-color: #111;
+  color: #111;
+}
+.pf-filter-active {
+  background: #111;
+  border-color: #111;
+  color: #fff;
+}
+.pf-filter-active:hover {
+  background: #111;
+  color: #fff;
+}
+.pf-filter-count {
+  font-size: 0.68rem;
+  font-weight: 700;
+  background: rgba(0,0,0,0.08);
+  border-radius: 9999px;
+  padding: 0.05rem 0.4rem;
+  line-height: 1.4;
+}
+.pf-filter-active .pf-filter-count {
+  background: rgba(255,255,255,0.2);
+}
+
+/* ─── Sidebar prev/next ─────────────────────────────────────────────────── */
+.post-sidebar-prevnext {
+  display: flex;
+  flex-direction: column;
+  gap: 0.625rem;
+}
+.post-sidebar-nav-item {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  text-decoration: none;
+  padding: 0.625rem 0.75rem;
+  border: 1px solid #e2e8f0;
+  border-radius: 0.625rem;
+  transition: border-color 0.15s, box-shadow 0.15s;
+}
+.post-sidebar-nav-item:hover {
+  border-color: #cbd5e1;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+}
+.post-sidebar-nav-dir {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  font-size: 0.65rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  color: #94a3b8;
+}
+.post-sidebar-nav-name {
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: #111;
+  line-height: 1.3;
+}

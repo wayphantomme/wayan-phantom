@@ -440,4 +440,84 @@ The three sites share design patterns but are maintained separately. Consolidati
       linkedin: "https://www.linkedin.com/company/mainstreetglobalca/",
     },
   },
+  {
+    id: "naries-eatery",
+    name: "Narie's Eatery & Coffee",
+    logo: "https://naries.id/wp-content/uploads/2024/01/naries-logo.png",
+    category: "Apps",
+    mainCategory: "Apps",
+    subCategory: "Hospitality",
+    tags: ["WordPress", "UI/UX", "Restaurant", "Branding"],
+    year: "2025",
+    role: "Web Developer",
+    excerpt: "A restaurant with a strong offline reputation had no website that matched the quality of its food or its story.",
+    desc: "Website for Narie's Eatery & Coffee, a premium restaurant in Gading Serpong founded by the family behind the iconic OOM Resto in Bandung.",
+    content: `The Problem
+
+Narie's Eatery & Coffee had a strong offline reputation. The restaurant was featured in Detik, known for serving the Indonesian president's palace, and had consistent five-star reviews. But the website did not reflect any of that. Potential customers searching online were not getting the right first impression.
+
+How It Works
+
+1. The site presents the brand story: from OOM Resto in Bandung, founded in 1997, to Narie's expansion in Gading Serpong.
+2. A menu section highlights house specials with a focus on the premium ingredients and no-MSG positioning.
+3. Testimonials and press features are displayed to build credibility for first-time visitors.
+4. The site links directly to their Instagram and Google Maps presence for discovery.
+
+Tech Stack
+
+WordPress | Flexible CMS that lets the client update menu and content without developer involvement
+Custom theme | Designed to match the warm, homey brand identity of the restaurant
+Responsive layout | Optimized for mobile since most restaurant searches happen on phone
+
+What I Would Improve
+
+Adding online reservation or pre-order functionality would turn the site from a brochure into a conversion tool. A structured data markup for the restaurant schema would also improve how the listing appears in Google search results, including star ratings and opening hours.`,
+    mockups: [],
+    web: "https://naries.id/",
+    client: {
+      name: "Narie's Eatery & Coffee",
+      web: "https://naries.id/",
+      instagram: "https://www.instagram.com/naries.eat/",
+    },
+  },
+  {
+    id: "devisa-global",
+    name: "Devisa Global Services",
+    logo: "https://devisaglobalservices.com/wp-content/uploads/2023/01/devisa-logo.png",
+    category: "Apps",
+    mainCategory: "Apps",
+    subCategory: "Corporate",
+    tags: ["WordPress", "UI/UX", "Corporate", "Immigration"],
+    year: "2025",
+    role: "Web Developer",
+    excerpt: "An immigration consulting firm trusted by major companies had a website that did not reflect their professional standing.",
+    desc: "Website for Devisa Global Services, an independent immigration consulting company providing visa, work permit, and stay permit assistance.",
+    content: `The Problem
+
+Devisa Global Services works with major corporations on immigration and visa matters. Their client list included large companies, but their online presence did not communicate that level of trust and professionalism. For a service business where credibility is everything, the website was not doing its job.
+
+How It Works
+
+1. The homepage establishes immediate credibility with a "Trusted by Big Company" section displaying recognizable client logos.
+2. Service pages explain the three core offerings: visa assistance, work permit processing, and stay permit extension.
+3. A consultation entry point makes it easy for potential clients to start the process.
+4. The site is built to load quickly and display correctly on all devices, including mobile where many initial searches happen.
+
+Tech Stack
+
+WordPress | Standard for corporate sites where the client needs to manage content and add blog posts independently
+Custom design | Professional blue tone aligned with immigration and legal services branding
+Performance optimization | Image compression and caching to maintain fast load times
+
+What I Would Improve
+
+Adding a case study or testimonials section from corporate clients would significantly increase conversion. An FAQ section addressing common visa questions would also reduce pre-consultation inquiries and position the firm as a knowledge authority in the immigration space.`,
+    mockups: [],
+    web: "https://devisaglobalservices.com/",
+    client: {
+      name: "Devisa Global Services",
+      web: "https://devisaglobalservices.com/",
+      instagram: "https://www.instagram.com/devisaglobalservices/",
+    },
+  },
 ];
