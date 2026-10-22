@@ -443,7 +443,7 @@ The three sites share design patterns but are maintained separately. Consolidati
   {
     id: "naries-eatery",
     name: "Narie's Eatery & Coffee",
-    logo: "https://naries.id/wp-content/uploads/2024/01/naries-logo.png",
+    logo: "https://cdn.simpleicons.org/foodpanda/D70F64",
     category: "Apps",
     mainCategory: "Apps",
     subCategory: "Hospitality",
@@ -483,7 +483,7 @@ Adding online reservation or pre-order functionality would turn the site from a 
   {
     id: "devisa-global",
     name: "Devisa Global Services",
-    logo: "https://devisaglobalservices.com/wp-content/uploads/2023/01/devisa-logo.png",
+    logo: "https://cdn.simpleicons.org/googlemaps/4285F4",
     category: "Apps",
     mainCategory: "Apps",
     subCategory: "Corporate",

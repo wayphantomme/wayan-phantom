@@ -7,11 +7,11 @@ export const metadata: Metadata = {
 
 export default function ContactPage() {
   return (
-    <div className="page-shell">
-      <div className="page-wrap">
-        <h1 className="page-title">Contact</h1>
+    <div style={{ minHeight: "100vh", background: "#f5f5f5" }}>
+      <div className="wk-wrap">
+        <h1 className="wk-page-title">Contact</h1>
 
-        <section className="page-section">
+        <section className="wk-section">
           <p className="cv-about-muted">
             Book a free 30-minute call and I&apos;ll identify exactly what to automate first, and what it will take to build it. Zero obligation.
           </p>

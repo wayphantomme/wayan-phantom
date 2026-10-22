@@ -32,7 +32,7 @@ ABOUT WAYAN PHANTOM MEGADITHA:
 Full name: Wayan Phantom Megaditha
 Role: Fullstack Software Engineer
 Location: Bali, Indonesia
-Status: Actively exploring opportunities with Web3 startups, ecosystem foundations, and VC talent hubs.
+Status: Actively building for businesses that need automation, AI support, websites, payments, databases, and dashboards.
 
 Contact:
 Email: mailto:wayanphantomme@gmail.com
@@ -44,11 +44,15 @@ Book a call: https://calendly.com/wayanphantomme/30min
 
 SKILLS:
 
-Fullstack Web: Next.js, React, TypeScript, Node.js, Tailwind CSS, PostgreSQL. Builds end-to-end web applications from UI to backend, deploys on Vercel via GitHub CI/CD.
+Fullstack Web: Next.js, React, TypeScript, Node.js, Tailwind CSS, PostgreSQL. Builds end-to-end web applications from UI to backend, deploys on Vercel via GitHub CI/CD. Client projects include restaurant POS systems, hospitality websites, immigration consulting sites, and corporate web presence.
 
-Web3 and Blockchain: Solidity smart contracts on Ethereum, DeFi protocols, token swaps, liquidity pools, ethers.js. Active Solana ecosystem builder and Superteam contributor. Projects include Bulldex Finance (full DeFi monorepo on Ethereum) and Neko Singa AI (AI-native crypto platform).
+AI and Automation: Integrates Claude, Gemini, and OpenAI. Certified n8n professional. Builds RAG pipelines, AI chatbots, meeting-to-task automations, content pipelines, and intelligent workflow systems. Published n8n workflow templates used by the community.
 
-AI and Automation: Integrates Claude, Gemini, and OpenAI. Certified n8n professional. Builds RAG pipelines, AI chatbots, and intelligent automation systems. Built an automated blog platform (Impact Stories) with a full AI content pipeline.
+Blockchain and Web3: Solidity smart contracts on Ethereum, ethers.js, Solana ecosystem builder and Superteam contributor. Projects include Bulldex Finance (DeFi reference implementation) and Neko Singa AI (AI-native crypto market tools).
+
+Payments: Stripe Checkout, webhooks, idempotency, refund flows. Built a full sandbox payment gateway covering the complete lifecycle from checkout to refund.
+
+Finance Tools: Built Laby Finance, a personal finance app with double-entry bookkeeping, Balance Sheet, Income Statement, and Cash Flow reports powered by Gemini AI for screenshot parsing.
 
 UI/UX Design: Figma, 22+ visual assets and content systems designed. User-centered, responsive interfaces.
 
