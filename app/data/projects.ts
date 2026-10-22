@@ -197,45 +197,6 @@ The editing node catches surface-level issues but does not check factual accurac
     github: "https://github.com/wayphantomme/impact-stories-blog-automation",
   },
   {
-    id: "tech-with-phantom",
-    name: "Tech with Phantom",
-    logo: "https://raw.githubusercontent.com/wayphantomme/tech-with-phantom/main/public/TWP%20Logo.svg",
-    category: "EdTech",
-    tags: ["Next.js", "TypeScript", "EdTech", "Course Platform"],
-    year: "2024",
-    role: "Fullstack Developer",
-    excerpt: "Indonesian educators are priced out of $50/month LMS tools. This alternative costs nothing to run.",
-    desc: "An online learning platform for tech education featuring course management, video lessons, and student progress tracking. Built with Next.js and TypeScript.",
-    content: `The Problem
-
-Teachable and Kajabi start at $39 to $149 per month. For Indonesian creators and educators building their first course, that pricing makes the platform itself the barrier. The market for tech education in Indonesia is large and growing, but the tools designed for creators assume dollar-denominated income. Tech with Phantom is a lightweight LMS built to cost nothing to run on Vercel while covering the core features a solo educator actually needs.
-
-How It Works
-
-1. Courses are defined in a TypeScript config file. Each course has a metadata object, an ordered lesson list, and optional module groupings. No database required.
-2. The course catalog page reads the config and renders browsable cards with topic, lesson count, and a preview of what the course covers.
-3. The lesson view renders a video player alongside structured text content. Navigation shows the current lesson position and the next step.
-4. Progress tracking is stored in localStorage so it persists between sessions without requiring user accounts or a backend.
-5. The entire site deploys to Vercel as a static export. Hosting cost is zero unless traffic exceeds the free tier significantly.
-
-Tech Stack
-
-Next.js | Static export capability makes zero-cost Vercel hosting possible
-TypeScript | Type safety in the course config prevents broken lesson references before deployment
-NextAuth.js | Handles session management and provider integrations without custom auth code
-Static data layer | No database required, courses are defined in a TypeScript config file
-
-What I Would Improve
-
-localStorage progress does not follow a user between devices. A lightweight backend with a simple user table and JWT auth would solve this without significant cost. The course config requires a developer to add new content. A headless CMS integration, even a free tier of Contentful or Sanity, would let instructors manage courses independently. Certificate generation is missing. Even a simple PDF certificate generated client-side from a template would be a meaningful feature for learners who want to share their completion.`,
-    mockups: [
-      "https://raw.githubusercontent.com/wayphantomme/tech-with-phantom/main/public/screenshots/twp-landing-page.png",
-      "https://raw.githubusercontent.com/wayphantomme/tech-with-phantom/main/public/screenshots/twp-courses.png",
-    ],
-    web: "https://techwithphantom.vercel.app/",
-    github: "https://github.com/wayphantomme/tech-with-phantom",
-  },
-  {
     id: "megatha-restaurant",
     name: "Megatha Restaurant App",
     logo: "https://raw.githubusercontent.com/wayphantomme/megatha-restaurant-app/main/public/Megatha%20Logo%20BW.png",
