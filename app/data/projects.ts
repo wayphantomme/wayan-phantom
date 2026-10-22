@@ -301,6 +301,8 @@ The success page polling is a simple auto-refresh interval. Replacing it with a 
     web: "https://stripe-wayphantomme.vercel.app/",
     github: "https://github.com/wayphantomme/stripe-payment",
   },
+  {
+    id: "laby-finance",
     name: "Laby Finance",
     logo: "https://raw.githubusercontent.com/wayphantomme/laby-finance/main/app/public/logo.png",
     category: "Apps",
