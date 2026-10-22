@@ -1,3 +1,4 @@
+import React from "react";
 import { projects } from "../../data/projects";
 import { notFound } from "next/navigation";
 import Link from "next/link";
@@ -15,6 +16,52 @@ const AUTHOR = {
 };
 
 const SECTION_HEADERS = ["The Problem", "How It Works", "Tech Stack", "What I Would Improve"];
+
+function renderContentBlock(paragraph: string, inSection: string): React.ReactElement {
+  // 1. Section header
+  if (SECTION_HEADERS.includes(paragraph)) {
+    return (
+      <div>
+        <hr className="post-section-divider" />
+        <h3 className="post-section-header">{paragraph}</h3>
+      </div>
+    );
+  }
+
+  // 2. Numbered list
+  const lines = paragraph.split("\n").filter((l) => l.trim() !== "");
+  if (lines.some((l) => /^\d+\.\s/.test(l))) {
+    return (
+      <ol className="post-how-list">
+        {lines.map((line, idx) => (
+          <li key={idx}>{line.replace(/^\d+\.\s*/, "")}</li>
+        ))}
+      </ol>
+    );
+  }
+
+  // 3. Tech Stack table
+  if (inSection === "Tech Stack" && lines.some((l) => l.includes(" | "))) {
+    return (
+      <table className="post-tech-table">
+        <tbody>
+          {lines.filter((l) => l.includes(" | ")).map((line, idx) => {
+            const [tech, reason] = line.split(" | ", 2);
+            return (
+              <tr key={idx}>
+                <td>{tech.trim()}</td>
+                <td>{reason.trim()}</td>
+              </tr>
+            );
+          })}
+        </tbody>
+      </table>
+    );
+  }
+
+  // 4. Default
+  return <p>{paragraph}</p>;
+}
 
 export async function generateStaticParams() {
   return projects.map((p) => ({ slug: p.id }));
@@ -148,16 +195,14 @@ export default async function ProjectPage({ params }: Props) {
 
             {/* Parsed content with section header detection */}
             <div className="post-blog-content">
-              {project.content.split("\n\n").map((para, i) =>
-                SECTION_HEADERS.some((h) => para.startsWith(h)) ? (
-                  <div key={i}>
-                    <hr className="post-section-divider" />
-                    <h3 className="post-section-header">{para}</h3>
-                  </div>
-                ) : (
-                  <p key={i}>{para}</p>
-                )
-              )}
+              {(() => {
+                let currentSection = '';
+                return project.content.split('\n\n').map((para, i) => {
+                  const trimmed = para.trim();
+                  if (SECTION_HEADERS.includes(trimmed)) currentSection = trimmed;
+                  return <React.Fragment key={i}>{renderContentBlock(trimmed, currentSection)}</React.Fragment>;
+                });
+              })()}
             </div>
 
             {/* Screenshot gallery with lightbox */}

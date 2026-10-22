@@ -4268,3 +4268,39 @@ body {
   padding: 3rem 1.5rem 6rem;
   font-family: var(--font-inter), system-ui, sans-serif;
 }
+
+/* Tech Stack table in portfolio detail */
+.post-tech-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.85rem;
+  margin: 0.5rem 0;
+}
+.post-tech-table td {
+  padding: 0.5rem 0.75rem;
+  vertical-align: top;
+  border-bottom: 1px solid #f1f5f9;
+}
+.post-tech-table tr:last-child td { border-bottom: none; }
+.post-tech-table td:first-child {
+  font-weight: 600;
+  color: #111;
+  white-space: nowrap;
+  width: 30%;
+}
+.post-tech-table td:last-child { color: #64748b; }
+
+/* Numbered list in portfolio detail */
+.post-how-list {
+  margin: 0.5rem 0;
+  padding-left: 1.25rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.625rem;
+}
+.post-how-list li {
+  font-size: 0.92rem;
+  color: #1e293b;
+  line-height: 1.75;
+  padding-left: 0.5rem;
+}
