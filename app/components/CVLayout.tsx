@@ -262,15 +262,15 @@ function ProfileCard() {
       {/* Stats */}
       <div className="cv-stats-row">
         <div className="cv-stat">
-          <span className="cv-stat-num">20+</span>
+          <span className="cv-stat-num">{projects.length}</span>
           <span className="cv-stat-label">Projects Shipped</span>
         </div>
         <div className="cv-stat">
-          <span className="cv-stat-num">5+</span>
+          <span className="cv-stat-num">{projects.filter((p) => p.client).length}+</span>
           <span className="cv-stat-label">Satisfied Clients</span>
         </div>
         <div className="cv-stat">
-          <span className="cv-stat-num">3+</span>
+          <span className="cv-stat-num">{new Date().getFullYear() - 2022}+</span>
           <span className="cv-stat-label">Years of Journey</span>
         </div>
       </div>
