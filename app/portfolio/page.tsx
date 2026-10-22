@@ -40,7 +40,10 @@ export default function PortfolioPage() {
 
               <div className="blog-card-v2-body">
                 {/* Category */}
-                <span className="blog-card-v2-cat">{p.category}</span>
+                <div className="blog-card-v2-cats">
+                  <span className="blog-card-v2-main-cat">{p.mainCategory}</span>
+                  <span className="blog-card-v2-sub-cat">{p.subCategory}</span>
+                </div>
 
                 {/* Title */}
                 <h2 className="blog-card-v2-title">{p.name}</h2>

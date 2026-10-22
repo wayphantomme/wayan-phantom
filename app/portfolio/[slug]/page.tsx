@@ -28,13 +28,14 @@ function renderContentBlock(paragraph: string, inSection: string): React.ReactEl
     );
   }
 
-  // 2. Numbered list
+  // 2. Numbered list — detect lines starting with digits
   const lines = paragraph.split("\n").filter((l) => l.trim() !== "");
-  if (lines.some((l) => /^\d+\.\s/.test(l))) {
+  const numberedLines = lines.filter((l) => /^\d+\.\s/.test(l.trim()));
+  if (numberedLines.length >= 2) {
     return (
       <ol className="post-how-list">
-        {lines.map((line, idx) => (
-          <li key={idx}>{line.replace(/^\d+\.\s*/, "")}</li>
+        {numberedLines.map((line, idx) => (
+          <li key={idx}>{line.replace(/^\d+\.\s*/, "").trim()}</li>
         ))}
       </ol>
     );
@@ -86,18 +87,17 @@ export default async function ProjectPage({ params }: Props) {
   const prev = idx > 0 ? projects[idx - 1] : null;
   const next = idx < projects.length - 1 ? projects[idx + 1] : null;
 
-  // Related projects: same category first, fill with others if needed
-  const sameCat: Project[] = projects.filter(
-    (p) => p.id !== project.id && p.category === project.category
-  ).slice(0, 2);
-  const related: Project[] = sameCat.length < 2
-    ? [
-        ...sameCat,
-        ...projects
-          .filter((p) => p.id !== project.id && !sameCat.includes(p))
-          .slice(0, 2 - sameCat.length),
-      ]
-    : sameCat;
+  // Related projects: same mainCategory first, fill with others, always varied
+  const sameMain: Project[] = projects.filter(
+    (p) => p.id !== project.id && p.mainCategory === project.mainCategory
+  );
+  const different: Project[] = projects.filter(
+    (p) => p.id !== project.id && p.mainCategory !== project.mainCategory
+  );
+  // Take 1 from same main + 1 from different, or 2 from different if none in same
+  const related: Project[] = sameMain.length > 0
+    ? [sameMain[0], different[0]].filter(Boolean)
+    : different.slice(0, 2);
 
   return (
     <article className="post-page">
@@ -132,7 +132,8 @@ export default async function ProjectPage({ params }: Props) {
 
             {/* Category + tags */}
             <div className="post-blog-meta-top">
-              <span className="post-blog-cat">{project.category}</span>
+              <span className="post-blog-cat">{project.mainCategory}</span>
+              <span className="post-blog-tag">{project.subCategory}</span>
               {project.tags.slice(0, 3).map((t) => (
                 <span key={t} className="post-blog-tag">{t}</span>
               ))}
