@@ -243,7 +243,50 @@ The WebSocket server is a simple Node process. Under a real production load with
     github: "https://github.com/wayphantomme/megatha-restaurant-app",
   },
   {
-    id: "laby-finance",
+    id: "stripe-payment",
+    name: "Stripe Payment Gateway",
+    logo: "https://cdn.simpleicons.org/stripe/635BFF",
+    category: "Full-stack / Fintech",
+    tags: ["Next.js", "Stripe", "Drizzle ORM", "PostgreSQL", "Webhooks"],
+    year: "2026",
+    role: "Fullstack Developer",
+    excerpt: "Most payment tutorials skip the hard parts. This sandbox covers webhooks, idempotency, server-side pricing, and refund flows.",
+    desc: "A full-stack Stripe payment gateway sandbox built with Next.js, Drizzle ORM, and Neon PostgreSQL. Covers checkout, webhooks, order tracking, and refunds.",
+    content: `The Problem
+
+Most Stripe tutorials show you how to add a checkout button. They stop there. The parts that actually matter in production — webhook verification, idempotency, server-side pricing, and refund flows — are left out. This project covers all of them in a single working sandbox.
+
+How It Works
+
+1. A product listing page displays items with buy buttons. Prices live in a server-side file. The browser only sends a productId, never a price.
+2. A POST request to /api/checkout creates a Stripe Checkout session server-side and redirects the user to Stripe's hosted payment page.
+3. After payment, Stripe redirects to /success?order=id. The page starts as "pending" and polls for status. It only flips to "paid" after the webhook arrives, not after the redirect.
+4. The webhook handler at /api/webhook verifies the Stripe signature, checks a processed_events table for duplicates, and updates the order status in PostgreSQL.
+5. A refund button calls /api/refund which creates a refund in Stripe. The order status only updates to "refunded" after the charge.refunded webhook arrives.
+6. The entire order lifecycle (pending, paid, refunded) is tracked in a Neon PostgreSQL database via Drizzle ORM.
+
+Tech Stack
+
+Next.js 16 | App Router with TypeScript, Route Handlers for all API endpoints
+Stripe | Checkout sessions, webhook events, refunds API in sandbox mode
+Drizzle ORM | Schema-first, type-safe migrations and queries
+Neon PostgreSQL | Serverless Postgres, separate pooled and direct connection URLs
+Tailwind CSS v4 | Utility-first styling, no component library needed for a sandbox
+
+What I Would Improve
+
+The success page polling is a simple auto-refresh interval. Replacing it with a WebSocket or Server-Sent Events connection would give instant status updates without repeated HTTP round trips. The product catalog is hardcoded in a server file. A real implementation would pull prices from a database or Stripe's product catalog API, which also enables promotional pricing and inventory management. Adding email confirmation via Resend or similar after the paid webhook would complete the typical checkout experience.`,
+    mockups: [
+      "https://raw.githubusercontent.com/wayphantomme/stripe-payment/main/public/screenshots/screencapture-stripe-wayphantomme-vercel-app-2026-10-22-15_06_39.png",
+      "https://raw.githubusercontent.com/wayphantomme/stripe-payment/main/public/screenshots/screencapture-checkout-stripe-c-pay-cs-test-a1Wb2C9M3Jvz9IRqS5z0CPT2fvgv00xcHxhTL7dptOyotm3qwaBiTYA7aZ-2026-10-22-15_07_21.png",
+      "https://raw.githubusercontent.com/wayphantomme/stripe-payment/main/public/screenshots/screencapture-stripe-wayphantomme-vercel-app-success-2026-10-22-15_07_32.png",
+      "https://raw.githubusercontent.com/wayphantomme/stripe-payment/main/public/screenshots/screencapture-stripe-wayphantomme-vercel-app-success-2026-10-22-15_07_37.png",
+      "https://raw.githubusercontent.com/wayphantomme/stripe-payment/main/public/screenshots/screencapture-stripe-wayphantomme-vercel-app-success-2026-10-22-15_07_41.png",
+      "https://raw.githubusercontent.com/wayphantomme/stripe-payment/main/public/screenshots/screencapture-stripe-wayphantomme-vercel-app-cancel-2026-10-22-15_08_26.png",
+    ],
+    web: "https://stripe-wayphantomme.vercel.app/",
+    github: "https://github.com/wayphantomme/stripe-payment",
+  },
     name: "Laby Finance",
     logo: "https://raw.githubusercontent.com/wayphantomme/laby-finance/main/app/public/logo.png",
     category: "Full-stack / Fintech",
