@@ -46,7 +46,11 @@ How It Works
 
 Tech Stack
 
-Solidity with OpenZeppelin standards because writing from scratch for a reference project would introduce avoidable bugs. ethers.js v6 because it has a cleaner TypeScript API than v5 and aligns with current industry practice. Next.js for the frontend because the rest of the stack in this portfolio uses it and consistency matters for a reference codebase. Sepolia testnet because it is the primary Ethereum testnet with reliable faucets.
+Next.js | App Router with RSC and static export, consistent across the portfolio stack
+Solidity | OpenZeppelin standards reduce attack surface for a reference codebase
+ethers.js v6 | Cleaner TypeScript API than v5, aligns with current industry practice
+OpenZeppelin | Audited contract library prevents common token and AMM vulnerabilities
+Sepolia testnet | Primary Ethereum testnet with reliable public faucets for development
 
 What I Would Improve
 
@@ -84,7 +88,10 @@ How It Works
 
 Tech Stack
 
-Next.js for the frontend because the app needed fast page loads and server-side data fetching for initial state. Solana wallet adapter because it is the standard integration for Solana dApps and handles multi-wallet support out of the box. Gemini for the language model because it has a generous free tier for development and handles multi-step reasoning well in the crypto context. The agent architecture is a custom orchestration layer rather than a framework because the routing logic is simple enough that a dependency would add more complexity than it removes.
+Next.js | Fast page loads and server-side data fetching for initial on-chain state
+Solana wallet adapter | Standard Solana dApp integration, handles multi-wallet support out of the box
+Gemini API | Generous free tier for development, handles multi-step reasoning in the crypto context
+TypeScript | Type safety across agent routing and wallet interaction layers
 
 What I Would Improve
 
@@ -128,7 +135,10 @@ How It Works
 
 Tech Stack
 
-Next.js with static generation because the site content changes infrequently and static pages have the best performance profile for SEO and mobile loading. Tailwind CSS because the design uses a consistent spacing and color system that maps cleanly to utility classes. No JavaScript animation libraries because the target audience is often on mid-range Android devices where frame rates matter. WebP for all images because it consistently reduces file size by 30 to 50 percent over JPEG at equivalent quality.
+Next.js | Static generation gives the best performance profile for SEO and mobile loading
+Tailwind CSS | Consistent spacing and color system maps cleanly to utility classes
+WebP images | Consistently reduces file size by 30 to 50 percent over JPEG at equivalent quality
+Static generation | Infrequently updated content does not need a server on every request
 
 What I Would Improve
 
@@ -169,7 +179,11 @@ How It Works
 
 Tech Stack
 
-n8n for the automation pipeline because it allows visual workflow construction without code, which means a non-developer program manager can understand and modify the pipeline. Airtable as the input layer because most NGO teams already use it for program tracking. Gemini for the writing and editing nodes because it handles long-context writing tasks well and the API is accessible without enterprise pricing. Next.js for the frontend because static generation is the right performance profile for a blog that updates several times per week.
+n8n | Visual workflow construction without code, accessible to non-developer program managers
+Airtable | Most NGO teams already use it for program tracking, zero onboarding friction
+Gemini API | Handles long-context writing tasks well, accessible without enterprise pricing
+Next.js | Static generation is the right performance profile for a blog updating several times per week
+MDX | Allows rich content components inside markdown without a full CMS
 
 What I Would Improve
 
@@ -206,7 +220,10 @@ How It Works
 
 Tech Stack
 
-Next.js because the static export capability is what makes zero-cost hosting possible. TypeScript for the course config because type safety prevents broken lesson references before deployment. localStorage for progress because it requires no backend and works for the primary use case: a single learner following a course on their own device. No video hosting: courses link to YouTube or Cloudinary-hosted videos so bandwidth costs stay off the platform owner.
+Next.js | Static export capability makes zero-cost Vercel hosting possible
+TypeScript | Type safety in the course config prevents broken lesson references before deployment
+NextAuth.js | Handles session management and provider integrations without custom auth code
+Static data layer | No database required, courses are defined in a TypeScript config file
 
 What I Would Improve
 
@@ -242,7 +259,11 @@ How It Works
 
 Tech Stack
 
-Next.js for the frontend because the POS and floor plan are different route segments that share state through Zustand rather than through a server. Zustand over Redux because the state shape is simple and Zustand has much less boilerplate for a real-time POS use case. WebSockets for the kitchen sync because polling would add perceptible lag in a service context where a 5-second delay matters. Tailwind CSS with large tap targets throughout because the interface runs on 10-inch tablets in a kitchen environment where precision tapping is not reliable.
+Next.js | POS and floor plan are route segments sharing state through Zustand
+Zustand | Much less boilerplate than Redux for a real-time POS state shape
+PostgreSQL | Relational model with ACID transactions for order and menu data
+WebSocket | Real-time kitchen sync, polling would add perceptible lag during service
+Tailwind CSS | Large tap targets throughout for 10-inch tablet use in kitchen environments
 
 What I Would Improve
 
@@ -285,7 +306,12 @@ How It Works
 
 Tech Stack
 
-Prisma with PostgreSQL because double-entry bookkeeping requires ACID transactions and the relational model maps naturally to journal entries and account hierarchies. Auth.js for authentication because it handles session management and provider integrations without requiring custom auth code. Recharts for the financial visualizations because it is composable and works well with the React data flow. Gemini for the AI entry layer because it handles structured output extraction from images reliably at the volume this app needs.
+Next.js 15 | App Router with React Server Components for fast dashboard loading
+Prisma | ORM with ACID transaction support, maps naturally to journal entries and account hierarchies
+Neon PostgreSQL | Serverless Postgres with branching, zero infrastructure management
+Auth.js | Handles session management and provider integrations without custom auth code
+Gemini API | Reliable structured output extraction from bank screenshots at the volume this app needs
+Zod | Schema validation on AI-parsed entries before any data hits the database
 
 What I Would Improve
 
@@ -324,7 +350,11 @@ How It Works
 
 Tech Stack
 
-n8n for the workflow because it handles webhook ingestion, API calls, and branching logic visually without custom server code. Fireflies.ai because it produces high-quality transcripts and supports webhook-triggered delivery. Gemini for action item extraction because it handles the structured output format reliably and the JSON parsing is predictable with the right prompt. Monday.com as the task destination because it was specified in the job post that inspired this build. The workflow is published as a public n8n template so it can be adapted to other task systems.
+n8n | Handles webhook ingestion, API calls, and branching logic without custom server code
+Fireflies.ai GraphQL API | High-quality transcripts with webhook-triggered delivery
+Gemini API | Reliable structured JSON output from transcript content with predictable parsing
+Monday.com GraphQL API | Specified in the job post that inspired this build
+Slack OAuth2 | Team recap delivery to the channel where work decisions happen
 
 What I Would Improve
 
@@ -364,7 +394,10 @@ How It Works
 
 Tech Stack
 
-WordPress because the client's internal team manages content and WordPress is what they know. The goal was to make the existing stack perform well, not to introduce a new platform. WP Rocket for caching because it is the most reliable WordPress caching plugin and handles complex cache invalidation scenarios correctly. Cloudflare as the CDN layer because the client has an international audience and edge caching significantly reduces time-to-first-byte for visitors outside Canada.
+WordPress | Client team manages content and WordPress is what they know
+Custom theme | Built to the client's brand rather than adapting a generic theme
+Google PageSpeed optimization | Audit-driven image compression, deferred scripts, and inlined critical CSS
+Caching layer | WP Rocket with Cloudflare CDN edge caching for international visitors
 
 What I Would Improve
 
