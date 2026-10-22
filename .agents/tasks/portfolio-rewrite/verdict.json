@@ -1,0 +1,8 @@
+{
+  "verdict": "APPROVED",
+  "findings": [
+    "Excerpt text diverges from spec payloads in FEAT-001.json for all 9 projects. All pass the mechanical acceptance criteria (under 120 chars, problem-framing, no em dashes), but 6 of 9 contain two sentences where the criterion says 'single sentence'. The spec's own example payloads are also two sentences in several cases, making this an authorial inconsistency. Confirm whether strict single-sentence is required; if so, rewrite excerpts for: nekosinga, impact-stories-blog, tech-with-phantom, laby-finance, meeting-to-task, mainstreet-global."
+  ],
+  "timestamp": "2025-07-15T08:30:00.000Z",
+  "reviewDoc": ".agents/tasks/portfolio-rewrite/review.md"
+}

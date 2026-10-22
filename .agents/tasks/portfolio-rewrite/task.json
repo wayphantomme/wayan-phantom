@@ -1,0 +1,7 @@
+{
+  "task_id": "task-portfolio-rewrite",
+  "task_description": "Rewrite all portfolio project content with problem-first framing, and redesign the portfolio detail page with structured section headers, sticky sidebar, and improved layout.",
+  "status": "completed",
+  "feature_order": ["FEAT-001", "FEAT-002"],
+  "blocked_reason": null
+}

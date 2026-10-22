@@ -1,0 +1,20 @@
+{
+  "project_type": "Next.js 16.2.9 App Router portfolio site (TypeScript, React 19)",
+  "language": "TypeScript / TSX",
+  "build_system": "Next.js 16.2.9 with Tailwind CSS v4 (PostCSS plugin). Build command is `npm run build`. NOTE: This is Next.js 16, which uses params as Promise<{slug}> — already handled correctly in existing code.",
+  "test_framework": "None — verification is: `npm run build` must pass with zero errors.",
+  "build_command": "npm run build",
+  "test_command": "npm run build",
+  "verification_instructions": "Run `npm run build` from /Users/wayphantomme/Documents/wayan-phantom. Build must complete with exit code 0 and zero TypeScript errors.",
+  "snapshot_or_generated_files": null,
+  "environment_constraints": "No dev server restarts needed. All changes are purely content and layout. The skills/ folder is gitignored. Do NOT commit anything outside the worktree.",
+  "contribution_requirements": "No em dashes in any content. No markdown in content field (plain text only). Keep existing TypeScript interfaces in projects.ts unchanged. Keep all existing mockups/web/github/client fields unchanged. Commit message must be exactly: feat(portfolio): rewrite all project content with problem-first framing, add structured detail layout. Push to main branch.",
+  "key_patterns": "1) CSS is all custom class-based (no Tailwind utility classes in JSX for layout — all styles in globals.css). 2) Existing post-blog-* CSS classes cover the detail page. 3) New CSS classes for sidebar and section headers go at the bottom of globals.css. 4) ScreenshotGallery component (app/components/ScreenshotGallery.tsx) already handles lightbox — import and use as-is. 5) AUTHOR constant defined at top of page.tsx. 6) No Client Components needed for sidebar (sticky is CSS-only). 7) Related projects: filter by same category, fall back to random 2 from projects array excluding current.",
+  "relevant_files": [
+    "app/data/projects.ts — the data file to rewrite content/excerpt for all 9 projects",
+    "app/portfolio/[slug]/page.tsx — the detail page to redesign",
+    "app/globals.css — add new CSS classes at the bottom for sidebar, section-header styles",
+    "app/components/ScreenshotGallery.tsx — existing component, keep unchanged, used in page.tsx"
+  ],
+  "directory_structure": "app/data/ — data layer; app/portfolio/[slug]/ — detail page; app/components/ — shared components; app/globals.css — all styles (3800+ lines, custom class system);"
+}
