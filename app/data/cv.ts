@@ -75,9 +75,10 @@ export const experience = [
     type: "Hybrid, Bali",
     period: "Jul 2025 – Jun 2026",
     bullets: [
-      "Delivering AI automation, web development, and digital transformation services",
-      "Built websites, landing pages, and business systems for startups and SMEs",
-      "Managed project delivery and client relationships for 10+ clients",
+      "Built and shipped 10+ client projects including restaurant POS systems, hospitality websites, and corporate web presence using Next.js, TypeScript, and WordPress",
+      "Designed and deployed n8n automation workflows for lead scoring, meeting-to-task pipelines, and daily executive briefings integrating GoHighLevel, Monday.com, Gemini, and Slack",
+      "Achieved 99/100 Google PageSpeed score on corporate website builds through performance optimization and responsive design",
+      "Managed end-to-end project delivery: requirement gathering, technical scoping, development, deployment to Vercel, and client handoff",
     ],
   },
   {
@@ -135,14 +136,9 @@ export const education = [
     period: "2022 – 2023",
     notes: "12-month bootcamp in digital business.",
   },
-  {
-    id: "mandala",
-    degree: "Blockchain Development Bootcamp",
-    school: "Mandala Blockchain Academy",
-    location: "Indonesia",
-    period: "2024",
-    notes: "Completed full blockchain development curriculum.",
-  },
+];
+
+export const training = [
   {
     id: "turbin3",
     degree: "Turbin3 Builders Cohort",
@@ -158,5 +154,13 @@ export const education = [
     location: "Remote",
     period: "Oct 2026 – present",
     notes: "Building a TypeScript library for Balinese calendar calculations. Working in a team workflow: feature branches, pull requests, and mentor code review.",
+  },
+  {
+    id: "mandala",
+    degree: "Blockchain Development Bootcamp",
+    school: "Mandala Blockchain Academy",
+    location: "Indonesia",
+    period: "Sep – Nov 2024",
+    notes: "Completed full blockchain development curriculum covering smart contracts, DeFi protocols, and on-chain architecture.",
   },
 ];
