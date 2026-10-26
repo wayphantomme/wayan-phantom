@@ -4,6 +4,7 @@ import { notFound } from "next/navigation";
 import Link from "next/link";
 import type { Metadata } from "next";
 import ScreenshotGallery from "../../components/ScreenshotGallery";
+import ProjectContent from "../../components/ProjectContent";
 import type { Project } from "../../data/projects";
 
 interface Props {
@@ -195,16 +196,7 @@ export default async function ProjectPage({ params }: Props) {
             )}
 
             {/* Parsed content with section header detection */}
-            <div className="post-blog-content">
-              {(() => {
-                let currentSection = '';
-                return project.content.split('\n\n').map((para, i) => {
-                  const trimmed = para.trim();
-                  if (SECTION_HEADERS.includes(trimmed)) currentSection = trimmed;
-                  return <React.Fragment key={i}>{renderContentBlock(trimmed, currentSection)}</React.Fragment>;
-                });
-              })()}
-            </div>
+            <ProjectContent content={project.content} />
 
             {/* Screenshot gallery with lightbox */}
             <ScreenshotGallery mockups={project.mockups} name={project.name} />

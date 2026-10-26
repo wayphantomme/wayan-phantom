@@ -143,4 +143,20 @@ export const education = [
     period: "2024",
     notes: "Completed full blockchain development curriculum.",
   },
+  {
+    id: "turbin3",
+    degree: "Turbin3 Builders Cohort",
+    school: "Turbin3 / Solana Foundation",
+    location: "Remote",
+    period: "Oct 2026 – present",
+    notes: "Hands-on Solana program development bootcamp. Building on-chain programs with Rust and Anchor.",
+  },
+  {
+    id: "wariga",
+    degree: "Open Source Contributor — Wariga",
+    school: "Sumiari Foundation",
+    location: "Remote",
+    period: "Oct 2026 – present",
+    notes: "Building a TypeScript library for Balinese calendar calculations. Working in a team workflow: feature branches, pull requests, and mentor code review.",
+  },
 ];
